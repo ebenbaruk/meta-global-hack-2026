@@ -14,7 +14,8 @@ function currentTheme(): Theme {
 }
 
 /** Sun/moon switch. Saves the choice; without one the system theme applies. */
-export function ThemeToggle({ className }: { className?: string }) {
+/** `className` replaces the default size (cn does not merge conflicting classes). */
+export function ThemeToggle({ className = "size-10" }: { className?: string }) {
   const [theme, setTheme] = useState<Theme | null>(null);
   useEffect(() => setTheme(currentTheme()), []);
 
@@ -34,7 +35,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
       data-testid="theme-toggle"
       className={cn(
-        "grid size-10 place-items-center overflow-hidden rounded-full border border-line bg-elevated text-ink transition hover:border-line-strong",
+        "grid place-items-center overflow-hidden rounded-full border border-line bg-elevated text-ink transition hover:border-line-strong",
         className,
       )}
     >

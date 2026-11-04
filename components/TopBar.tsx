@@ -33,7 +33,7 @@ export function AgentStatus() {
       data-live={live || undefined}
       transition={{ type: "spring", stiffness: 500, damping: 36 }}
       className={cn(
-        "typed relative flex h-7 shrink-0 items-center gap-1.5 overflow-hidden rounded-full border-[1.5px] px-2.5 text-[10px] font-bold whitespace-nowrap transition-colors duration-300",
+        "typed relative flex h-7 shrink-0 items-center gap-1.5 overflow-hidden rounded-full border-[1.5px] px-2 text-[10px] font-bold tracking-[0.03em] whitespace-nowrap transition-colors duration-300",
         live ? "border-onpastel bg-lilac text-onpastel" : "border-line-strong bg-surface text-ink",
       )}
     >
@@ -76,14 +76,17 @@ export function TopBar({ onOpenLens }: { onOpenLens?: () => void }) {
   return (
     <>
       <header className="sticky top-0 z-30 border-b border-line bg-bg/90 pt-[var(--safe-top,0px)] backdrop-blur-md">
-        <div className="flex h-14 items-center gap-2 px-4">
+        {/* A container query (not a viewport breakpoint) drops the wordmark only when the bar is too narrow for it. */}
+        <div className="@container flex h-14 items-center gap-1.5 px-4">
           <span className="flex min-w-0 items-center gap-1.5">
-            <LogoMark className="size-8 -rotate-6" />
-            <span className="font-display text-[20px] leading-none font-black text-ink">feedforward</span>
+            <LogoMark className="size-8 shrink-0 -rotate-6" />
+            <span className="hidden font-display text-[17px] leading-none font-black text-ink @min-[352px]:inline">
+              feedforward
+            </span>
           </span>
           <div className="flex-1" />
           <AgentStatus />
-          <ThemeToggle className="size-9" />
+          <ThemeToggle className="size-9 shrink-0" />
           {onOpenLens && (
             <button
               type="button"

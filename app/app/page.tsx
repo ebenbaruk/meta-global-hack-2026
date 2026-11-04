@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { AgentLens } from "@/components/AgentLens";
 import { ChatSheet } from "@/components/ChatSheet";
@@ -12,11 +13,9 @@ import { Sheet } from "@/components/Sheet";
 import { SnapSheet } from "@/components/SnapSheet";
 import { TabBar, type Tab } from "@/components/TabBar";
 import { TastePanel } from "@/components/TastePanel";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { Toaster } from "@/components/Toast";
-import { OVERNIGHT, TopBar } from "@/components/TopBar";
+import { TopBar } from "@/components/TopBar";
 import { Logo } from "@/components/ui/Logo";
-import { Marquee } from "@/components/ui/Marquee";
 import { Sticker } from "@/components/ui/Sticker";
 import { cn } from "@/lib/cn";
 import { isPlaceholder } from "@/lib/ranker";
@@ -149,15 +148,14 @@ function StageIntro() {
   else status = "They're getting today ready.";
 
   return (
-    <aside className="no-scrollbar flex h-full min-h-0 flex-col overflow-y-auto py-8">
-      <div className="flex items-center justify-between">
+    <aside className="flex h-full min-h-0 flex-col py-8">
+      <Link href="/" aria-label="feedforward home" className="self-start rounded-full">
         <Logo markClassName="-rotate-6" />
-        <ThemeToggle />
-      </div>
+      </Link>
 
-      <div className="mt-[clamp(24px,7vh,72px)]">
+      <div className="mt-[clamp(20px,5vh,56px)] shrink-0">
         <p className="typed text-muted">{date} · Ember &amp; Oak Coffee</p>
-        <h1 className="mt-3 font-display text-[clamp(44px,4.2vw,66px)] leading-[0.92] font-black text-ink">
+        <h1 className="mt-3 font-display text-[clamp(42px,3.9vw,60px)] leading-[0.92] font-black text-ink">
           {hello},{" "}
           <span className="relative inline-block">
             <span aria-hidden className="absolute inset-x-[-4px] bottom-[0.08em] h-[0.34em] -rotate-1 rounded-full bg-lilac" />
@@ -177,12 +175,10 @@ function StageIntro() {
         </div>
       </div>
 
-      {/* A strip of lilac tape across the column. */}
-      <div className="-mx-3 mt-8 -rotate-2">
-        <Marquee items={OVERNIGHT} speed={40} className="border-y-[1.5px] border-onpastel bg-lilac py-2 text-onpastel" />
+      {/* The taste profile fills the rest of the column and scrolls on its own, like the Agent Lens log opposite. */}
+      <div className="no-scrollbar -mx-3 mt-7 min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-6 [mask-image:linear-gradient(to_bottom,var(--color-ink)_calc(100%-40px),transparent)]">
+        {hydrated && <TastePanel profile={false} />}
       </div>
-
-      {hydrated && <TastePanel className="mt-8" />}
     </aside>
   );
 }

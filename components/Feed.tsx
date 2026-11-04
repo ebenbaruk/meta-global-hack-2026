@@ -5,7 +5,7 @@ import { Check, CheckCheck, RefreshCw } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMinerDone } from "@/components/AgentLens";
-import { appScroller } from "@/components/DeviceFrame";
+import { appScroller, useIsDesktop } from "@/components/DeviceFrame";
 import { EmptyState } from "@/components/EmptyState";
 import { FeedCard } from "@/components/FeedCard";
 import { SkeletonCard } from "@/components/SkeletonCard";
@@ -169,10 +169,10 @@ function greetingFor(hour: number) {
 /** What the Miner is reading, cycled while it works (counts mirror Maya's sandbox data). */
 const READING = [
   "Reading 15 emails",
-  "Scanning 14 calendar events",
+  "Scanning 14 events",
   "Pulling 14 days of sales",
-  "Cross-checking your notes",
-  "Deciding what needs you today",
+  "Cross-checking notes",
+  "Picking what needs you",
 ];
 
 function Greeting({ ready, preparing, loading }: { ready: number; preparing: number; loading: boolean }) {
@@ -182,6 +182,8 @@ function Greeting({ ready, preparing, loading }: { ready: number; preparing: num
   const working = loading || preparing > 0;
   const hour = now.getHours();
   const when = hour < 12 ? "overnight" : "today";
+  // On desktop the column beside the phone already says hello: the phone keeps just the date.
+  const desktop = useIsDesktop();
 
   let line: string;
   if (ready > 0) line = `Your agents prepared ${things(ready)} ${when}.`;
@@ -191,7 +193,13 @@ function Greeting({ ready, preparing, loading }: { ready: number; preparing: num
   return (
     <header className="pt-5 pb-6">
       <p className="typed text-[10.5px] text-faint">
-        {date} <span className="text-lilac-ink">✺</span> {greetingFor(hour)}, Maya
+        {date}
+        {!desktop && (
+          <>
+            {" "}
+            <span className="text-lilac-ink">✺</span> {greetingFor(hour)}, Maya
+          </>
+        )}
       </p>
       <h1 className="font-display mt-1.5 text-[56px] leading-[0.9] font-black text-ink">
         <span className="relative inline-block">
@@ -229,7 +237,7 @@ function WorkingStatus({ preparing }: { preparing: number }) {
 
   const elapsed = Math.floor((Date.now() - started) / 1000);
   const phrase = mined
-    ? `Drafting ${preparing} card${preparing === 1 ? "" : "s"} in your voice`
+    ? `Drafting ${preparing} in your voice`
     : READING[Math.floor(tick / 2) % READING.length];
 
   return (
@@ -241,7 +249,7 @@ function WorkingStatus({ preparing }: { preparing: number }) {
       transition={{ duration: 0.25 }}
       className="overflow-hidden"
     >
-      <div className="mt-5 rounded-[24px] border border-line bg-surface p-3.5 shadow-card">
+      <div className="mt-5 rounded-[24px] border border-line bg-surface p-3.5">
         <div className="flex items-center gap-3">
           <motion.div
             className="grid size-14 shrink-0 place-items-center rounded-full border-[1.5px] border-onpastel bg-yellow"

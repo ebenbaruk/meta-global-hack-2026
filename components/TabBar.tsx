@@ -31,12 +31,15 @@ export function TabBar({ tab, onTab, onSnap }: { tab: Tab; onTab: (t: Tab) => vo
             onClick={onSnap}
             aria-label="Snap a photo"
             whileTap={{ scale: 0.92 }}
-            className="absolute -top-[24px] left-1/2 grid size-[58px] -translate-x-1/2 place-items-center rounded-full border-[1.5px] border-onpastel bg-yellow text-onpastel shadow-ink-lg transition-[box-shadow,translate] hover:-translate-y-0.5 active:translate-y-[3px] active:shadow-ink"
+            className="absolute -top-[28px] left-1/2 grid size-[54px] -translate-x-1/2 place-items-center rounded-full border-[1.5px] border-onpastel bg-yellow text-onpastel shadow-ink-lg transition-[box-shadow,translate] hover:-translate-y-0.5 active:translate-y-[3px] active:shadow-ink"
           >
             {snapping && <span className="absolute -inset-1 animate-ping rounded-full border-2 border-yellow" />}
             <Camera className="relative size-6" strokeWidth={2.2} />
           </motion.button>
-          <span className="typed absolute inset-x-0 bottom-[8px] text-center text-[9.5px] font-bold text-ink">Snap</span>
+          {/* Same baseline as the Feed and Outbox labels, clear of the raised button. */}
+          <span className="typed pointer-events-none absolute inset-x-0 bottom-[13px] text-center text-[9.5px] leading-none font-bold text-ink">
+            Snap
+          </span>
         </div>
 
         <TabButton testId="tab-outbox" active={tab === "outbox"} onClick={() => onTab("outbox")} label="Outbox" badge={<OutboxBadge />}>
@@ -90,7 +93,7 @@ function TabButton({
       aria-current={active ? "page" : undefined}
       onClick={onClick}
       className={cn(
-        "relative flex h-[50px] flex-col items-center justify-center gap-0.5 rounded-full transition-colors",
+        "relative flex h-[50px] flex-col items-center justify-center gap-[5px] rounded-full transition-colors",
         active ? "text-onpastel" : "text-muted hover:text-ink",
       )}
     >
@@ -105,7 +108,7 @@ function TabButton({
         {children}
         {badge}
       </span>
-      <span className="typed relative text-[9.5px] font-bold">{label}</span>
+      <span className="typed relative text-[9.5px] leading-none font-bold">{label}</span>
     </button>
   );
 }

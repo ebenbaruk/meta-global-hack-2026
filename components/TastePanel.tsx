@@ -33,8 +33,11 @@ const NOTE_TONES: { fill: string; rotate: number }[] = [
   { fill: "bg-rose", rotate: 1.6 },
 ];
 
-/** Maya's taste profile: weights per kind that move with every gesture, and what the feed learned. */
-export function TastePanel({ className }: { className?: string }) {
+/**
+ * Maya's taste profile: weights per kind that move with every gesture, and what the feed learned.
+ * `profile={false}` drops her name card (on desktop the column beside it already greets her) but keeps the tallies.
+ */
+export function TastePanel({ className, profile = true }: { className?: string; profile?: boolean }) {
   const weights = useFeed((s) => s.taste.weights);
   const notes = useFeed((s) => s.taste.notes);
   const history = useFeed((s) => s.taste.history);
@@ -49,19 +52,22 @@ export function TastePanel({ className }: { className?: string }) {
   return (
     <div data-testid="taste-panel" className={cn("flex flex-col gap-3", className)}>
       <section className="rounded-card border border-line bg-surface p-4 shadow-card">
-        <div className="flex items-center gap-3">
-          <span
-            aria-label="Maya"
-            className="grid size-12 shrink-0 -rotate-3 place-items-center rounded-full border-[1.5px] border-onpastel bg-lilac font-display text-[22px] font-black text-onpastel"
-          >
-            M
-          </span>
-          <div className="min-w-0">
-            <p className="font-display text-[20px] leading-tight font-extrabold text-ink">Maya Chen</p>
-            <p className="typed mt-1 truncate text-[10px] text-muted">Founder · Ember &amp; Oak Coffee</p>
+        {profile && (
+          <div className="mb-4 flex items-center gap-3">
+            <span
+              aria-label="Maya"
+              className="grid size-12 shrink-0 -rotate-3 place-items-center rounded-full border-[1.5px] border-onpastel bg-lilac font-display text-[22px] font-black text-onpastel"
+            >
+              M
+            </span>
+            <div className="min-w-0">
+              <p className="font-display text-[20px] leading-tight font-extrabold text-ink">Maya Chen</p>
+              <p className="typed mt-1 truncate text-[10px] text-muted">Founder · Ember &amp; Oak Coffee</p>
+            </div>
           </div>
-        </div>
-        <div className="mt-4 grid grid-cols-3 divide-x divide-line rounded-[20px] bg-elevated py-3">
+        )}
+        {!profile && <p className="typed mb-3 text-[10px] text-faint">Your calls so far</p>}
+        <div className="grid grid-cols-3 divide-x divide-line rounded-[20px] bg-elevated py-3">
           <Stat label="Approved" value={counts.approve} dot="bg-mint" />
           <Stat label="Edited" value={counts.edit} dot="bg-lilac" />
           <Stat label="Dismissed" value={counts.dismiss} dot="bg-rose" />

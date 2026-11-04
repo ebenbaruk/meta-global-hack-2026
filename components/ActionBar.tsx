@@ -19,7 +19,7 @@ export function ActionBar({
 }) {
   return (
     <div className="flex items-center gap-1.5 px-4 pt-1 pb-4" onPointerDown={(e) => e.stopPropagation()}>
-      <Button data-testid="approve-btn" onClick={onApprove} className="h-12 min-w-0 flex-1 px-3 text-[14.5px] tracking-[-0.01em]">
+      <Button data-testid="approve-btn" onClick={onApprove} className="h-12! min-w-0 flex-1 px-3! text-[14.5px]! tracking-[-0.01em]">
         <span className="truncate">{label}</span>
       </Button>
       <IconButton testId="divein-btn" label="Dive in" onClick={onDiveIn}>

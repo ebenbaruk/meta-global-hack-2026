@@ -153,7 +153,7 @@ export function Feed({ onEdit, onDiveIn }: { onEdit: (card: Card) => void; onDiv
 
 function LoadMore({ onClick }: { onClick: () => void }) {
   return (
-    <Button variant="secondary" onClick={onClick} className="h-11">
+    <Button variant="secondary" onClick={onClick}>
       <RefreshCw className="size-4" aria-hidden /> Load more
     </Button>
   );

@@ -52,7 +52,7 @@ export function SkeletonCard({ item, onRetry }: { item: Placeholder; onRetry: ()
           Couldn&apos;t finish this {meta.label.toLowerCase()}.
         </p>
         <p className="mt-1.5 text-[14px] leading-[1.5] break-words text-muted">{item.error ?? "The agent ran into a problem."}</p>
-        <Button variant="secondary" onClick={onRetry} className="mt-4 h-10 px-4 text-[14px]">
+        <Button variant="secondary" onClick={onRetry} className="mt-4 h-10! px-4! text-[14px]!">
           <RotateCcw className="size-4" aria-hidden />
           Retry
         </Button>

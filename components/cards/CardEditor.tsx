@@ -7,7 +7,7 @@ import type { Card } from "@/lib/schemas";
 type Payload = Card["payload"];
 
 const fieldClass =
-  "w-full min-w-0 rounded-2xl border-[1.5px] border-line bg-elevated px-3.5 py-3 text-[15px] leading-[1.5] text-ink placeholder:text-faint outline-none transition-[border-color,box-shadow] focus:border-line-strong focus:shadow-[2px_2px_0_0_var(--color-ink)] focus-visible:outline-none";
+  "w-full min-w-0 rounded-2xl border-[1.5px] border-line bg-elevated px-3.5 py-3 text-[15px] leading-[1.5] text-ink placeholder:text-faint outline-none transition-[border-color,box-shadow] focus:border-lilac-ink focus:shadow-[0_0_0_3px_var(--color-lilac-soft)] focus-visible:outline-none";
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: (id: string) => ReactNode }) {
   const id = useId();

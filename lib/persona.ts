@@ -16,7 +16,7 @@ const ROASTED_STOCK: Record<string, number> = {
   "Ember House Blend": 96,
   "Oak Street Espresso": 58,
   "Colombia Huila Washed": 24,
-  "Swiss Water Decaf": 31,
+  "Mountain Water Decaf": 31,
 };
 const LOW_STOCK_DAYS = 4;
 

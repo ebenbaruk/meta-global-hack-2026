@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" width="960" height="600" font-family="Inter, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b0b10"/>
+      <stop offset="1" stop-color="#101018"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7c6cff"/>
+      <stop offset="1" stop-color="#4f9dff"/>
+    </linearGradient>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8a8aa3"/>
+    </marker>
+    <style>
+      .box { fill: #16161f; stroke: #2a2a3a; stroke-width: 1; }
+      .panel { fill: #12121a; stroke: #262636; stroke-width: 1; }
+      .h { fill: #f2f2f7; font-size: 15px; font-weight: 600; }
+      .t { fill: #c9c9d6; font-size: 12.5px; }
+      .s { fill: #8a8aa3; font-size: 11.5px; }
+      .lbl { fill: #8a8aa3; font-size: 11px; letter-spacing: 1.2px; font-weight: 600; }
+      .line { stroke: #8a8aa3; stroke-width: 1.3; fill: none; }
+      .model { fill: #1a1830; stroke: #7c6cff; stroke-opacity: 0.55; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <rect width="960" height="600" rx="20" fill="url(#bg)"/>
+
+  <!-- Browser -->
+  <text x="40" y="44" class="lbl">BROWSER · NEXT.JS CLIENT</text>
+  <rect x="40" y="56" width="880" height="96" rx="14" class="panel"/>
+  <g>
+    <rect x="58" y="72" width="152" height="64" rx="10" class="box"/>
+    <text x="74" y="98" class="h">Feed</text>
+    <text x="74" y="118" class="s">cards · 4 gestures</text>
+    <rect x="222" y="72" width="152" height="64" rx="10" class="box"/>
+    <text x="238" y="98" class="h">Ranker</text>
+    <text x="238" y="118" class="s">urgency × weight × fresh</text>
+    <rect x="386" y="72" width="152" height="64" rx="10" class="box"/>
+    <text x="402" y="98" class="h">Taste profile</text>
+    <text x="402" y="118" class="s">weights + notes</text>
+    <rect x="550" y="72" width="152" height="64" rx="10" class="box"/>
+    <text x="566" y="98" class="h">Dive in · Snap</text>
+    <text x="566" y="118" class="s">chat, edit, camera</text>
+    <rect x="714" y="72" width="188" height="64" rx="10" fill="#16161f" stroke="url(#accent)" stroke-width="1.2"/>
+    <text x="730" y="98" class="h">Agent Lens</text>
+    <text x="730" y="118" class="s">live trace of every call</text>
+  </g>
+
+  <!-- Arrows browser <-> server -->
+  <path d="M300 152 L300 196" class="line" marker-end="url(#arr)"/>
+  <text x="310" y="180" class="s">POST · taste notes + seen titles</text>
+  <path d="M660 196 L660 152" class="line" marker-end="url(#arr)"/>
+  <text x="670" y="180" class="s">NDJSON: trace · skeleton · card · image · done</text>
+
+  <!-- Server -->
+  <text x="40" y="214" class="lbl">ROUTE HANDLERS · STATELESS</text>
+  <rect x="40" y="226" width="880" height="226" rx="14" class="panel"/>
+
+  <!-- /api/feed pipeline -->
+  <text x="60" y="254" class="t" font-weight="600">/api/feed</text>
+  <rect x="60" y="266" width="150" height="58" rx="10" class="box"/>
+  <text x="76" y="290" class="h">Miner</text>
+  <text x="76" y="309" class="s">5 opportunities</text>
+  <path d="M210 295 L246 295" class="line" marker-end="url(#arr)"/>
+  <rect x="250" y="266" width="170" height="58" rx="10" class="box"/>
+  <rect x="256" y="272" width="170" height="58" rx="10" class="box" opacity="0.5"/>
+  <text x="266" y="290" class="h">Preparers ×5</text>
+  <text x="266" y="309" class="s">parallel · schema per kind</text>
+  <path d="M426 300 L462 300" class="line" marker-end="url(#arr)"/>
+  <rect x="466" y="266" width="150" height="58" rx="10" class="box"/>
+  <text x="482" y="290" class="h">Visuals</text>
+  <text x="482" y="309" class="s">Muse Image · background</text>
+  <rect x="640" y="266" width="262" height="58" rx="10" class="box"/>
+  <text x="656" y="290" class="h">Sponsor match</text>
+  <text x="656" y="309" class="s">parallel · slotted after card 3</text>
+
+  <!-- /api/snap pipeline -->
+  <text x="60" y="356" class="t" font-weight="600">/api/snap</text>
+  <rect x="60" y="368" width="150" height="58" rx="10" class="box"/>
+  <text x="76" y="392" class="h">Spark vision</text>
+  <text x="76" y="411" class="s">objects · lines · intents</text>
+  <path d="M210 397 L246 397" class="line" marker-end="url(#arr)"/>
+  <rect x="250" y="368" width="170" height="58" rx="10" class="box"/>
+  <text x="266" y="392" class="h">SAM 3.1 ×N</text>
+  <text x="266" y="411" class="s">one noun phrase each</text>
+  <path d="M420 397 L462 397" class="line" marker-end="url(#arr)"/>
+  <rect x="466" y="368" width="150" height="58" rx="10" class="box"/>
+  <text x="482" y="392" class="h">Preparers ×2</text>
+  <text x="482" y="411" class="s">follow-up cards</text>
+  <rect x="640" y="368" width="262" height="58" rx="10" class="box"/>
+  <text x="656" y="392" class="h">chat · revise · taste · act</text>
+  <text x="656" y="411" class="s">act = sandboxed tools → receipt</text>
+
+  <!-- meta.ts -->
+  <path d="M480 452 L480 478" class="line" marker-end="url(#arr)"/>
+  <rect x="40" y="482" width="880" height="34" rx="10" fill="#14141c" stroke="#2a2a3a"/>
+  <text x="60" y="504" class="t"><tspan font-weight="600" fill="#f2f2f7">lib/meta.ts</tspan>  ·  openai SDK, baseURL = Meta  ·  30 s timeout, 1 retry  ·  zod validation  ·  trace event per call  ·  META_MOCK=1</text>
+  <path d="M480 516 L480 532" class="line" marker-end="url(#arr)"/>
+
+  <!-- Models -->
+  <rect x="40" y="536" width="290" height="44" rx="10" class="model"/>
+  <text x="58" y="563" class="h">muse-spark-1.3</text>
+  <text x="182" y="563" class="s">text · JSON · vision</text>
+  <rect x="345" y="536" width="270" height="44" rx="10" class="model"/>
+  <text x="363" y="563" class="h">muse-image-1.0</text>
+  <text x="490" y="563" class="s">post visuals</text>
+  <rect x="630" y="536" width="290" height="44" rx="10" class="model"/>
+  <text x="648" y="563" class="h">sam-3.1</text>
+  <text x="718" y="563" class="s">Responses API · masks</text>
+</svg>

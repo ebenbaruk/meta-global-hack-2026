@@ -32,7 +32,7 @@ Every card has four gestures: **Approve** (the agent executes), **Edit**, **Dism
 ## Why it wins (Indie criteria: creativity · technical ambition · does it work)
 
 1. **Creativity**: a new form factor for AI, not another chat box. The story writes itself for Meta: the feed is their DNA and their business model.
-2. **Technical ambition**: a real multi-agent pipeline (Miner → Preparers → Ranker → Executor) running on **four Meta models**, each with a clear role, plus a live "Agent Lens" that shows every model call under the hood.
+2. **Technical ambition**: a real multi-agent pipeline (Miner → Preparers → Ranker → Executor) running on **three Meta models in production** (Muse Spark, Muse Image, SAM 3.1), each with a clear role, plus a live "Agent Lens" that shows every model call under the hood.
 3. **It works**: everything is generated live, and Approve actually executes the action against a sandboxed toolset. Nothing is hardcoded.
 
 ## Meta models at the core
@@ -40,7 +40,7 @@ Every card has four gestures: **Approve** (the agent executes), **Edit**, **Dism
 | Building block | Meta model | Role |
 |---|---|---|
 | **Signal Miner** | Muse Spark 1.3 (structured output) | Reads the context (inbox, calendar, sales, notes) and extracts "action opportunities" |
-| **Preparers** | Muse Spark 1.3 (tool calling) | Do the complete work behind each card |
+| **Preparers** | Muse Spark 1.3 (strict JSON schema per card kind) | Do the complete work behind each card |
 | **Ranker + Taste memory** | Muse Spark 1.3 + preference weights | Ranks the feed and learns from every gesture |
 | **Visuals** | Muse Image 1.0 | Card visuals, social post images, mockups |
 | **Camera → cards** | Muse Spark vision + SAM 3.1 | Snap a photo, SAM segments the objects, cards appear |

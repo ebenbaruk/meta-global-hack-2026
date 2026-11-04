@@ -2,26 +2,29 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Check, Pickaxe, Send, Sparkles, Wand2 } from "lucide-react";
+import Image from "next/image";
 import { Fragment, useEffect, useState } from "react";
 import { useRecent } from "@/components/TastePanel";
 import { cn } from "@/lib/cn";
 import type { TraceEvent } from "@/lib/schemas";
 import { selectPreparingCount, useFeed } from "@/lib/store";
 
-const MODELS: Record<string, { name: string; chip: string; bar: string }> = {
-  "muse-spark-1.3": { name: "Muse Spark", chip: "bg-accent/15 text-accent-strong", bar: "bg-accent" },
-  "muse-image-1.0": { name: "Muse Image", chip: "bg-violet/15 text-[#a78bfa]", bar: "bg-violet" },
-  "sam-3.1": { name: "SAM 3.1", chip: "bg-success/15 text-success", bar: "bg-success" },
-  "muse-wonder-1.0": { name: "Muse Wonder", chip: "bg-warning/15 text-warning", bar: "bg-warning" },
+/** The Meta models, each with its own pastel. Pastels always carry onpastel text. */
+const MODELS: Record<string, { name: string; job: string; fill: string }> = {
+  "muse-spark-1.3": { name: "Muse Spark", job: "reads · drafts · learns", fill: "bg-lilac" },
+  "muse-image-1.0": { name: "Muse Image", job: "paints post visuals", fill: "bg-rose" },
+  "sam-3.1": { name: "SAM 3.1", job: "outlines your snaps", fill: "bg-mint" },
+  "muse-wonder-1.0": { name: "Muse Wonder", job: "imagines", fill: "bg-sky" },
 };
-const TOOLS = { name: "Sandbox tools", chip: "bg-white/[0.07] text-muted", bar: "bg-white/40" };
+const ROSTER = ["muse-spark-1.3", "muse-image-1.0", "sam-3.1"] as const;
+const TOOLS = { name: "Sandbox", job: "runs the action", fill: "bg-elevated" };
 const modelInfo = (model: string) => MODELS[model] ?? (model === "sandbox" ? TOOLS : { ...TOOLS, name: model });
 
 const STAGES = [
-  { id: "miner", label: "Miner", icon: Pickaxe },
-  { id: "preparers", label: "Preparers", icon: Wand2 },
-  { id: "ranker", label: "Ranker", icon: Sparkles },
-  { id: "executor", label: "Executor", icon: Send },
+  { id: "miner", label: "Miner", verb: "reads", icon: Pickaxe },
+  { id: "preparers", label: "Preparers", verb: "drafts", icon: Wand2 },
+  { id: "ranker", label: "Ranker", verb: "sorts", icon: Sparkles },
+  { id: "executor", label: "Executor", verb: "acts", icon: Send },
 ] as const;
 type Stage = (typeof STAGES)[number]["id"] | "idle";
 
@@ -40,6 +43,9 @@ export function useMinerDone() {
   if (loading !== base.loading) setBase({ loading, calls });
   return !loading || calls > base.calls;
 }
+
+const clock = (at: number) =>
+  new Date(at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
 /** Under the hood: every model call, live, plus the pipeline stage that is running. */
 export function AgentLens({ className, compact }: { className?: string; compact?: boolean }) {
@@ -64,90 +70,155 @@ export function AgentLens({ className, compact }: { className?: string; compact?
 
   const calls = traces.length;
   const avg = calls ? Math.round(traces.reduce((sum, t) => sum + t.ms, 0) / calls) : 0;
+  const perModel = (m: string) => traces.filter((t) => t.model === m).length;
   const models = new Set(traces.map((t) => t.model).filter((m) => m in MODELS)).size;
 
   return (
-    <div data-testid="agent-lens" className={cn("flex min-h-0 flex-col", className)}>
-      <div className={cn("flex items-center gap-2", compact && "hidden")}>
-        <span className="relative flex size-2">
-          {stage !== "idle" && <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent-strong opacity-70" />}
-          <span className={cn("relative inline-flex size-2 rounded-full", stage !== "idle" ? "bg-accent-strong" : "bg-success")} />
-        </span>
-        <h2 className="text-[13px] font-semibold text-fg">Agent Lens</h2>
-        <span className="text-[12px] text-faint">· every model call, live</span>
-      </div>
-
-      <div className={cn("grid grid-cols-3 gap-2", !compact && "mt-3")}>
+    <div
+      data-testid="agent-lens"
+      className={cn(
+        "flex min-h-0 flex-col",
+        !compact && "rounded-card border border-line bg-surface p-4 pt-5 shadow-card",
+        className,
+      )}
+    >
+      <div className="grid grid-cols-3 divide-x divide-line">
         <Counter label="Calls" value={String(calls)} />
-        <Counter label="Avg latency" value={avg ? `${(avg / 1000).toFixed(1)}s` : "–"} />
+        <Counter label="Avg latency" value={avg ? (avg / 1000).toFixed(1) : "–"} unit={avg ? "s" : undefined} />
         <Counter label="Models" value={String(models)} />
       </div>
 
+      <ul className="mt-4 space-y-1.5" aria-label="Meta models on duty">
+        {ROSTER.map((m) => (
+          <ModelRow key={m} model={m} count={perModel(m)} />
+        ))}
+      </ul>
+
       <Pipeline stage={stage} />
 
-      <ul className="mt-3 min-h-0 flex-1 space-y-1.5 overflow-y-auto overscroll-contain pr-1">
-        <AnimatePresence initial={false}>
-          {stage !== "idle" && (
-            <motion.li
-              key={`running-${stage}`}
-              initial={reduce ? { opacity: 0 } : { opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={reduce ? { opacity: 0 } : { opacity: 0, height: 0 }}
-              transition={{ duration: 0.22 }}
-              className="overflow-hidden"
-            >
-              <RunningRow stage={stage} preparing={preparing} snapping={snapping} />
-            </motion.li>
+      <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[20px] border border-line bg-elevated">
+        <div className="typed flex shrink-0 items-center justify-between border-b border-dashed border-line px-3 py-2 text-[9.5px] text-faint">
+          <span className="flex items-center gap-2">
+            <LiveDot on={stage !== "idle"} /> call log
+          </span>
+          <span>{stage === "idle" ? "idle" : `${stage} running`}</span>
+        </div>
+        <ul className="no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-1.5 py-1.5">
+          <AnimatePresence initial={false}>
+            {stage !== "idle" && (
+              <motion.li
+                key="running"
+                initial={reduce ? { opacity: 0 } : { opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={reduce ? { opacity: 0 } : { opacity: 0, height: 0 }}
+                transition={{ duration: 0.22 }}
+                className="overflow-hidden"
+              >
+                <RunningRow key={stage} stage={stage} preparing={preparing} snapping={snapping} />
+              </motion.li>
+            )}
+          </AnimatePresence>
+          {traces.length === 0 && stage === "idle" && (
+            <li className="flex flex-col items-center px-3 py-6 text-center font-mono text-[11.5px] leading-relaxed text-muted">
+              <Image src="/brand/mascot-scan.webp" alt="" width={96} height={96} className="[filter:drop-shadow(0_0_1px_var(--ink))_drop-shadow(0_0_1px_var(--ink))] mb-2 size-24" />
+              <span>
+                &gt; waiting for the first call
+                <Caret />
+              </span>
+            </li>
           )}
-        </AnimatePresence>
-        {traces.length === 0 && stage === "idle" && (
-          <li className="rounded-xl border border-dashed border-line px-3 py-6 text-center text-[12.5px] text-faint">
-            Model calls will stream in here as your agents work.
-          </li>
-        )}
-        <AnimatePresence initial={false}>
-          {traces.map((t) => (
-            <motion.li
-              key={t.id}
-              layout={!reduce}
-              initial={reduce ? { opacity: 0 } : { opacity: 0, y: -10, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ type: "spring", stiffness: 500, damping: 38 }}
-              className="relative"
-            >
-              <TraceRow trace={t} />
-              {!reduce && Date.now() - t.at < 4000 && (
-                <motion.span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 rounded-xl bg-accent/10 ring-1 ring-accent/50"
-                  initial={{ opacity: 1 }}
-                  animate={{ opacity: 0 }}
-                  transition={{ duration: 1.4, ease: "easeOut" }}
-                />
-              )}
-            </motion.li>
-          ))}
-        </AnimatePresence>
-      </ul>
+          <AnimatePresence initial={false}>
+            {traces.map((t) => (
+              <motion.li
+                key={t.id}
+                layout={!reduce}
+                initial={reduce ? { opacity: 0 } : { opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ type: "spring", stiffness: 500, damping: 38 }}
+                className="relative"
+              >
+                <TraceRow trace={t} />
+                {!reduce && Date.now() - t.at < 4000 && (
+                  <motion.span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 rounded-[12px] bg-lilac/30"
+                    initial={{ opacity: 1 }}
+                    animate={{ opacity: 0 }}
+                    transition={{ duration: 1.4, ease: "easeOut" }}
+                  />
+                )}
+              </motion.li>
+            ))}
+          </AnimatePresence>
+        </ul>
+      </div>
     </div>
   );
 }
 
-function Counter({ label, value }: { label: string; value: string }) {
+function LiveDot({ on }: { on: boolean }) {
   return (
-    <div className="rounded-xl border border-line bg-white/[0.02] px-3 py-2">
-      <motion.p key={value} initial={{ opacity: 0.4 }} animate={{ opacity: 1 }} className="font-mono text-[16px] font-medium text-fg tabular-nums">
+    <span className="relative flex size-2" aria-hidden>
+      {on && <span className="absolute inline-flex size-full animate-ping rounded-full bg-lilac opacity-80" />}
+      <span className={cn("relative inline-flex size-2 rounded-full border border-onpastel", on ? "bg-lilac" : "bg-mint")} />
+    </span>
+  );
+}
+
+function Caret() {
+  return <span aria-hidden className="ml-0.5 inline-block h-[1.1em] w-[0.55em] translate-y-[0.2em] animate-pulse bg-lilac-ink" />;
+}
+
+function Counter({ label, value, unit }: { label: string; value: string; unit?: string }) {
+  const reduce = useReducedMotion();
+  return (
+    <div className="px-3 first:pl-0">
+      <motion.p
+        key={value}
+        initial={reduce ? false : { opacity: 0.3, y: 4 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="font-display text-[34px] leading-none font-black text-ink tabular-nums"
+      >
         {value}
+        {unit && <span className="ml-0.5 text-[18px] text-muted">{unit}</span>}
       </motion.p>
-      <p className="text-[11px] text-faint">{label}</p>
+      <p className="typed mt-1.5 text-[9.5px] text-muted">{label}</p>
     </div>
+  );
+}
+
+/** One Meta model on duty: its id on its pastel, what it does here, how many calls it made. */
+function ModelRow({ model, count }: { model: string; count: number }) {
+  const info = modelInfo(model);
+  return (
+    <li data-testid="model-row" data-model={model} className="flex items-center gap-2.5">
+      <span
+        className={cn(
+          "shrink-0 rounded-full border-[1.5px] border-onpastel px-2.5 py-[3px] font-mono text-[10.5px] font-bold text-onpastel",
+          info.fill,
+        )}
+      >
+        {model}
+      </span>
+      <span className="typed min-w-0 flex-1 truncate text-[9.5px] text-muted">{info.job}</span>
+      <motion.span
+        key={count}
+        initial={{ scale: 1.4 }}
+        animate={{ scale: 1 }}
+        transition={{ type: "spring", stiffness: 500, damping: 18 }}
+        className={cn("font-display text-[18px] leading-none font-black tabular-nums", count ? "text-ink" : "text-faint")}
+      >
+        ×{count}
+      </motion.span>
+    </li>
   );
 }
 
 function Pipeline({ stage }: { stage: Stage }) {
+  const reduce = useReducedMotion();
   const activeIndex = STAGES.findIndex((s) => s.id === stage);
   return (
-    <div className="mt-3 flex items-center rounded-2xl border border-line bg-white/[0.02] p-2" data-testid="pipeline" data-stage={stage}>
+    <div className="mt-3 flex items-start px-0.5" data-testid="pipeline" data-stage={stage}>
       {STAGES.map((s, i) => {
         const Icon = s.icon;
         const active = i === activeIndex;
@@ -155,35 +226,35 @@ function Pipeline({ stage }: { stage: Stage }) {
         return (
           <Fragment key={s.id}>
             {i > 0 && (
-              <div className="relative mx-1 h-px flex-1 overflow-hidden bg-line-strong">
-                {active && (
+              <div className="relative mt-[19px] h-0 min-w-2 flex-1 border-t-[1.5px] border-dashed border-line-strong">
+                {active && !reduce && (
                   <motion.span
-                    className="absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-accent-strong to-transparent"
-                    initial={{ x: "-100%" }}
-                    animate={{ x: "200%" }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    aria-hidden
+                    className="absolute -top-[4.5px] size-[7px] rounded-full border border-onpastel bg-yellow"
+                    initial={{ left: "0%" }}
+                    animate={{ left: "100%" }}
+                    transition={{ duration: 0.9, repeat: Infinity, ease: "easeInOut" }}
                   />
                 )}
               </div>
             )}
-            <div
-              className={cn(
-                "flex shrink-0 flex-col items-center gap-1 rounded-xl px-1.5 py-1.5 transition-colors duration-300",
-                active ? "text-accent-strong" : done ? "text-success" : "text-faint",
-              )}
-            >
-              <span
+            <div className="flex w-[60px] shrink-0 flex-col items-center gap-1">
+              <motion.span
+                animate={reduce ? undefined : { scale: active ? 1.08 : 1, rotate: active ? -4 : 0 }}
+                transition={{ type: "spring", stiffness: 420, damping: 16 }}
                 className={cn(
-                  "relative grid size-7 place-items-center rounded-lg transition-all duration-300",
-                  active ? "scale-110 bg-accent-soft shadow-glow" : done ? "bg-success/10" : "bg-white/[0.04]",
+                  "grid size-10 place-items-center rounded-[12px] border-[1.5px] transition-colors duration-300",
+                  active
+                    ? "border-onpastel bg-lilac text-onpastel shadow-[2px_2px_0_0_var(--color-onpastel)]"
+                    : done
+                      ? "border-onpastel bg-mint text-onpastel"
+                      : "border-line-strong bg-surface text-ink",
                 )}
               >
-                {active && (
-                  <span className="absolute inset-0 animate-ping rounded-lg bg-accent/20 [animation-duration:1.6s]" aria-hidden />
-                )}
-                {done ? <Check className="relative size-3.5" strokeWidth={3} /> : <Icon className="relative size-3.5" />}
-              </span>
-              <span className="text-[10.5px] font-medium">{s.label}</span>
+                {done ? <Check className="size-4" strokeWidth={3} /> : <Icon className="size-4" strokeWidth={2.2} />}
+              </motion.span>
+              <span className={cn("text-[11.5px] leading-tight font-semibold", active ? "text-ink" : "text-muted")}>{s.label}</span>
+              <span className="typed -mt-0.5 text-[8.5px] text-faint">{s.verb}</span>
             </div>
           </Fragment>
         );
@@ -194,35 +265,48 @@ function Pipeline({ stage }: { stage: Stage }) {
 
 function TraceRow({ trace }: { trace: TraceEvent }) {
   const info = modelInfo(trace.model);
-  const statusDot = trace.status === "error" ? "bg-danger" : trace.status === "mock" ? "bg-faint" : "bg-success";
   const width = Math.max(4, Math.min(100, (trace.ms / MAX_BAR_MS) * 100));
+  const status =
+    trace.status === "error"
+      ? { label: "err", cls: "text-danger" }
+      : trace.status === "mock"
+        ? { label: "mock", cls: "text-faint" }
+        : { label: "ok", cls: "text-ink" };
 
   return (
-    <div data-testid="trace-row" data-model={trace.model} className="rounded-xl border border-line bg-surface px-3 py-2">
-      <div className="flex items-center gap-2">
-        <span className={cn("size-1.5 shrink-0 rounded-full", statusDot)} title={trace.status} />
-        <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-fg">{trace.step}</span>
-        <span className="font-mono text-[11.5px] text-muted tabular-nums">{trace.ms.toLocaleString()} ms</span>
+    <div data-testid="trace-row" data-model={trace.model} className="rounded-[12px] px-2 py-2 font-mono">
+      <div className="flex items-center gap-2 text-[10.5px]">
+        <span className="shrink-0 text-faint tabular-nums">{clock(trace.at)}</span>
+        <span className="min-w-0 flex-1 truncate font-bold text-ink">{trace.step}</span>
+        <span className={cn("shrink-0 font-bold uppercase", status.cls)}>
+          {trace.status === "ok" ? "✓ " : ""}
+          {status.label}
+        </span>
       </div>
       <div className="mt-1.5 flex items-center gap-2">
-        <span className={cn("flex shrink-0 items-center gap-1 rounded-md px-1.5 py-px text-[10.5px] font-semibold", info.chip)}>
-          <span className={cn("size-1 rounded-full", info.bar)} />
-          {info.name}
+        <span
+          className={cn(
+            "shrink-0 rounded-[6px] border px-1.5 py-px text-[9.5px] font-bold",
+            info.fill,
+            info.fill === TOOLS.fill ? "border-line-strong text-ink" : "border-onpastel text-onpastel",
+          )}
+        >
+          {trace.model}
         </span>
-        <div className="h-1 min-w-0 flex-1 overflow-hidden rounded-full bg-white/[0.05]">
+        <div className="h-[5px] min-w-0 flex-1 overflow-hidden rounded-full bg-line">
           <motion.div
-            className={cn("h-full rounded-full opacity-80", info.bar)}
+            className="h-full rounded-full bg-ink/70"
             initial={{ width: 0 }}
             animate={{ width: `${width}%` }}
             transition={{ type: "spring", stiffness: 120, damping: 20 }}
           />
         </div>
+        <span className="shrink-0 text-[10px] text-muted tabular-nums">{trace.ms.toLocaleString("en-US")}ms</span>
         {trace.tokens !== undefined && (
-          <span className="shrink-0 font-mono text-[10.5px] text-faint tabular-nums">{trace.tokens.toLocaleString()} tok</span>
+          <span className="shrink-0 text-[10px] text-faint tabular-nums">{trace.tokens.toLocaleString("en-US")}t</span>
         )}
-        {trace.status === "mock" && <span className="shrink-0 text-[10.5px] text-faint">mock</span>}
       </div>
-      {trace.status === "error" && trace.detail && <p className="mt-1 truncate text-[11.5px] text-danger">{trace.detail}</p>}
+      {trace.status === "error" && trace.detail && <p className="mt-1 truncate text-[10.5px] text-danger">! {trace.detail}</p>}
     </div>
   );
 }
@@ -241,6 +325,7 @@ function RunningRow({ stage, preparing, snapping }: { stage: Exclude<Stage, "idl
       ? { step: "Snap · Spark reads it, SAM 3.1 outlines it", model: "sam-3.1" }
       : RUNNING[stage](preparing);
   const info = modelInfo(model);
+  const reduce = useReducedMotion();
   const [started] = useState(() => Date.now());
   const [now, setNow] = useState(started);
   useEffect(() => {
@@ -249,22 +334,31 @@ function RunningRow({ stage, preparing, snapping }: { stage: Exclude<Stage, "idl
   }, []);
 
   return (
-    <div data-testid="trace-running" className="rounded-xl border border-accent/30 bg-accent-soft/50 px-3 py-2">
-      <div className="flex items-center gap-2">
-        <span className="relative flex size-1.5 shrink-0">
-          <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent-strong opacity-70" />
-          <span className="relative inline-flex size-1.5 rounded-full bg-accent-strong" />
+    <div
+      data-testid="trace-running"
+      className="mb-1 rounded-[12px] border-[1.5px] border-onpastel bg-lilac px-2 py-2 font-mono text-onpastel"
+    >
+      <div className="flex items-center gap-2 text-[10.5px]">
+        <span className="shrink-0 font-bold">&gt;</span>
+        <span className="min-w-0 flex-1 truncate font-bold">
+          {step}
+          <span aria-hidden className="ml-0.5 inline-block h-[1em] w-[0.5em] translate-y-[0.15em] animate-pulse bg-onpastel" />
         </span>
-        <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-fg">{step}</span>
-        <span className="font-mono text-[11.5px] text-accent-strong tabular-nums">{((now - started) / 1000).toFixed(1)} s</span>
+        <span className="shrink-0 font-bold tabular-nums">{((now - started) / 1000).toFixed(1)}s</span>
       </div>
       <div className="mt-1.5 flex items-center gap-2">
-        <span className={cn("flex shrink-0 items-center gap-1 rounded-md px-1.5 py-px text-[10.5px] font-semibold", info.chip)}>
-          <span className={cn("size-1 rounded-full", info.bar)} />
-          {info.name}
+        <span className="shrink-0 rounded-[6px] border border-onpastel bg-surface px-1.5 py-px text-[9.5px] font-bold text-ink">
+          {model === "sandbox" ? info.name.toLowerCase() : model}
         </span>
-        <div className="skeleton h-1 min-w-0 flex-1 rounded-full" />
-        <span className="shrink-0 text-[10.5px] text-accent-strong">running</span>
+        <div className="relative h-[5px] min-w-0 flex-1 overflow-hidden rounded-full bg-onpastel/20">
+          <motion.span
+            className="absolute inset-y-0 w-1/3 rounded-full bg-onpastel"
+            initial={{ left: "-33%" }}
+            animate={reduce ? { left: "33%" } : { left: ["-33%", "100%"] }}
+            transition={reduce ? { duration: 0 } : { duration: 1.1, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </div>
+        <span className="shrink-0 text-[10px] font-bold uppercase">running</span>
       </div>
     </div>
   );

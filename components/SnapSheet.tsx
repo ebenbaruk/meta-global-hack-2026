@@ -1,8 +1,11 @@
 "use client";
 
 import { AnimatePresence, motion, useDragControls, useReducedMotion, type PanInfo } from "framer-motion";
-import { Camera, ImageUp, LoaderCircle, ScanLine, X } from "lucide-react";
+import { Camera, ImageUp, LoaderCircle, X } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { Sticker } from "@/components/ui/Sticker";
+import { lockAppScroll } from "@/components/DeviceFrame";
 import { cn } from "@/lib/cn";
 import { downscaleImage, type SnapImageInput } from "@/lib/downscale";
 
@@ -34,11 +37,10 @@ export function SnapSheet({
     setBusy(null);
     setError(null);
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const unlock = lockAppScroll();
     window.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = overflow;
+      unlock();
       window.removeEventListener("keydown", onKey);
     };
   }, [open, onClose]);
@@ -69,11 +71,11 @@ export function SnapSheet({
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center md:items-center md:p-6">
+        <div className="fixed inset-0 z-50 flex items-end justify-center">
           <motion.button
             type="button"
             aria-label="Close"
-            className="absolute inset-0 cursor-default bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 cursor-default bg-onpastel/50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -85,52 +87,54 @@ export function SnapSheet({
             aria-modal="true"
             aria-labelledby="snap-title"
             data-testid="snap-sheet"
-            className="glass-border relative w-full max-w-[520px] rounded-t-[28px] bg-surface pb-[max(env(safe-area-inset-bottom),20px)] shadow-card md:rounded-[28px] md:pb-6"
+            className="relative max-h-[calc(100%-max(env(safe-area-inset-top),44px)-12px)] w-full max-w-[560px] overflow-y-auto overscroll-contain rounded-t-[32px] border-[1.5px] border-b-0 border-line-strong bg-surface pb-[max(env(safe-area-inset-bottom),20px)] shadow-pop"
             initial={reduce ? { opacity: 0 } : { y: "100%" }}
             animate={reduce ? { opacity: 1 } : { y: 0 }}
             exit={reduce ? { opacity: 0 } : { y: "100%" }}
             transition={reduce ? { duration: 0.15 } : SPRING}
-            drag="y"
+            drag={reduce ? false : "y"}
             dragListener={false}
             dragControls={dragControls}
             dragConstraints={{ top: 0, bottom: 0 }}
             dragElastic={{ top: 0, bottom: 0.7 }}
             onDragEnd={onDragEnd}
           >
-            <div
-              className="flex touch-none justify-center pt-3 pb-1 md:hidden"
-              onPointerDown={(e) => dragControls.start(e)}
-              aria-hidden
-            >
-              <span className="h-1 w-10 rounded-full bg-white/20" />
+            <div className="flex touch-none justify-center pt-3 pb-1" onPointerDown={(e) => dragControls.start(e)} aria-hidden>
+              <span className="h-1.5 w-11 rounded-full bg-line-strong/25" />
             </div>
 
             <button
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="absolute top-4 right-4 grid size-9 place-items-center rounded-full bg-white/[0.06] text-muted transition-colors hover:bg-white/10 hover:text-fg"
+              className="absolute top-4 right-4 grid size-10 place-items-center rounded-full bg-elevated text-ink transition-colors hover:bg-lilac-soft"
             >
-              <X className="size-4" />
+              <X className="size-4" strokeWidth={2.5} />
             </button>
 
-            <div className="px-5 pt-3 md:px-6 md:pt-6" onPointerDown={(e) => dragControls.start(e)}>
-              <div className="grid size-11 place-items-center rounded-2xl bg-gradient-to-br from-success/25 to-accent/20 text-success ring-1 ring-white/10">
-                <ScanLine className="size-5" />
-              </div>
-              <h2 id="snap-title" className="mt-4 text-[22px] font-semibold tracking-tight text-fg">
-                Snap something
+            <div className="touch-none px-5 pt-2" onPointerDown={(e) => dragControls.start(e)}>
+              <Image src="/brand/mascot-scan.webp" alt="" width={88} height={88} className="[filter:drop-shadow(0_0_1px_var(--ink))_drop-shadow(0_0_1px_var(--ink))] -mb-1 -ml-2 size-22" />
+              <h2 id="snap-title" className="mt-1 font-display text-[34px] leading-[0.95] font-black text-ink">
+                Snap something.
               </h2>
-              <p className="mt-1 text-[14px] leading-[1.5] text-muted">
-                An invoice, a shelf, a whiteboard. Agents read it, outline what matters and prepare what&apos;s next.
+              <p className="mt-2 pr-6 text-[14.5px] leading-[1.5] text-muted">
+                An invoice, a shelf, a whiteboard. Your agents read it, outline what matters and prep the next step.
               </p>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                <Sticker tone="lilac" rotate={-3}>
+                  Muse Spark reads it
+                </Sticker>
+                <Sticker tone="mint" rotate={2}>
+                  SAM 3.1 outlines it
+                </Sticker>
+              </div>
             </div>
 
-            <div className="mt-5 grid grid-cols-2 gap-3 px-5 md:px-6">
+            <div className="mt-5 grid grid-cols-2 gap-3 px-5">
               <OptionButton
                 label="Take photo"
                 sub="Use the camera"
-                icon={<Camera className="size-5" />}
+                icon={<Camera className="size-5" strokeWidth={2.2} />}
                 primary
                 loading={busy === "camera"}
                 disabled={!!busy}
@@ -139,7 +143,7 @@ export function SnapSheet({
               <OptionButton
                 label="Upload"
                 sub="From your library"
-                icon={<ImageUp className="size-5" />}
+                icon={<ImageUp className="size-5" strokeWidth={2.2} />}
                 loading={busy === "upload"}
                 disabled={!!busy}
                 onClick={() => uploadInput.current?.click()}
@@ -166,13 +170,13 @@ export function SnapSheet({
               />
             </div>
 
-            <div className="mt-6 px-5 md:px-6">
+            <div className="mt-6 px-5">
               <div className="flex items-center gap-3">
-                <span className="text-[11px] font-medium tracking-[0.08em] text-faint uppercase">Try a demo photo</span>
-                <span className="h-px flex-1 bg-line" />
+                <span className="typed text-[10px] text-faint">Or try a demo photo</span>
+                <span className="flex-1 border-t-[1.5px] border-dashed border-line" />
               </div>
-              <div className="mt-3 grid grid-cols-2 gap-3">
-                {DEMOS.map((d) => (
+              <div className="mt-3 grid grid-cols-2 gap-4 px-1 pb-1">
+                {DEMOS.map((d, i) => (
                   <button
                     key={d.id}
                     type="button"
@@ -180,22 +184,33 @@ export function SnapSheet({
                     aria-label={`Use the demo photo: ${d.label}`}
                     disabled={!!busy}
                     onClick={() => void submit(d.id, d.src)}
-                    className="group relative overflow-hidden rounded-2xl border border-line text-left transition-transform active:scale-[0.98] disabled:opacity-60"
+                    className={cn(
+                      "group relative rounded-[18px] border-[1.5px] border-line-strong bg-surface p-1.5 pb-2.5 text-left shadow-card transition-transform duration-200 hover:rotate-0 active:scale-[0.97] disabled:opacity-60",
+                      i === 0 ? "-rotate-2" : "rotate-2",
+                    )}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element -- tiny static demo thumbnail */}
-                    <img
-                      src={d.src}
-                      alt=""
-                      className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                    />
-                    <span className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 via-45% to-transparent" />
-                    <span className="absolute inset-x-3 bottom-2.5">
-                      <span className="block text-[13px] font-semibold text-white">{d.label}</span>
-                      <span className="block text-[11px] text-white/80">{d.hint}</span>
+                    <span className="relative block overflow-hidden rounded-[12px]">
+                      {/* eslint-disable-next-line @next/next/no-img-element -- tiny static demo thumbnail */}
+                      <img
+                        src={d.src}
+                        alt=""
+                        className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                      />
+                      {busy === d.id && (
+                        <span className="absolute inset-0 grid place-items-center bg-onpastel/40">
+                          <span className="grid size-9 place-items-center rounded-full bg-surface">
+                            <LoaderCircle className="size-5 animate-spin text-ink" />
+                          </span>
+                        </span>
+                      )}
                     </span>
-                    {busy === d.id && (
-                      <span className="absolute inset-0 grid place-items-center bg-black/40 backdrop-blur-[2px]">
-                        <LoaderCircle className="size-5 animate-spin text-white" />
+                    <span className="block px-1.5 pt-2 font-display text-[15px] leading-tight font-bold text-ink">{d.label}</span>
+                    <span className="typed block px-1.5 pt-0.5 text-[9px] text-muted">{d.hint}</span>
+                    {i === 0 && (
+                      <span className="absolute -top-2.5 -right-2">
+                        <Sticker tone="yellow" rotate={8}>
+                          Try me
+                        </Sticker>
                       </span>
                     )}
                   </button>
@@ -210,7 +225,7 @@ export function SnapSheet({
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="mx-5 mt-4 rounded-xl border border-danger/30 bg-danger/10 px-3 py-2 text-[13px] text-danger md:mx-6"
+                  className="mx-5 mt-4 rounded-[14px] border-[1.5px] border-danger px-3 py-2 text-[13px] text-danger"
                 >
                   {error}. Try another photo.
                 </motion.p>
@@ -247,20 +262,23 @@ function OptionButton({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        "flex min-h-[112px] flex-col justify-between rounded-2xl p-4 text-left transition-[transform,background-color] active:scale-[0.98] disabled:opacity-60",
+        "flex min-h-[116px] flex-col justify-between rounded-[22px] border-[1.5px] p-4 text-left transition-[transform,box-shadow,background-color] duration-150 disabled:opacity-60",
         primary
-          ? "bg-accent text-white shadow-glow hover:brightness-110"
-          : "border border-line-strong bg-elevated text-fg hover:bg-white/[0.06]",
+          ? "border-onpastel bg-yellow text-onpastel shadow-[3px_3px_0_0_var(--color-onpastel)] hover:-translate-y-px active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
+          : "border-line-strong bg-elevated text-ink hover:bg-lilac-soft active:scale-[0.98]",
       )}
     >
       <span
-        className={cn("grid size-9 place-items-center rounded-xl", primary ? "bg-white/15" : "bg-white/[0.06] text-muted")}
+        className={cn(
+          "grid size-9 place-items-center rounded-full border-[1.5px]",
+          primary ? "border-onpastel bg-onpastel text-yellow" : "border-line-strong bg-surface text-ink",
+        )}
       >
         {loading ? <LoaderCircle className="size-5 animate-spin" /> : icon}
       </span>
       <span>
-        <span className="block text-[15px] font-semibold">{label}</span>
-        <span className={cn("block text-[12px]", primary ? "text-white/75" : "text-faint")}>{sub}</span>
+        <span className="block font-display text-[19px] leading-tight font-extrabold">{label}</span>
+        <span className={cn("typed mt-0.5 block text-[9.5px]", primary ? "text-onpastel/75" : "text-muted")}>{sub}</span>
       </span>
     </button>
   );

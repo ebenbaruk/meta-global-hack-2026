@@ -5,6 +5,9 @@ import { useState } from "react";
 import { CardEditor } from "@/components/cards/CardEditor";
 import { KIND_META } from "@/components/cards/kindMeta";
 import { Sheet } from "@/components/Sheet";
+import { kindTile } from "@/components/TastePanel";
+import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 import type { Card } from "@/lib/schemas";
 
 /** Edit the prepared work before it goes out. Mount with a `key` per card so the draft resets. */
@@ -34,28 +37,26 @@ export function EditSheet({
       footer={
         editing && (
           <div className="flex gap-2">
-            <button
-              type="button"
-              data-testid="edit-save"
-              onClick={() => onSave(editing.payload)}
-              className="h-11 flex-1 rounded-full bg-white/[0.07] text-[14.5px] font-medium text-fg transition hover:bg-white/[0.12]"
-            >
+            <Button variant="secondary" data-testid="edit-save" onClick={() => onSave(editing.payload)} className="shrink-0">
               Save
-            </button>
-            <button
-              type="button"
-              data-testid="edit-save-approve"
-              onClick={() => onSaveAndApprove(editing.payload)}
-              className="flex h-11 flex-[1.6] items-center justify-center gap-2 rounded-full bg-accent text-[14.5px] font-semibold text-white shadow-[0_8px_24px_-10px_rgb(61_123_255/0.9)] transition hover:brightness-110"
-            >
-              <Check className="size-4" strokeWidth={2.5} />
-              Save &amp; {editing.actionLabel.charAt(0).toLowerCase() + editing.actionLabel.slice(1)}
-            </button>
+            </Button>
+            <Button data-testid="edit-save-approve" onClick={() => onSaveAndApprove(editing.payload)} className="min-w-0 flex-1">
+              <Check className="size-4" strokeWidth={2.75} />
+              <span className="truncate">Save &amp; {editing.actionLabel.charAt(0).toLowerCase() + editing.actionLabel.slice(1)}</span>
+            </Button>
           </div>
         )
       }
     >
-      {editing && <CardEditor card={editing} onChange={setDraft} />}
+      {editing && (
+        <>
+          <p className="typed mb-4 flex items-center gap-2 text-[10px] text-faint">
+            <span className={cn("size-2.5 rounded-full", kindTile(editing.kind))} aria-hidden />
+            Drafted by your agent · edit anything
+          </p>
+          <CardEditor card={editing} onChange={setDraft} />
+        </>
+      )}
     </Sheet>
   );
 }

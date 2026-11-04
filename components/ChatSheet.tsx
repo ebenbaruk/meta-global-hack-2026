@@ -1,9 +1,14 @@
 "use client";
 
 import { AnimatePresence, motion, useDragControls, useReducedMotion, type PanInfo } from "framer-motion";
-import { ArrowUp, Check, RotateCcw, Sparkles, Wand2, X } from "lucide-react";
+import { ArrowUp, Check, RotateCcw, Wand2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { KIND_META } from "@/components/cards/kindMeta";
+import { kindTile } from "@/components/TastePanel";
+import { Button } from "@/components/ui/Button";
+import { LogoMark } from "@/components/ui/Logo";
+import { Sticker } from "@/components/ui/Sticker";
+import { lockAppScroll } from "@/components/DeviceFrame";
 import { cn } from "@/lib/cn";
 import type { Card } from "@/lib/schemas";
 
@@ -71,11 +76,10 @@ export function ChatSheet({
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const unlock = lockAppScroll();
     window.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = overflow;
+      unlock();
       window.removeEventListener("keydown", onKey);
     };
   }, [open, onClose]);
@@ -87,11 +91,11 @@ export function ChatSheet({
   return (
     <AnimatePresence>
       {open && card && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center md:items-center md:p-6">
+        <div className="fixed inset-0 z-50 flex items-end justify-center">
           <motion.button
             type="button"
             aria-label="Close chat"
-            className="absolute inset-0 cursor-default bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 cursor-default bg-onpastel/50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -103,16 +107,12 @@ export function ChatSheet({
             aria-modal="true"
             aria-label={`Dive in: ${card.title}`}
             data-testid="chat-sheet"
-            className={cn(
-              "glass-border relative flex w-full flex-col overflow-hidden bg-surface shadow-card",
-              "h-[calc(100dvh-max(env(safe-area-inset-top),12px)-8px)] rounded-t-[28px]",
-              "md:h-[min(780px,88dvh)] md:max-w-[560px] md:rounded-[28px]",
-            )}
+            className="relative flex h-[calc(100%-max(env(safe-area-inset-top),44px)-12px)] w-full max-w-[560px] flex-col overflow-hidden rounded-t-[32px] border-[1.5px] border-b-0 border-line-strong bg-surface shadow-pop"
             initial={reduce ? { opacity: 0 } : { y: "100%" }}
             animate={reduce ? { opacity: 1 } : { y: 0 }}
             exit={reduce ? { opacity: 0 } : { y: "100%" }}
             transition={reduce ? { duration: 0.15 } : SPRING}
-            drag="y"
+            drag={reduce ? false : "y"}
             dragListener={false}
             dragControls={dragControls}
             dragConstraints={{ top: 0, bottom: 0 }}
@@ -146,7 +146,8 @@ function ChatBody({
   const meta = KIND_META[card.kind];
   const Icon = meta.icon;
   const last = entries.at(-1);
-  const streaming = busy && last?.type === "text" && last.role === "user";
+  const waiting = busy && last?.type === "text" && last.role === "user";
+  const streamingId = busy && last?.type === "text" && last.role === "assistant" ? last.id : null;
 
   useEffect(() => () => abort.current?.abort(), []);
   useEffect(() => {
@@ -244,33 +245,34 @@ function ChatBody({
     <>
       {/* Header: drag handle + pinned card context */}
       <header
-        className="shrink-0 touch-none border-b border-line px-5 pt-2.5 pb-4 select-none"
+        className="shrink-0 touch-none border-b border-line px-5 pt-3 pb-4 select-none"
         onPointerDown={(e) => dragControls.start(e)}
       >
-        <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/20 md:hidden" aria-hidden />
+        <div className="mx-auto mb-3 h-1.5 w-11 rounded-full bg-line-strong/25" aria-hidden />
         <div className="flex items-start gap-3">
-          <span className={cn("mt-0.5 grid size-9 shrink-0 place-items-center rounded-xl bg-elevated", meta.tint)}>
-            <Icon className="size-[18px]" aria-hidden />
+          <span className={cn("mt-0.5 grid size-10 shrink-0 -rotate-3 place-items-center rounded-[12px]", kindTile(card.kind))}>
+            <Icon className="size-[18px]" strokeWidth={2.2} aria-hidden />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-medium tracking-wider text-faint uppercase">Dive in · {meta.label}</p>
-            <h2 className="mt-0.5 truncate text-[15px] font-semibold text-fg">{card.title}</h2>
+            <p className="typed text-[10px] text-faint">Dive in · {meta.label}</p>
+            <h2 className="mt-1 line-clamp-2 font-display text-[20px] leading-[1.1] font-extrabold text-ink">{card.title}</h2>
           </div>
           <button
             type="button"
             onClick={onClose}
             onPointerDown={(e) => e.stopPropagation()}
             aria-label="Close"
-            className="grid size-9 shrink-0 place-items-center rounded-full bg-elevated text-muted transition-colors hover:bg-white/10 hover:text-fg"
+            className="grid size-10 shrink-0 place-items-center rounded-full bg-elevated text-ink transition-colors hover:bg-lilac-soft"
           >
-            <X className="size-4" />
+            <X className="size-4" strokeWidth={2.5} />
           </button>
         </div>
         {knows && (
-          <div className="mt-3 flex min-w-0 items-center gap-2 rounded-full border border-line bg-accent-soft/50 py-1.5 pr-3 pl-2 text-xs">
-            <Sparkles className="size-3.5 shrink-0 text-accent-strong" aria-hidden />
-            <span className="shrink-0 font-medium text-accent-strong">Knows</span>
-            <span className="truncate text-muted">{knows}</span>
+          <div className="mt-3 flex min-w-0 items-center gap-2 rounded-full bg-lilac-soft py-1.5 pr-3 pl-1.5">
+            <span className="typed shrink-0 rounded-full border-[1.5px] border-onpastel bg-lilac px-2 py-0.5 text-[9px] font-bold text-onpastel">
+              Knows
+            </span>
+            <span className="truncate font-mono text-[11px] text-lilac-ink">{knows}</span>
           </div>
         )}
       </header>
@@ -282,18 +284,18 @@ function ChatBody({
           <AnimatePresence initial={false}>
             {entries.map((entry) =>
               entry.type === "text" ? (
-                <Bubble key={entry.id} role={entry.role} content={entry.content} />
+                <Bubble key={entry.id} role={entry.role} content={entry.content} streaming={entry.id === streamingId} />
               ) : (
                 <RevisionBlock key={entry.id} card={card} entry={entry} onApply={() => apply(entry)} onRetry={() => revise(entry.instruction)} />
               ),
             )}
-            {streaming && <Typing key="typing" />}
+            {waiting && <Typing key="typing" />}
           </AnimatePresence>
         </div>
       </div>
 
       {/* Starters + composer */}
-      <footer className="shrink-0 border-t border-line bg-surface/95 pb-[max(env(safe-area-inset-bottom),12px)]">
+      <footer className="shrink-0 border-t border-line bg-surface pb-[max(env(safe-area-inset-bottom),12px)]">
         <div className="no-scrollbar flex gap-2 overflow-x-auto px-4 pt-3">
           {STARTERS.map((s) => (
             <button
@@ -302,9 +304,9 @@ function ChatBody({
               data-testid="chat-chip"
               disabled={busy}
               onClick={() => ("revise" in s ? revise(s.revise) : ask(s.prompt))}
-              className="flex shrink-0 items-center gap-1.5 rounded-full border border-line-strong bg-elevated px-3.5 py-2 text-[13px] font-medium text-fg transition-colors hover:border-accent/50 hover:bg-accent-soft disabled:opacity-40"
+              className="typed flex h-9 shrink-0 items-center gap-1.5 rounded-full border-[1.5px] border-line-strong bg-surface px-3.5 text-[10.5px] font-bold text-ink transition-colors hover:bg-lilac-soft disabled:opacity-40"
             >
-              {"revise" in s && <Wand2 className="size-3.5 text-accent-strong" aria-hidden />}
+              {"revise" in s && <Wand2 className="size-3.5 text-lilac-ink" aria-hidden />}
               {s.label}
             </button>
           ))}
@@ -321,14 +323,15 @@ function Intro({ card }: { card: Card }) {
   return (
     <div className="flex items-start gap-2.5">
       <AgentAvatar />
-      <div className="max-w-[85%] space-y-3 rounded-2xl rounded-tl-md border border-line bg-elevated px-4 py-3 text-[14px] leading-relaxed text-muted">
+      <div className="max-w-[85%] space-y-3 rounded-[20px] rounded-tl-[6px] bg-elevated px-4 py-3 text-[14.5px] leading-relaxed text-muted">
         <p>
-          <span className="text-fg">{card.why}</span> Ask me anything about it, or have me rework the draft.
+          <span className="text-ink">{card.why}</span> Ask me anything about it, or have me rework the draft.
         </p>
         {draft && (
-          <blockquote className="border-l-2 border-accent/60 pl-3 text-[13px] leading-relaxed whitespace-pre-line text-muted">
-            <span className="line-clamp-4">{draft}</span>
-          </blockquote>
+          <div className="rounded-[14px] border border-line bg-surface px-3 py-2.5">
+            <p className="typed text-[9px] text-faint">Current draft</p>
+            <p className="mt-1 line-clamp-4 text-[13px] leading-relaxed whitespace-pre-line text-ink">{draft}</p>
+          </div>
         )}
       </div>
     </div>
@@ -337,11 +340,8 @@ function Intro({ card }: { card: Card }) {
 
 function AgentAvatar() {
   return (
-    <span
-      aria-hidden
-      className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full bg-gradient-to-br from-accent to-violet shadow-glow"
-    >
-      <Sparkles className="size-3.5 text-white" />
+    <span aria-hidden className="mt-0.5 shrink-0">
+      <LogoMark className="size-7" />
     </span>
   );
 }
@@ -353,33 +353,42 @@ const enter = {
   transition: SPRING,
 };
 
-function Bubble({ role, content }: { role: "user" | "assistant"; content: string }) {
+function Bubble({ role, content, streaming }: { role: "user" | "assistant"; content: string; streaming?: boolean }) {
   const user = role === "user";
   return (
     <motion.div {...enter} data-testid="chat-message" data-role={role} className={cn("flex items-start gap-2.5", user && "justify-end")}>
       {!user && <AgentAvatar />}
       <div
         className={cn(
-          "max-w-[85%] rounded-2xl px-4 py-2.5 text-[14px] leading-relaxed whitespace-pre-wrap",
-          user ? "rounded-tr-md bg-accent text-white" : "rounded-tl-md border border-line bg-elevated text-fg",
+          "max-w-[85%] rounded-[20px] px-4 py-2.5 text-[14.5px] leading-relaxed whitespace-pre-wrap",
+          user
+            ? "rounded-tr-[6px] border-[1.5px] border-onpastel bg-lilac text-onpastel"
+            : "rounded-tl-[6px] bg-elevated text-ink",
         )}
       >
         {content}
+        {streaming && (
+          <span
+            aria-hidden
+            className="ml-0.5 inline-block h-[1.05em] w-[0.5em] translate-y-[0.18em] animate-pulse rounded-[2px] bg-lilac-ink"
+          />
+        )}
       </div>
     </motion.div>
   );
 }
 
 function Typing() {
+  const reduce = useReducedMotion();
   return (
     <motion.div {...enter} className="flex items-start gap-2.5" aria-label="Agent is typing">
       <AgentAvatar />
-      <div className="flex items-center gap-1 rounded-2xl rounded-tl-md border border-line bg-elevated px-4 py-3.5">
+      <div className="flex items-center gap-1 rounded-[20px] rounded-tl-[6px] bg-elevated px-4 py-3.5">
         {[0, 1, 2].map((i) => (
           <motion.span
             key={i}
-            className="size-1.5 rounded-full bg-muted"
-            animate={{ opacity: [0.3, 1, 0.3], y: [0, -3, 0] }}
+            className="size-1.5 rounded-full bg-lilac-ink"
+            animate={reduce ? { opacity: [0.3, 1, 0.3] } : { opacity: [0.3, 1, 0.3], y: [0, -3, 0] }}
             transition={{ duration: 1, repeat: Infinity, delay: i * 0.15 }}
           />
         ))}
@@ -405,11 +414,11 @@ function RevisionBlock({
   return (
     <motion.div {...enter} className="flex items-start gap-2.5">
       <AgentAvatar />
-      <div className="min-w-0 flex-1 overflow-hidden rounded-2xl rounded-tl-md border border-line-strong bg-elevated">
+      <div className="min-w-0 flex-1 overflow-hidden rounded-[20px] rounded-tl-[6px] border-[1.5px] border-line-strong bg-surface">
         {entry.status === "loading" && (
           <div className="space-y-2.5 px-4 py-3.5">
-            <p className="flex items-center gap-2 text-[13px] font-medium text-muted">
-              <Wand2 className="size-3.5 animate-pulse text-accent-strong" aria-hidden />
+            <p className="typed flex items-center gap-2 text-[10px] text-muted">
+              <Wand2 className="size-3.5 animate-pulse text-lilac-ink" aria-hidden />
               Rewriting the draft…
             </p>
             <div className="skeleton h-2.5 w-full rounded-full" />
@@ -421,7 +430,7 @@ function RevisionBlock({
         {entry.status === "error" && (
           <div className="flex items-center justify-between gap-3 px-4 py-3.5">
             <p className="text-[13px] text-danger">Couldn&apos;t rewrite it this time.</p>
-            <button type="button" onClick={onRetry} className="flex items-center gap-1.5 text-[13px] font-medium text-fg">
+            <button type="button" onClick={onRetry} className="flex items-center gap-1.5 text-[13px] font-semibold text-ink">
               <RotateCcw className="size-3.5" /> Retry
             </button>
           </div>
@@ -429,39 +438,33 @@ function RevisionBlock({
 
         {entry.status === "ready" && (
           <>
-            <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-2.5">
-              <p className="flex items-center gap-1.5 text-[13px] font-medium text-success">
-                <Check className="size-3.5" aria-hidden /> Updated the draft
-              </p>
-              <span className="font-mono text-[11px] text-faint">
+            <div className="flex items-center justify-between gap-3 border-b border-dashed border-line px-4 py-2.5">
+              <Sticker tone="mint" rotate={-3}>
+                <Check className="size-3" strokeWidth={3} aria-hidden /> New draft
+              </Sticker>
+              <span className="font-mono text-[10.5px] text-muted">
                 {beforeWords} → {afterWords} words
               </span>
             </div>
             <div className="px-4 py-3">
-              <p className="mb-2 line-clamp-2 text-[12px] leading-relaxed text-faint line-through decoration-faint/60">
+              <p className="mb-2 line-clamp-2 text-[12px] leading-relaxed text-faint line-through decoration-faint/70">
                 {entry.before}
               </p>
-              <p className="text-[13.5px] leading-relaxed whitespace-pre-wrap text-fg">{after}</p>
+              <p className="text-[14px] leading-relaxed whitespace-pre-wrap text-ink">{after}</p>
             </div>
             <div className="px-3 pb-3">
-              <button
-                type="button"
-                data-testid="chat-apply"
-                disabled={entry.applied}
-                onClick={onApply}
-                className={cn(
-                  "flex h-10 w-full items-center justify-center gap-2 rounded-xl text-[14px] font-semibold transition-colors",
-                  entry.applied ? "bg-success/15 text-success" : "bg-accent text-white hover:brightness-110",
-                )}
-              >
-                {entry.applied ? (
-                  <>
-                    <Check className="size-4" /> Applied to card
-                  </>
-                ) : (
-                  "Apply to card"
-                )}
-              </button>
+              {entry.applied ? (
+                <p
+                  data-testid="chat-apply"
+                  className="flex h-11 w-full items-center justify-center gap-2 rounded-full border-[1.5px] border-onpastel bg-mint text-[15px] font-semibold text-onpastel"
+                >
+                  <Check className="size-4" strokeWidth={3} /> Applied to card
+                </p>
+              ) : (
+                <Button data-testid="chat-apply" onClick={onApply} className="w-full">
+                  <Wand2 className="size-4" strokeWidth={2.4} /> Apply to card
+                </Button>
+              )}
             </div>
           </>
         )}
@@ -511,16 +514,16 @@ function Composer({
         }}
         placeholder="Ask about this card…"
         aria-label="Message"
-        className="no-scrollbar min-h-11 flex-1 resize-none focus-visible:outline-none! rounded-[22px] border border-line-strong bg-elevated px-4 py-[10px] text-base leading-snug text-fg placeholder:text-faint focus:border-accent/60 focus:outline-none"
+        className="no-scrollbar min-h-11 flex-1 resize-none rounded-[22px] border-[1.5px] border-line bg-elevated px-4 py-[9px] text-base leading-snug text-ink transition-colors placeholder:text-faint focus:border-line-strong focus:outline-none focus-visible:outline-none!"
       />
       <button
         type="submit"
         data-testid="chat-send"
         disabled={disabled || !value.trim()}
         aria-label="Send"
-        className="grid size-11 shrink-0 place-items-center rounded-full bg-accent text-white transition-all hover:brightness-110 disabled:bg-elevated disabled:text-faint"
+        className="grid size-11 shrink-0 place-items-center rounded-full border-[1.5px] border-onpastel bg-yellow text-onpastel shadow-[2px_2px_0_0_var(--color-onpastel)] transition-[transform,box-shadow] duration-150 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:border-line disabled:bg-elevated disabled:text-faint disabled:shadow-none"
       >
-        <ArrowUp className="size-5" />
+        <ArrowUp className="size-5" strokeWidth={2.5} />
       </button>
     </form>
   );

@@ -1,10 +1,13 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Send } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { KIND_META } from "@/components/cards/kindMeta";
-import { EmptyState } from "@/components/EmptyState";
+import { kindTile } from "@/components/TastePanel";
+import { Button } from "@/components/ui/Button";
+import { Sticker } from "@/components/ui/Sticker";
 import { cn } from "@/lib/cn";
 import { useFeed, type OutboxEntry } from "@/lib/store";
 
@@ -35,47 +38,36 @@ export function Outbox({ onBrowse }: { onBrowse: () => void }) {
   return (
     <section data-testid="outbox" className="pb-[calc(env(safe-area-inset-bottom)+112px)]">
       <header className="px-1 pt-5 pb-5">
-        <p className="text-[12px] font-medium tracking-wider text-faint uppercase">Receipts</p>
-        <h1 className="mt-1.5 text-[28px] leading-tight font-semibold tracking-tight text-fg">Done for you</h1>
-        <p className="mt-1 text-[15px] text-muted">
+        <p className="typed text-[10.5px] text-faint">Receipts</p>
+        <h1 className="mt-1 font-display text-[40px] leading-[0.95] font-black text-ink">Done for you.</h1>
+        <p className="mt-2 text-[15px] text-muted">
           {outbox.length === 0
-            ? "Approved actions land here."
+            ? "Approved actions land here, stamped."
             : `${done} action${done === 1 ? "" : "s"} executed by your agents.`}
         </p>
       </header>
 
       {outbox.length === 0 ? (
-        <EmptyState
-          icon={Send}
-          title="Nothing sent yet"
-          body="Approve a card and your agents do the rest. Every action shows up here with a receipt."
-          action={
-            <button
-              type="button"
-              onClick={onBrowse}
-              className="h-10 rounded-full bg-accent px-5 text-[14px] font-semibold text-white transition hover:brightness-110"
-            >
-              Go to your feed
-            </button>
-          }
-        />
+        <Empty onBrowse={onBrowse} />
       ) : (
-        <ul className="glass-border overflow-hidden rounded-card bg-surface shadow-card">
+        <ul className="flex flex-col gap-3">
           <AnimatePresence initial={false}>
-            {outbox.map((entry, i) => (
-              <Row key={entry.cardId} entry={entry} now={now} first={i === 0} />
+            {outbox.map((entry) => (
+              <Receipt key={entry.cardId} entry={entry} now={now} />
             ))}
           </AnimatePresence>
         </ul>
       )}
       {outbox.length > 0 && (
-        <p className="mt-4 px-1 text-center text-[12px] text-faint">Actions run against Maya&apos;s sandbox tools. Nothing leaves the demo.</p>
+        <p className="typed mt-5 px-1 text-center text-[9.5px] leading-relaxed text-faint">
+          Runs against Maya&apos;s sandbox tools · nothing leaves the demo
+        </p>
       )}
     </section>
   );
 }
 
-function Row({ entry, now, first }: { entry: OutboxEntry; now: number; first: boolean }) {
+function Receipt({ entry, now }: { entry: OutboxEntry; now: number }) {
   const reduce = useReducedMotion();
   const meta = KIND_META[entry.kind];
   const Icon = meta.icon;
@@ -86,50 +78,57 @@ function Row({ entry, now, first }: { entry: OutboxEntry; now: number; first: bo
       layout={!reduce}
       data-testid="outbox-item"
       data-state={entry.state}
-      initial={{ opacity: 0, height: 0 }}
-      animate={{ opacity: 1, height: "auto" }}
+      initial={reduce ? { opacity: 0 } : { opacity: 0, y: -12, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, height: 0 }}
-      className={cn(!first && "border-t border-line")}
+      transition={{ type: "spring", stiffness: 260, damping: 24 }}
+      className="relative overflow-hidden rounded-[20px] border border-line bg-surface shadow-card"
     >
-      <div className="flex items-center gap-3 px-4 py-3.5">
-        <span className={cn("grid size-10 shrink-0 place-items-center rounded-xl bg-current/12", meta.tint)}>
-          <Icon className="size-[18px]" />
+      <div className="flex items-start gap-3 px-4 pt-4 pb-3.5">
+        <span className={cn("grid size-10 shrink-0 -rotate-3 place-items-center rounded-[12px]", kindTile(entry.kind))}>
+          <Icon className="size-[18px]" strokeWidth={2.2} />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[14.5px] font-medium text-fg">{entry.title}</p>
-          <p className="truncate text-[12.5px] text-muted">
-            {entry.detail} <span className="text-faint">· {sending ? "Sending…" : ago(entry.at, now)}</span>
-          </p>
+          <p className="text-[15px] leading-snug font-semibold text-ink">{entry.title}</p>
+          <p className="mt-0.5 truncate text-[13px] text-muted">{entry.detail}</p>
         </div>
+      </div>
+      <div className="typed mx-4 flex items-center gap-3 border-t-[1.5px] border-dashed border-line py-3 pr-24 text-[9.5px] text-faint">
+        <span className="truncate">
+          {entry.tool} · {sending ? "sending…" : ago(entry.at, now)}
+        </span>
+      </div>
+      <span className="absolute right-4 bottom-2.5">
         {sending ? (
-          <span className="relative grid size-7 shrink-0 place-items-center" aria-label="Sending">
-            <span className="absolute inset-0 animate-spin rounded-full border-2 border-white/10 border-t-accent" />
+          <span aria-label="Sending">
+            <Sticker tone="lilac" rotate={-3}>
+              <span className="size-2.5 animate-spin rounded-full border-[1.5px] border-onpastel/30 border-t-onpastel" aria-hidden />
+              Sending
+            </Sticker>
           </span>
         ) : (
-          <DoneCheck />
+          <span aria-label="Done">
+            <Sticker tone="mint" rotate={7}>
+              Done ✓
+            </Sticker>
+          </span>
         )}
-      </div>
+      </span>
     </motion.li>
   );
 }
 
-function DoneCheck() {
+function Empty({ onBrowse }: { onBrowse: () => void }) {
   return (
-    <motion.span
-      aria-label="Done"
-      initial={{ scale: 0.4, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ type: "spring", stiffness: 500, damping: 22 }}
-      className="grid size-7 shrink-0 place-items-center rounded-full bg-success/15 text-success"
-    >
-      <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
-        <motion.path
-          d="M5 12.5l4.5 4.5L19 7.5"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ delay: 0.12, duration: 0.35, ease: "easeOut" }}
-        />
-      </svg>
-    </motion.span>
+    <div className="flex flex-col items-center rounded-card border-[1.5px] border-dashed border-line px-6 pt-8 pb-8 text-center">
+      <Image src="/brand/mascot-coffee.webp" alt="" width={176} height={176} className="[filter:drop-shadow(0_0_1px_var(--ink))_drop-shadow(0_0_1px_var(--ink))] -mt-2 size-44" priority />
+      <h2 className="mt-4 font-display text-[26px] leading-none font-black text-ink">Nothing sent yet</h2>
+      <p className="mt-2 max-w-[280px] text-[14px] leading-relaxed text-muted">
+        Approve a card and your agents do the rest. Every action comes back here with a receipt.
+      </p>
+      <Button onClick={onBrowse} className="mt-6">
+        Go to your feed <ArrowRight className="size-4" strokeWidth={2.5} />
+      </Button>
+    </div>
   );
 }

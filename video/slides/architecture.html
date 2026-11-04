@@ -1,0 +1,68 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css"><style>
+  .wrap { position: absolute; inset: 0; padding: 110px 120px; }
+  h1 { font-size: 74px; line-height: 1.05; font-weight: 650; letter-spacing: -0.04em; margin-top: 22px; }
+  .flow { margin-top: 90px; display: flex; align-items: stretch; }
+  .inputs { display: flex; flex-direction: column; justify-content: center; gap: 14px; width: 190px; flex: none; }
+  .in { display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-radius: 14px; border: 1px solid var(--line-strong); background: rgb(255 255 255 / 0.03); font-size: 21px; color: var(--muted); }
+  .in i { width: 9px; height: 9px; border-radius: 50%; background: var(--faint); flex: none; }
+  .arrow { flex: none; width: 66px; display: flex; align-items: center; justify-content: center; position: relative; }
+  .arrow::before { content: ""; position: absolute; left: 8px; right: 14px; top: 50%; height: 2px; background: linear-gradient(90deg, rgb(91 143 255 / 0.15), rgb(91 143 255 / 0.9)); }
+  .arrow::after { content: ""; position: absolute; right: 8px; top: calc(50% - 7px); border: 7px solid transparent; border-left: 10px solid rgb(91 143 255 / 0.9); border-right: 0; }
+  .node { flex: 1; padding: 30px 28px 28px; display: flex; flex-direction: column; min-width: 0; }
+  .node .ico { width: 58px; height: 58px; border-radius: 17px; display: grid; place-items: center; background: rgb(61 123 255 / 0.14); box-shadow: 0 0 0 1px rgb(61 123 255 / 0.35), 0 8px 30px -8px rgb(61 123 255 / 0.55); color: var(--accent-strong); }
+  .node .ico svg { width: 28px; height: 28px; }
+  .node h2 { margin-top: 22px; font-size: 38px; font-weight: 650; letter-spacing: -0.02em; }
+  .node p { margin-top: 10px; font-size: 22px; line-height: 1.4; color: var(--muted); flex: 1; }
+  .node .chips { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .node .chip { font-size: 17px; padding: 5px 10px; }
+  .par { display: flex; gap: 6px; margin-top: 22px; }
+  .par span { height: 8px; flex: 1; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--violet)); opacity: .55; }
+  .foot { position: absolute; left: 120px; right: 120px; bottom: 100px; display: flex; align-items: center; justify-content: space-between; }
+  .models { display: flex; gap: 14px; align-items: center; }
+  .models .chip { font-size: 22px; padding: 9px 16px; border-radius: 12px; }
+  .note { font-size: 23px; color: var(--faint); }
+  .note b { color: var(--fg); font-weight: 600; }
+</style></head><body class="glow grain">
+  <div class="wrap">
+    <div class="eyebrow">Under the hood</div>
+    <h1>Four agents. <span class="grad">Three Meta models.</span></h1>
+    <div class="flow">
+      <div class="inputs">
+        <div class="in"><i></i>Inbox</div><div class="in"><i></i>Calendar</div><div class="in"><i></i>Sales</div><div class="in"><i></i>Photos</div>
+      </div>
+      <div class="arrow"></div>
+      <div class="node glass">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
+        <h2>Miner</h2>
+        <p>Reads the context and finds what needs doing. Strict JSON schema.</p>
+        <div class="chips"><span class="chip spark">Muse Spark 1.3</span></div>
+      </div>
+      <div class="arrow"></div>
+      <div class="node glass">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/></svg></span>
+        <h2>Preparers</h2>
+        <p>Run in parallel and do the work behind every card.</p>
+        <div class="par"><span></span><span></span><span></span><span></span></div>
+        <div class="chips"><span class="chip spark">Muse Spark 1.3</span><span class="chip image">Muse Image 1.0</span><span class="chip sam">SAM 3.1</span></div>
+      </div>
+      <div class="arrow"></div>
+      <div class="node glass">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></span>
+        <h2>Ranker</h2>
+        <p>Orders the feed and learns from every swipe, edit and dismissal.</p>
+        <div class="chips"><span class="chip plain">Taste weights</span><span class="chip spark">Muse Spark 1.3</span></div>
+      </div>
+      <div class="arrow"></div>
+      <div class="node glass">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></span>
+        <h2>Executor</h2>
+        <p>Acts on approval: sends, posts, schedules. Tool calling.</p>
+        <div class="chips"><span class="chip spark">Muse Spark 1.3</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div class="models"><span class="chip spark">Muse Spark 1.3 · text + vision</span><span class="chip image">Muse Image 1.0</span><span class="chip sam">SAM 3.1</span></div>
+    <div class="note">One OpenAI-compatible API · <b>every call traced in the Agent Lens</b></div>
+  </div>
+</body></html>

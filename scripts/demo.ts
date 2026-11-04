@@ -319,8 +319,14 @@ async function mobilePass(run: Run) {
 
 async function desktopPass(run: Run) {
   const { page } = run;
+  await page.goto(APP, { waitUntil: "domcontentloaded" });
+  // Start on the hydrated phone frame (the server render is the full-bleed layout for a split second).
+  await page.waitForFunction(() => {
+    const frame = document.querySelector('[data-testid="device-frame"]');
+    return !!frame && frame.getBoundingClientRect().width < 600;
+  });
   run.mark("scene", "intro");
-  await run.open();
+  await nudge(page);
   await run.fast(() => feedReady(run), 4200);
   await run.pause(1200);
   // "Every call shows up on the right": the finger visits the Agent Lens, then comes back to the phone.

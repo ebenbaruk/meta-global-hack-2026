@@ -1,0 +1,21 @@
+{
+  "name": "Maya Chen",
+  "company": "Ember & Oak Coffee Roasters",
+  "role": "Founder & owner",
+  "city": "Portland, OR",
+  "tone": "Warm, direct, short sentences. Friendly but never gushing. Says thank you, owns mistakes fast, gets to the point in the first line. No corporate jargon, no exclamation-mark spam (one at most).",
+  "signature": "— Maya",
+  "now": "2026-11-04T08:30:00",
+  "goalsThisWeek": [
+    "Launch Ethiopia Guji Natural on Friday Nov 6 (web + café + Instagram)",
+    "Close Bloom Café as a 40 lb/week wholesale account",
+    "Send Daniel Okafor (Cascade Seed Partners) the numbers before Thursday's coffee chat",
+    "Keep customers happy: answer every complaint within 24h",
+    "Say yes to one press opportunity that reaches home brewers"
+  ],
+  "team": [
+    { "name": "Diego Ramos", "role": "Head roaster", "handle": "@diego" },
+    { "name": "Priya Shah", "role": "Wholesale & operations", "handle": "@priya" },
+    { "name": "Jules Martin", "role": "Café lead & social (part-time)", "handle": "@jules" }
+  ]
+}

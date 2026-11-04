@@ -1,0 +1,50 @@
+[
+  {
+    "id": "sp1",
+    "brand": "PickupPilot",
+    "category": "Local courier & scheduled pickups",
+    "offer": "Scheduled same-day wholesale deliveries across Portland from $9 a drop. First 2 weeks free for new accounts.",
+    "cta": "Book a pickup",
+    "matchesWhen": "The business is adding a wholesale account or committing to regular delivery days (e.g. a café ordering a fixed weekly volume)."
+  },
+  {
+    "id": "sp2",
+    "brand": "Kraftfold",
+    "category": "Custom coffee packaging",
+    "offer": "Printed compostable 12 oz coffee bags in 5 business days, no minimum over 250. Rush lane for launches.",
+    "cta": "Get a quote",
+    "matchesWhen": "A packaging or bag supplier is late, or a product launch depends on printed packaging arriving in time."
+  },
+  {
+    "id": "sp3",
+    "brand": "Ledgerleaf",
+    "category": "Bookkeeping for small food brands",
+    "offer": "Investor-ready monthly reports (revenue by channel, margins, churn) synced from your store and bank. 30 days free.",
+    "cta": "Try free",
+    "matchesWhen": "An investor or lender asks for revenue, margin or churn numbers, or supplier invoices are piling up to be paid."
+  },
+  {
+    "id": "sp4",
+    "brand": "TapStall",
+    "category": "Card reader for markets & pop-ups",
+    "offer": "Pocket card reader that works offline and syncs later. $29 for market vendors, 2.4% per tap.",
+    "cta": "Order a reader",
+    "matchesWhen": "The business sells at a farmers market, pop-up or event, especially where Wi-Fi is unreliable."
+  },
+  {
+    "id": "sp5",
+    "brand": "Lumen & Lens Studio",
+    "category": "Product photography",
+    "offer": "Same-week product shoots for small brands: 10 edited photos for $180, studio in SE Portland.",
+    "cta": "Book a shoot",
+    "matchesWhen": "A new product is launching and the team lacks product photos for social posts or the online store."
+  },
+  {
+    "id": "sp6",
+    "brand": "Roastwell Service Co.",
+    "category": "Roaster & espresso machine maintenance",
+    "offer": "Preventive maintenance visit for drum roasters and espresso machines, $149, includes chaff and exhaust cleaning.",
+    "cta": "Schedule a visit",
+    "matchesWhen": "The roast schedule is unusually heavy (launch batches, new wholesale volume) and equipment uptime matters."
+  }
+]

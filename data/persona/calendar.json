@@ -1,0 +1,16 @@
+[
+  { "id": "c1", "title": "Weekly stand-up", "start": "2026-11-02T09:00:00", "end": "2026-11-02T09:30:00", "with": ["Diego Ramos", "Priya Shah", "Jules Martin"], "location": "Roastery, 1418 SE Belmont St" },
+  { "id": "c2", "title": "Newsletter final review: Guji Natural teaser", "start": "2026-11-02T14:00:00", "end": "2026-11-02T14:45:00", "with": ["Jules Martin"], "location": "Video call" },
+  { "id": "c3", "title": "Production roast: House Blend & Espresso", "start": "2026-11-03T07:00:00", "end": "2026-11-03T11:00:00", "with": ["Diego Ramos"], "location": "Roastery" },
+  { "id": "c4", "title": "Launch sync: Guji Natural", "start": "2026-11-04T09:00:00", "end": "2026-11-04T09:30:00", "with": ["Diego Ramos", "Priya Shah", "Jules Martin"], "location": "Roastery" },
+  { "id": "c5", "title": "Call: Northline Packaging re launch bags", "start": "2026-11-04T13:00:00", "end": "2026-11-04T13:30:00", "with": ["Owen Hart (Northline Packaging)"], "location": "Phone" },
+  { "id": "c6", "title": "Cupping: Guji Natural final profile", "start": "2026-11-04T16:00:00", "end": "2026-11-04T17:00:00", "with": ["Diego Ramos"], "location": "Roastery cupping table" },
+  { "id": "c7", "title": "Tasting & pricing with Bloom Café", "start": "2026-11-05T10:30:00", "end": "2026-11-05T11:30:00", "with": ["Lena Ortiz (Bloom Café)", "Priya Shah"], "location": "Bloom Café, 2210 SE Division St" },
+  { "id": "c8", "title": "Coffee chat: Daniel Okafor (Cascade Seed Partners)", "start": "2026-11-05T10:00:00", "end": "2026-11-05T11:00:00", "with": ["Daniel Okafor (Cascade Seed Partners)"], "location": "Ember & Oak café bar, 1418 SE Belmont St" },
+  { "id": "c9", "title": "Production roast: Guji Natural launch batch", "start": "2026-11-05T14:00:00", "end": "2026-11-05T17:00:00", "with": ["Diego Ramos"], "location": "Roastery" },
+  { "id": "c10", "title": "Launch morning: pack & ship first Guji orders", "start": "2026-11-06T09:00:00", "end": "2026-11-06T10:30:00", "with": ["Diego Ramos", "Priya Shah", "Jules Martin"], "location": "Roastery" },
+  { "id": "c11", "title": "Dentist: Dr. Anita Patel", "start": "2026-11-06T09:30:00", "end": "2026-11-06T10:15:00", "with": [], "location": "Belmont Family Dental" },
+  { "id": "c12", "title": "Instagram Live: Guji Natural launch", "start": "2026-11-06T12:00:00", "end": "2026-11-06T12:30:00", "with": ["Jules Martin"], "location": "Café bar" },
+  { "id": "c13", "title": "Alder Street Farmers Market stall", "start": "2026-11-07T08:00:00", "end": "2026-11-07T14:00:00", "with": ["Jules Martin"], "location": "Alder Street Farmers Market, booth 14" },
+  { "id": "c14", "title": "Plan next week", "start": "2026-11-08T18:00:00", "end": "2026-11-08T18:30:00", "with": [], "location": "Home" }
+]

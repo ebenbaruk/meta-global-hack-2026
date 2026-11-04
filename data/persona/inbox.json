@@ -1,0 +1,122 @@
+[
+  {
+    "id": "e1",
+    "from": { "name": "Lena Ortiz", "email": "lena@bloomcafe.co", "company": "Bloom Café" },
+    "subject": "Pricing for 40 lb/week",
+    "body": "Hi Maya,\n\nWe loved the House Blend samples. The team voted and we'd like to move Bloom to Ember & Oak starting the week of Nov 16.\n\nWe'd need about 40 lb a week: roughly 30 lb House Blend for drip and 10 lb Oak Street Espresso. Could you send your wholesale pricing at that volume, delivery days, and payment terms? Our current roaster is at $11.20/lb delivered, so that's the number I have to beat with my partners.\n\nAlso, could we taste the new Guji Natural before Friday? I'd love to have it as a guest pour-over the launch weekend. Thursday's tasting at 10:30 still works on our side.\n\nThanks!\nLena Ortiz\nOwner, Bloom Café · 2210 SE Division St",
+    "receivedAt": "2026-11-03T17:42:00",
+    "labels": ["wholesale", "lead"]
+  },
+  {
+    "id": "e2",
+    "from": { "name": "Daniel Okafor", "email": "daniel@cascadeseed.vc", "company": "Cascade Seed Partners" },
+    "subject": "Following up: a few numbers before Thursday",
+    "body": "Hi Maya,\n\nReally enjoyed meeting you at the Portland Founders breakfast. Before we sit down Thursday, could you send a few numbers so I can come prepared?\n\n1. Monthly revenue for the last 3 months, split web / wholesale / café\n2. Gross margin on a 12 oz bag\n3. Number of active subscriptions and monthly churn\n4. How many wholesale accounts you have, and the pipeline\n\nNo deck needed, a short email is perfect. I'm mostly trying to understand how fast wholesale can grow without a second roaster.\n\nBest,\nDaniel Okafor\nPartner, Cascade Seed Partners",
+    "receivedAt": "2026-11-03T09:15:00",
+    "labels": ["investor"]
+  },
+  {
+    "id": "e3",
+    "from": { "name": "Highland Green Imports", "email": "billing@highlandgreen.coffee", "company": "Highland Green Imports" },
+    "subject": "Invoice HGI-20931: green coffee, due Nov 19",
+    "body": "Hello Ember & Oak,\n\nPlease find your invoice for the shipment delivered Oct 30 to 1418 SE Belmont St.\n\nInvoice HGI-20931 · Terms: Net 20 · Due: Nov 19, 2026\n\n- Ethiopia Guji Natural, Grade 1 (Hambela): 4 bags × 60 kg = 240 kg @ $8.90/kg: $2,136.00\n- Colombia Huila Washed, Excelso: 2 bags × 70 kg = 140 kg @ $7.40/kg: $1,036.00\n- Freight & warehouse handling: $185.00\n\nTotal due: $3,357.00\n\nPay by ACH to the account on file, or by card (3% fee). Your next Huila allocation can ship Nov 12 if confirmed by Nov 6.\n\nThank you,\nAccounts, Highland Green Imports",
+    "receivedAt": "2026-11-02T11:05:00",
+    "labels": ["supplier", "invoice"]
+  },
+  {
+    "id": "e4",
+    "from": { "name": "Tom Becker", "email": "tom.becker@fastmail.net" },
+    "subject": "Order #EO-4471 arrived late and stale",
+    "body": "Hi,\n\nI ordered two bags of House Blend on Oct 24 (order #EO-4471) as a birthday gift for my dad. The tracking said Oct 28. They arrived Nov 2, and one bag says roasted Oct 14. It tasted flat and papery, nothing like what I had at your café.\n\nI've been a fan for a year and I'm honestly disappointed. The birthday was Oct 30, so the timing was a miss too.\n\nI'd like a refund for the stale bag at least ($17). Not trying to be difficult, just want to know what happened.\n\nTom Becker",
+    "receivedAt": "2026-11-03T20:11:00",
+    "labels": ["customer", "complaint"]
+  },
+  {
+    "id": "e5",
+    "from": { "name": "Ana Lima", "email": "ana@smallbatchradio.fm", "company": "Small Batch Radio" },
+    "subject": "Podcast invite: Small Batch Radio",
+    "body": "Hi Maya,\n\nI host Small Batch Radio, a weekly podcast about independent food makers (about 18,000 listeners, mostly home cooks and home brewers on the West Coast).\n\nI'd love to have you on to talk about starting Ember & Oak, sourcing directly from producers, and what it's like launching a new coffee. Recording is remote, 45 minutes. I have two slots open: Thu Nov 12 at 2:00 PM or Fri Nov 13 at 11:00 AM Pacific.\n\nIf the Guji Natural is out by then, we could even do a little tasting segment if you mail us a bag.\n\nWarmly,\nAna Lima\nHost, Small Batch Radio",
+    "receivedAt": "2026-11-02T15:30:00",
+    "labels": ["press", "podcast"]
+  },
+  {
+    "id": "e6",
+    "from": { "name": "Rita Gomez", "email": "rita@alderstreetmarket.org", "company": "Alder Street Farmers Market" },
+    "subject": "Saturday load-in + holiday market dates",
+    "body": "Hi vendors,\n\nQuick reminders for Saturday Nov 7: load-in from 7:00 AM, booths must be set by 7:50. Ember & Oak is in booth 14 again.\n\nHoliday markets are confirmed for Dec 5, 12 and 19, 9 AM to 3 PM, with about twice our usual foot traffic. Stall fee is $85 per day. Returning vendors get first pick, but I need your dates by Nov 10.\n\nAlso, a heads up: the market Wi-Fi will be down on Saturday for maintenance. Please make sure your card readers work offline or on cellular.\n\nThanks,\nRita Gomez\nMarket Manager",
+    "receivedAt": "2026-11-03T08:20:00",
+    "labels": ["events", "market"]
+  },
+  {
+    "id": "e7",
+    "from": { "name": "Owen Hart", "email": "owen@northlinepack.com", "company": "Northline Packaging" },
+    "subject": "Delay on your Guji Natural printed bags",
+    "body": "Hi Maya,\n\nSorry to bring bad news. Our foil press went down Monday and your order of 500 printed 12 oz Guji Natural bags (PO 7713) is now finishing Thursday. Standard ground freight would get them to you Friday around 2 PM, which I know is after your launch morning.\n\nTwo options:\n1. Air expedite for $140 and we deliver Thursday by 5 PM.\n2. We ship you 200 blank kraft bags today at no charge, and you use your launch stickers for Friday's first orders.\n\nLet me know by 3 PM today so I can book the courier. We're on a call at 1 PM anyway.\n\nOwen Hart\nAccount Manager, Northline Packaging",
+    "receivedAt": "2026-11-04T07:48:00",
+    "labels": ["supplier", "urgent", "launch"]
+  },
+  {
+    "id": "e8",
+    "from": { "name": "The Daily Grind Digest", "email": "digest@dailygrinddigest.news" },
+    "subject": "This week: C-market prices, cold brew trends, and 12 latte art fails",
+    "body": "Good morning, coffee people.\n\nIn this issue: arabica futures slipped 3% this week; why canned cold brew is quietly eating RTD shelf space; an interview with a barista champion about milk texturing; and our readers' 12 funniest latte art fails.\n\nPlus: the 2027 trade show calendar, a sponsored guide to choosing a commercial grinder, and our classifieds section.\n\nRead online · Manage preferences · Unsubscribe",
+    "receivedAt": "2026-11-04T06:00:00",
+    "labels": ["newsletter"]
+  },
+  {
+    "id": "e9",
+    "from": { "name": "Sofia Reyes", "email": "sofia@cascadeseed.vc", "company": "Cascade Seed Partners" },
+    "subject": "Rescheduled: coffee chat with Daniel, now Thu Nov 5 at 10:00",
+    "body": "Hi Maya,\n\nDaniel has a board meeting that moved into Thursday afternoon, so I've shifted your coffee chat to Thursday Nov 5, 10:00 to 11:00 AM at your café bar on Belmont. The updated invite is on your calendar.\n\nIf that doesn't work, he's also free Thursday 1:00 to 2:00 PM or Friday 3:00 to 4:00 PM. Just let me know and I'll move it.\n\nThank you!\nSofia Reyes\nExecutive Assistant to Daniel Okafor, Cascade Seed Partners",
+    "receivedAt": "2026-11-03T16:05:00",
+    "labels": ["calendar", "investor"]
+  },
+  {
+    "id": "e10",
+    "from": { "name": "BeanBoost SEO", "email": "deals@beanboost-seo.biz" },
+    "subject": "🔥 Rank #1 on Google for \"coffee\" — 70% OFF today only",
+    "body": "Hi there!\n\nDid you know 93% of coffee shoppers never scroll past page one? Our AI-powered SEO package guarantees first-page rankings in 30 days or your money back.\n\nThis week only: our Platinum Roaster plan is 70% off, just $299/month (normally $999). Includes 400 backlinks, 50 blog posts and a free website audit.\n\nOnly 3 spots left in your area. Click here to claim your discount before midnight!\n\nTo unsubscribe, reply STOP.",
+    "receivedAt": "2026-11-04T05:12:00",
+    "labels": ["promo"]
+  },
+  {
+    "id": "e11",
+    "from": { "name": "Mailtide Reports", "email": "reports@mailtide.app" },
+    "subject": "Your campaign \"Something new is coming Friday\" results",
+    "body": "Campaign report for Ember & Oak Coffee Roasters\nSent: Mon Nov 2, 6:00 PM · Recipients: 2,140\n\nOpen rate: 51.8% (your average: 38%)\nClick rate: 9.4% (201 unique clicks)\nTop link: \"Get on the Guji Natural early list\" (88 clicks)\nSecond link: \"Colombia Huila Washed\" (61 clicks)\nAttributed orders (48h): 23 orders · $618\nUnsubscribes: 4\n\nThis is your best-performing campaign this year.",
+    "receivedAt": "2026-11-04T07:00:00",
+    "labels": ["newsletter", "report"]
+  },
+  {
+    "id": "e12",
+    "from": { "name": "Priya Shah", "email": "priya@emberandoak.coffee", "company": "Ember & Oak Coffee Roasters" },
+    "subject": "Huila is running low",
+    "body": "Hey Maya,\n\nHeads up: the newsletter link sent a lot of people to Huila yesterday. We're down to 24 roasted 12 oz bags and only one roast's worth of green left (about 30 kg). At this pace we're out by Friday, right when everyone is on the site for the Guji launch.\n\nHighland Green can ship a new Huila allocation Nov 12 if we confirm by Friday. Want me to confirm 2 bags? Also: should we pause Huila on the site or add a \"back soon\" note?\n\nBloom Café math is on my side, I'll have the margin sheet ready before Thursday.\n\nPriya",
+    "receivedAt": "2026-11-04T08:05:00",
+    "labels": ["team", "inventory"]
+  },
+  {
+    "id": "e13",
+    "from": { "name": "GrowthLoop Academy", "email": "events@growthloop.academy" },
+    "subject": "Free webinar: 10 TikTok hacks every food brand needs in 2027",
+    "body": "Hey founder,\n\nJoin our free 90-minute masterclass this Thursday at 11 AM PT and learn the 10 TikTok hacks that took our students from 0 to 100K followers.\n\nYou'll learn: the 3-second hook formula, the posting schedule the algorithm loves, and how to turn views into sales without spending a cent on ads.\n\nSeats are limited! Register now and get our bonus e-book, \"Viral Food Content Blueprint\".\n\nSee you there,\nThe GrowthLoop team",
+    "receivedAt": "2026-11-03T12:40:00",
+    "labels": ["promo", "newsletter"]
+  },
+  {
+    "id": "e14",
+    "from": { "name": "Hannah Kim", "email": "hannah.kim@gmail.com" },
+    "subject": "Can I preorder the Guji for a gift?",
+    "body": "Hi Ember & Oak!\n\nI saw the newsletter about the new Ethiopian coffee on Friday. My partner is obsessed with fruity naturals, and our anniversary is Nov 8. Is there any way to preorder two bags so they ship on launch day? Happy to pay now.\n\nAlso, do you do gift notes? Something short like \"Happy 5 years, H.\" would be perfect.\n\nThank you so much, your Huila is our everyday coffee.\n\nHannah",
+    "receivedAt": "2026-11-03T21:30:00",
+    "labels": ["customer", "launch"]
+  },
+  {
+    "id": "e15",
+    "from": { "name": "Jules Martin", "email": "jules@emberandoak.coffee", "company": "Ember & Oak Coffee Roasters" },
+    "subject": "Launch post + photos for Friday",
+    "body": "Hi Maya!\n\nFor Friday I'm thinking: one Instagram carousel at 8 AM (bag, the cup, a shot of the cherries from the Hambela photos the producer sent), then the Live at noon. Caption should lead with the tasting notes and the producer story, and mention it's limited to about 500 bags.\n\nProblem: we don't have a proper product shot of the new bag, and the printed bags may not even be here (saw Owen's email). Can you approve a caption by Thursday night? I'll schedule it.\n\nAlso we hit 4,200 followers this week.\n\nJules",
+    "receivedAt": "2026-11-04T08:12:00",
+    "labels": ["team", "launch", "social"]
+  }
+]

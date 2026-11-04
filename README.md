@@ -436,9 +436,9 @@ The art direction ([`docs/DESIGN.md`](docs/DESIGN.md)) is **the morning paper of
 
 | | |
 |---|---|
-| <img src="docs/screenshots/app-light.png" alt="App on desktop, Oat (light) theme, inside the phone frame with the Agent Lens" width="440"> | <img src="docs/screenshots/app-dark.png" alt="App on desktop, Night (dark) theme" width="440"> |
-| **Oat** (light), desktop: phone frame, context and taste on the left, Agent Lens on the right | **Night** (dark), the same layout |
-| <img src="docs/screenshots/landing.png" alt="Landing page" width="440"> | <img src="docs/screenshots/lens.png" alt="Agent Lens showing live model calls" width="440"> |
+| <img src="docs/screenshots/chat.png" alt="Dive-in chat rewriting a draft in one tap" width="300"> | <img src="docs/screenshots/app-dark.png" alt="App on desktop, Night (dark) theme" width="440"> |
+| **Dive in**: chat with the agent, rewrite the draft in one tap (Oat, light) | **Night** (dark), desktop: phone frame, context and taste on the left, Agent Lens on the right |
+| <img src="docs/screenshots/landing.png" alt="Landing page" width="440"> | <img src="docs/screenshots/lens.png" alt="Agent Lens showing live model calls" width="300"> |
 | **Landing** at `/` | **Agent Lens**: every Spark, Muse Image and SAM call, live |
 | <img src="docs/screenshots/mobile-feed.png" alt="Feed on a phone" width="300"> | <img src="docs/screenshots/snap.png" alt="Snap card with animated SAM 3.1 outlines over a supplier invoice" width="300"> |
 | **Mobile feed** at 390×844 | **Snap**: SAM 3.1 outlines on a supplier invoice |

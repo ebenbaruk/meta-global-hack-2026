@@ -11,6 +11,7 @@ const sans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const mono = Space_Mono({ variable: "--font-space-mono", subsets: ["latin"], weight: ["400", "700"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.SITE_URL ?? "http://localhost:3100"),
   title: "Feedforward — Stop prompting. Start scrolling.",
   description: "A feed of work your agents already did. Approve, edit, dismiss, or dive in.",
 };

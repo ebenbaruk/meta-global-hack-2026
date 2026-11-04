@@ -122,6 +122,9 @@ export const useFeed = create<FeedState>()(
           case "image":
             replaceItem(e.id, (i) => (isPlaceholder(i) ? i : ({ ...i, image: e.image, imageStatus: "ready" } as Card)));
             return;
+          case "image_error":
+            replaceItem(e.id, (i) => (isPlaceholder(i) ? i : ({ ...i, imageStatus: "error" } as Card)));
+            return;
           case "card_error": {
             const item = get().items.find((i) => i.id === e.id);
             if (!item) {

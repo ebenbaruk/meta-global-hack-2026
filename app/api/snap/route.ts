@@ -35,7 +35,8 @@ export async function POST(req: Request) {
 
     let followUps;
     try {
-      const result = await snap(img, { id: snapId, trace });
+      const onStage = (label: string) => send({ type: "skeleton", id: snapId, kind: "snap", label });
+      const result = await snap(img, { id: snapId, trace, onStage });
       send({ type: "card", card: result.card });
       followUps = result.followUps;
     } catch (err) {

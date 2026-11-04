@@ -1,3 +1,6 @@
+"use client";
+
+import { AnimatePresence, motion } from "framer-motion";
 import { AlertTriangle, RotateCcw } from "lucide-react";
 import { KIND_META } from "@/components/cards/kindMeta";
 import { cn } from "@/lib/cn";
@@ -35,8 +38,8 @@ export function SkeletonCard({ item, onRetry }: { item: Placeholder; onRetry: ()
   return (
     <article data-testid="skeleton-card" data-kind={item.kind} aria-busy="true" className="glass-border rounded-card bg-surface shadow-card">
       <div className="flex items-center gap-3 p-4 pb-3">
-        <span className={cn("grid size-10 shrink-0 place-items-center rounded-xl bg-current/10", meta.tint)}>
-          <Icon className="size-[18px] opacity-70" />
+        <span className={cn("grid size-10 shrink-0 place-items-center rounded-xl bg-current/10 transition-colors", meta.tint)}>
+          <Icon key={item.kind} className="size-[18px] opacity-70" />
         </span>
         <div className="min-w-0 flex-1 space-y-2">
           <div className="flex items-center gap-2">
@@ -44,7 +47,18 @@ export function SkeletonCard({ item, onRetry }: { item: Placeholder; onRetry: ()
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-60" />
               <span className="relative inline-flex size-2 rounded-full bg-accent" />
             </span>
-            <span className="truncate text-[13px] font-medium text-accent-strong">{item.label}</span>
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.span
+                key={item.label}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.22 }}
+                className="truncate text-[13px] font-medium text-accent-strong"
+              >
+                {item.label}
+              </motion.span>
+            </AnimatePresence>
           </div>
           <div className="skeleton h-3.5 w-3/5 rounded-full" />
         </div>

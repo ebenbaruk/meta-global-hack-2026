@@ -88,12 +88,16 @@ export function readPhoto(img: SnapImage, trace: Tracer): Promise<SnapVision> {
 }
 
 /** Photo → Spark vision + SAM 3.1 outlines → the snap card, plus follow-ups for the Preparer. */
-export async function snap(img: SnapImage, { id, trace }: { id: string; trace: Tracer }): Promise<{ card: Card; followUps: Opportunity[] }> {
+export async function snap(
+  img: SnapImage,
+  { id, trace, onStage }: { id: string; trace: Tracer; onStage?: (label: string) => void },
+): Promise<{ card: Card; followUps: Opportunity[] }> {
   const vision = await readPhoto(img, trace);
   const targets = vision.objects
     .map((o) => ({ phrase: o.phrase.trim().toLowerCase(), label: o.label.trim() }))
     .filter((o, i, all) => o.phrase && all.findIndex((x) => x.phrase === o.phrase) === i)
     .slice(0, 4);
+  onStage?.(`SAM 3.1 is outlining ${targets.map((t) => t.label.toLowerCase()).join(", ")}…`);
   const segmented = await Promise.all(
     targets.map(async ({ phrase, label }) => {
       try {

@@ -152,7 +152,8 @@ export interface TraceEvent {
 
 export type FeedEvent =
   | { type: "trace"; trace: TraceEvent }
-  | { type: "skeleton"; id: string; kind: CardKind; label: string }
+  | { type: "skeleton"; id: string; kind: CardKind; label: string } // repeated id = update kind/label
+  | { type: "drop"; id: string } // a placeholder that turned out not to be needed
   | { type: "card"; card: Card }
   | { type: "image"; id: string; image: string }
   | { type: "image_error"; id: string; message: string } // card stays usable, retry via /api/image

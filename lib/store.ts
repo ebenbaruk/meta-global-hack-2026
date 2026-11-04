@@ -94,7 +94,11 @@ export const useFeed = create<FeedState>()(
             pushTraces([e.trace]);
             return;
           case "skeleton": {
-            if (get().items.some((i) => i.id === e.id)) return;
+            const existing = get().items.find((i) => i.id === e.id);
+            if (existing) {
+              if (isPlaceholder(existing)) replaceItem(e.id, () => ({ ...existing, kind: e.kind, label: e.label }));
+              return;
+            }
             const placeholder: Placeholder = { id: e.id, kind: e.kind, label: e.label, status: "preparing", createdAt: Date.now() };
             const at = top ? [...owned].filter((id) => get().items.some((i) => i.id === id)).length : -1;
             owned.add(e.id);
@@ -127,6 +131,9 @@ export const useFeed = create<FeedState>()(
             }
             return;
           }
+          case "drop":
+            set((s) => ({ items: s.items.filter((i) => i.id !== e.id || !isPlaceholder(i)) }));
+            return;
           case "done":
             return;
         }

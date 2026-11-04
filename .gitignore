@@ -24,3 +24,6 @@ build/
 
 # Logs
 *.log
+
+# Demo video outputs
+video/out/

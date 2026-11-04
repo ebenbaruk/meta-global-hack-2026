@@ -15,7 +15,7 @@ export default defineConfig({
     { name: "desktop", use: { viewport: { width: 1440, height: 900 } } },
   ],
   webServer: {
-    command: `META_MOCK=1 npx next dev -p ${PORT}`,
+    command: `META_MOCK=1 NEXT_DIST_DIR=.next-e2e npx next dev -p ${PORT}`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: false,
     timeout: 120_000,

@@ -17,6 +17,14 @@ export const isPlaceholder = (item: FeedItem): item is Placeholder => !("payload
 const HALF_LIFE_MS = 6 * 60 * 60 * 1000;
 const SPONSOR_FIRST_SLOT = 3; // 4th position
 const SPONSOR_EVERY = 6;
+/** Scores are compared at one decimal: cards of one batch differ only by seconds of freshness, which is a tie. */
+const bucket = (score: number) => Math.round(score * 10);
+/** Tie-break order: the story leads with a reply, then the team, the calendar, the post. */
+const KIND_PRIORITY: CardKind[] = ["email_reply", "team_update", "schedule", "social_post", "task", "insight"];
+const priority = (kind: CardKind) => {
+  const i = KIND_PRIORITY.indexOf(kind);
+  return i < 0 ? KIND_PRIORITY.length : i;
+};
 
 /** 1.0 when fresh, halves every 6 hours, never below 0.5. */
 export function freshness(ageMs: number): number {
@@ -43,7 +51,12 @@ export function rankFeed(items: FeedItem[], weights: Weights, now = Date.now()):
   const regular = ready
     .filter((c) => c.kind !== "snap" && c.kind !== "sponsored")
     .map((card) => ({ card, score: scoreCard(card, weights, now) }))
-    .sort((a, b) => b.score - a.score || b.card.createdAt - a.card.createdAt)
+    .sort(
+      (a, b) =>
+        bucket(b.score) - bucket(a.score) ||
+        priority(a.card.kind) - priority(b.card.kind) ||
+        b.card.createdAt - a.card.createdAt,
+    )
     .map((r) => r.card);
 
   const ranked: Card[] = [...snaps, ...regular];

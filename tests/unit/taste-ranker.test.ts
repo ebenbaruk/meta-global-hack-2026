@@ -72,6 +72,18 @@ describe("ranker", () => {
     expect(ids(rankFeed(items, tuned, NOW))).toEqual(["mid", "low", "high"]);
   });
 
+  it("breaks urgency ties by kind priority", () => {
+    const items = [
+      card("task", "task", 3),
+      card("insight", "insight", 3, 1),
+      card("post", "social_post", 3, 2),
+      card("email", "email_reply", 3, 3),
+      card("team", "team_update", 3),
+      card("cal", "schedule", 3),
+    ];
+    expect(ids(rankFeed(items, initialWeights(), NOW))).toEqual(["email", "team", "cal", "post", "task", "insight"]);
+  });
+
   it("keeps placeholders in their slot", () => {
     const items = [card("a", "task", 1), placeholder("p1"), card("b", "task", 3), placeholder("p2")];
     const ranked = rankFeed(items, initialWeights(), NOW);

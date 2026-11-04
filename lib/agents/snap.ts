@@ -97,7 +97,7 @@ export async function snap(
     .map((o) => ({ phrase: o.phrase.trim().toLowerCase(), label: o.label.trim() }))
     .filter((o, i, all) => o.phrase && all.findIndex((x) => x.phrase === o.phrase) === i)
     .slice(0, 4);
-  onStage?.(`SAM 3.1 is outlining ${targets.map((t) => t.label.toLowerCase()).join(", ")}…`);
+  onStage?.(`SAM 3.1 is outlining ${targets.length} ${targets.length === 1 ? "object" : "objects"}…`);
   const segmented = await Promise.all(
     targets.map(async ({ phrase, label }) => {
       try {

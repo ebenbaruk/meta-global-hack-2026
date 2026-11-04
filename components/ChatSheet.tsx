@@ -10,7 +10,8 @@ import { LogoMark } from "@/components/ui/Logo";
 import { Sticker } from "@/components/ui/Sticker";
 import { lockAppScroll } from "@/components/DeviceFrame";
 import { cn } from "@/lib/cn";
-import type { Card } from "@/lib/schemas";
+import type { Card, TraceEvent } from "@/lib/schemas";
+import { useFeed } from "@/lib/store";
 
 type Payload = Card["payload"];
 
@@ -176,8 +177,10 @@ function ChatBody({
     const controller = new AbortController();
     abort.current = controller;
     const replyId = newId();
+    const started = Date.now();
+    let res: Response | undefined;
     try {
-      const res = await fetch("/api/chat", {
+      res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ card, messages: history(next) }),
@@ -197,8 +200,10 @@ function ChatBody({
             : [...list, { id: replyId, type: "text", role: "assistant", content: reply }],
         );
       }
+      traceChat(res, started, "ok");
     } catch {
       if (controller.signal.aborted) return;
+      traceChat(res, started, "error");
       setEntries((list) => [
         ...list.filter((e) => e.id !== replyId),
         { id: replyId, type: "text", role: "assistant", content: "I couldn't reach the model just now. Try again?" },
@@ -206,6 +211,20 @@ function ChatBody({
     } finally {
       if (!controller.signal.aborted) setBusy(false);
     }
+  }
+
+  function traceChat(res: Response | undefined, started: number, status: "ok" | "error") {
+    const mock = res?.headers.get("X-Model-Mode") === "mock";
+    useFeed.getState().trace([
+      {
+        id: `chat-${newId()}`,
+        step: `Dive in · ${card.kind}`,
+        model: res?.headers.get("X-Model") ?? "muse-spark-1.3",
+        ms: Date.now() - started,
+        status: status === "error" ? "error" : mock ? "mock" : "ok",
+        at: Date.now(),
+      },
+    ]);
   }
 
   async function revise(instruction: string) {
@@ -223,8 +242,10 @@ function ChatBody({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ card, instruction }),
       });
-      if (!res.ok) throw new Error("revise failed");
-      const { payload } = (await res.json()) as { payload: Payload };
+      const data = (await res.json().catch(() => ({}))) as { payload?: Payload; traces?: TraceEvent[] };
+      if (data.traces?.length) useFeed.getState().trace(data.traces);
+      if (!res.ok || !data.payload) throw new Error("revise failed");
+      const payload = data.payload;
       update(revisionId, (e) => ({ ...e, status: "ready", payload }) as Entry);
     } catch {
       update(revisionId, (e) => ({ ...e, status: "error" }) as Entry);

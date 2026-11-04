@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { CardInput, ChatMessage, chatReply } from "@/lib/agents/chat";
+import { isMock, MODELS } from "@/lib/meta";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -37,6 +38,9 @@ export async function POST(req: Request) {
       "Content-Type": "text/plain; charset=utf-8",
       "Cache-Control": "no-cache, no-transform",
       "X-Accel-Buffering": "no",
+      // The reply is plain text, so the Agent Lens trace is built client side from these.
+      "X-Model": MODELS.spark,
+      "X-Model-Mode": isMock() ? "mock" : "live",
     },
   });
 }

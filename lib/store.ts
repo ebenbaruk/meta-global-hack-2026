@@ -49,6 +49,8 @@ interface Actions {
   retry: (id: string) => void;
   snap: (img: Snapshot) => Promise<void>;
   toast: (t: Omit<Toast, "id">) => void;
+  /** Adds model calls made outside the feed stream (Dive in chat, revise) to the Agent Lens. */
+  trace: (traces: TraceEvent[]) => void;
   reset: () => void;
 }
 
@@ -310,7 +312,9 @@ export const useFeed = create<FeedState>()(
           setTimeout(() => set((s) => ({ toasts: s.toasts.filter((x) => x.id !== toast.id) })), TOAST_MS);
         },
 
-        reset: () => {
+        trace: (traces) => pushTraces(traces),
+
+      reset: () => {
           streams.abort();
           streams = new AbortController();
           set({ ...initialData(), hydrated: true });

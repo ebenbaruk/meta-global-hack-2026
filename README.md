@@ -16,7 +16,7 @@
 
 <img src="docs/screenshots/hero.png" alt="Feedforward: the app in a phone frame with the Agent Lens beside it" width="920">
 
-**[▶ Demo video (3 min)](<!-- VIDEO_URL -->)** · **[Live app (local): `localhost:3100/app`](http://localhost:3100/app)** · **[Landing page: `localhost:3100`](http://localhost:3100)**
+**[▶ Demo video (3 min)](https://youtu.be/0TMiTiUInkQ)** · **[Live app (local): `localhost:3100/app`](http://localhost:3100/app)** · **[Landing page: `localhost:3100`](http://localhost:3100)**
 
 <sub>Meta Global AI Developer Hackathon 2026 · Indie track · Problem statement: <i>Build for Your World</i></sub>
 

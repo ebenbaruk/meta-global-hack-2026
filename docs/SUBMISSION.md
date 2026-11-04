@@ -13,7 +13,7 @@
 | Most Viral Track (X post link) | Optional: post the demo video on X with a strong hook ("Stop prompting. Start scrolling.") and paste the link |
 | ✱ Project description | Draft below |
 | ✱ Public GitHub repo | https://github.com/ebenbaruk/meta-global-hack-2026 → **switch to public before submitting** (`gh repo edit --visibility public --accept-visibility-change-consequences`) after a final audit (no secrets, no `.env`) |
-| ✱ 3-minute demo video | YouTube link (unlisted is fine). See the video plan below |
+| ✱ 3-minute demo video | https://youtu.be/0TMiTiUInkQ |
 | ✱ Use of Meta products | Draft below |
 | ✱ Why Meta's models matter | Draft below |
 | Partner tech feedback | Not used (we went direct to the Meta Model API). Leave empty or say so |

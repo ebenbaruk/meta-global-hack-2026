@@ -2,7 +2,7 @@
 
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Play } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Logo } from "@/components/ui/Logo";
 import { Marquee } from "@/components/ui/Marquee";
@@ -10,48 +10,62 @@ import { BrandImage, CtaLink, Starburst } from "./bits";
 import { Eyebrow, Headline, Reveal } from "./motion";
 
 const REPO = "https://github.com/ebenbaruk/meta-global-hack-2026";
-/** Set once the demo video is published (YouTube or Vimeo link). */
-const DEMO_URL: string | null = null;
+const DEMO_URL = "https://youtu.be/0TMiTiUInkQ";
+const DEMO_EMBED = "https://www.youtube-nocookie.com/embed/0TMiTiUInkQ?autoplay=1&rel=0";
 
-/** The demo video slot: a roastery photo card with a play sticker. */
+/** The demo video slot: a roastery photo card with a play sticker; a tap swaps in the YouTube player. */
 function Demo() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const scale = useTransform(scrollYProgress, [0, 0.5], [0.9, 1]);
   const photoY = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
-  const Wrapper = DEMO_URL ? "a" : "div";
+  const [playing, setPlaying] = useState(false);
   return (
     <section id="demo" className="mx-auto max-w-[1360px] px-4 pb-24 sm:px-8 lg:pb-32">
       <motion.div ref={ref} style={{ scale }} className="relative">
-        <Wrapper
-          {...(DEMO_URL ? { href: DEMO_URL, target: "_blank", rel: "noreferrer" } : {})}
-          className="group relative block aspect-[4/5] overflow-hidden rounded-card border-[1.5px] border-line-strong bg-elevated sm:aspect-[16/8]"
-        >
-          <motion.div style={{ y: photoY }} className="absolute -inset-y-[10%] inset-x-0">
-            <BrandImage name="photo-roastery.webp" alt="Fresh beans in the roaster's cooling tray" className="size-full object-cover" />
-          </motion.div>
-          <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-4 sm:p-8">
-            <div className="rounded-[22px] border-[1.5px] border-line-strong bg-surface p-5 sm:p-7">
-              <p className="typed font-bold text-lilac-ink">The demo · 3 min</p>
-              <p className="mt-2 max-w-[14ch] font-display text-[clamp(30px,5vw,60px)] leading-[0.95] font-black text-ink">
-                Maya&apos;s morning, start to finish.
-              </p>
-            </div>
-            <span className="inline-flex size-20 shrink-0 items-center justify-center rounded-full border-[1.5px] border-onpastel bg-yellow text-onpastel shadow-[3px_3px_0_0_var(--color-onpastel)] transition group-hover:scale-105 sm:size-24">
-              <Play className="size-8 translate-x-0.5 fill-current" />
-            </span>
+        {playing ? (
+          <div className="relative aspect-video overflow-hidden rounded-card border-[1.5px] border-line-strong bg-onpastel">
+            <iframe
+              src={DEMO_EMBED}
+              title="Feedforward demo video"
+              allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+              allowFullScreen
+              className="absolute inset-0 size-full"
+            />
           </div>
-        </Wrapper>
-        {!DEMO_URL && (
+        ) : (
+          <button
+            type="button"
+            onClick={() => setPlaying(true)}
+            aria-label="Play the 3-minute demo video"
+            className="group relative block aspect-[4/5] w-full overflow-hidden rounded-card border-[1.5px] border-line-strong bg-elevated text-left sm:aspect-[16/8]"
+          >
+            <motion.div style={{ y: photoY }} className="absolute -inset-y-[10%] inset-x-0">
+              <BrandImage name="photo-roastery.webp" alt="Fresh beans in the roaster's cooling tray" className="size-full object-cover" />
+            </motion.div>
+            <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-4 sm:p-8">
+              <div className="rounded-[22px] border-[1.5px] border-line-strong bg-surface p-5 sm:p-7">
+                <p className="typed font-bold text-lilac-ink">The demo · 3 min</p>
+                <p className="mt-2 max-w-[14ch] font-display text-[clamp(30px,5vw,60px)] leading-[0.95] font-black text-ink">
+                  Maya&apos;s morning, start to finish.
+                </p>
+              </div>
+              <span className="inline-flex size-20 shrink-0 items-center justify-center rounded-full border-[1.5px] border-onpastel bg-yellow text-onpastel shadow-[3px_3px_0_0_var(--color-onpastel)] transition group-hover:scale-105 sm:size-24">
+                <Play className="size-8 translate-x-0.5 fill-current" />
+              </span>
+            </div>
+          </button>
+        )}
+        {!playing && (
           <motion.div
             initial={{ scale: 0, rotate: -30 }}
             whileInView={{ scale: 1, rotate: 10 }}
             viewport={{ once: true }}
             transition={{ type: "spring", stiffness: 400, damping: 14, delay: 0.3 }}
-            className="absolute -top-8 right-4 sm:-top-10 sm:right-12"
+            className="pointer-events-none absolute -top-8 right-4 sm:-top-10 sm:right-12"
           >
             <Starburst tone="lilac" className="size-28 sm:size-32">
-              Video drops with the submission
+              Real API, real time
             </Starburst>
           </motion.div>
         )}
@@ -137,7 +151,7 @@ function Footer() {
           <a href="#how" className="text-ink underline decoration-line-strong underline-offset-4 hover:decoration-lilac">
             How it works
           </a>
-          <a href="#demo" className="text-ink underline decoration-line-strong underline-offset-4 hover:decoration-lilac">
+          <a href={DEMO_URL} target="_blank" rel="noreferrer" className="text-ink underline decoration-line-strong underline-offset-4 hover:decoration-lilac">
             Demo video
           </a>
         </div>

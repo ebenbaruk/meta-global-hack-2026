@@ -3,9 +3,13 @@
 import { AnimatePresence, motion, useDragControls, useReducedMotion, type PanInfo } from "framer-motion";
 import { X } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
+import { lockAppScroll } from "@/components/DeviceFrame";
 import { cn } from "@/lib/cn";
 
-/** Bottom sheet: spring in, drag the handle down to close, Escape closes, page scroll locked. */
+/**
+ * Bottom sheet: springs in, drag the handle down to close, Escape closes, app scroll locked.
+ * Always a bottom sheet (no breakpoints): on desktop it lives inside the phone screen.
+ */
 export function Sheet({
   open,
   onClose,
@@ -31,11 +35,10 @@ export function Sheet({
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const unlock = lockAppScroll();
     window.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = overflow;
+      unlock();
       window.removeEventListener("keydown", onKey);
     };
   }, [open, onClose]);
@@ -47,9 +50,9 @@ export function Sheet({
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center md:items-center md:p-6">
+        <div className="fixed inset-0 z-50 flex items-end justify-center">
           <motion.div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-onpastel/45"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -60,7 +63,7 @@ export function Sheet({
             aria-modal="true"
             data-testid={testId}
             className={cn(
-              "glass-border relative flex max-h-[90dvh] w-full max-w-[560px] flex-col rounded-t-[28px] bg-surface shadow-[0_-20px_60px_-20px_rgb(0_0_0/0.8)] md:max-h-[85dvh] md:rounded-[28px] md:shadow-[0_30px_80px_-20px_rgb(0_0_0/0.9)]",
+              "relative flex max-h-[92%] w-full max-w-[560px] flex-col rounded-t-[32px] border border-b-0 border-line bg-surface shadow-pop",
               className,
             )}
             initial={reduce ? { opacity: 0 } : { y: "100%" }}
@@ -74,20 +77,20 @@ export function Sheet({
             dragElastic={{ top: 0, bottom: 0.7 }}
             onDragEnd={onDragEnd}
           >
-            <div className="shrink-0 cursor-grab touch-none px-5 pt-3 pb-3 active:cursor-grabbing" onPointerDown={(e) => drag.start(e)}>
-              <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/15 md:invisible md:mb-0 md:h-0" />
+            <div className="shrink-0 cursor-grab touch-none px-5 pt-2.5 pb-4 active:cursor-grabbing" onPointerDown={(e) => drag.start(e)}>
+              <div className="mx-auto mb-3 h-[5px] w-11 rounded-full bg-faint/40" />
               {(title || subtitle) && (
                 <div className="flex items-start gap-3">
                   <div className="min-w-0 flex-1">
-                    {title && <h2 className="text-[17px] font-semibold tracking-tight text-fg">{title}</h2>}
-                    {subtitle && <p className="mt-0.5 truncate text-[13px] text-muted">{subtitle}</p>}
+                    {title && <h2 className="font-display text-[24px] leading-[1.05] font-extrabold text-ink">{title}</h2>}
+                    {subtitle && <p className="mt-1 truncate text-[13px] text-muted">{subtitle}</p>}
                   </div>
                   <button
                     type="button"
                     onClick={onClose}
                     onPointerDown={(e) => e.stopPropagation()}
                     aria-label="Close"
-                    className="grid size-8 shrink-0 place-items-center rounded-full bg-white/[0.06] text-muted transition hover:bg-white/10 hover:text-fg"
+                    className="grid size-9 shrink-0 place-items-center rounded-full border border-line bg-elevated text-ink transition hover:border-line-strong"
                   >
                     <X className="size-4" />
                   </button>
@@ -96,7 +99,7 @@ export function Sheet({
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-5">{children}</div>
             {footer && (
-              <div className="shrink-0 border-t border-line px-5 pt-3 pb-[max(env(safe-area-inset-bottom),16px)]">{footer}</div>
+              <div className="shrink-0 border-t border-line px-5 pt-3 pb-[max(var(--safe-bottom,0px),16px)]">{footer}</div>
             )}
           </motion.div>
         </div>

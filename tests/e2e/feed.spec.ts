@@ -78,3 +78,26 @@ test("snap a demo photo turns into a card with SAM outlines", async ({ page }) =
   await expect(snap).toBeVisible({ timeout: 30_000 });
   await expect(snap.locator("svg path").first()).toBeAttached();
 });
+
+test("theme toggle switches Oat and Night", async ({ page }) => {
+  await waitForFeed(page);
+  const html = page.locator("html");
+  const toggle = page.getByTestId("theme-toggle").last();
+  await toggle.click();
+  const first = await html.getAttribute("data-theme");
+  await toggle.click();
+  await expect(html).not.toHaveAttribute("data-theme", first ?? "");
+});
+
+test("desktop renders the app inside the phone, sheets included", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop", "the device frame is desktop only");
+  await waitForFeed(page);
+  const screen = (await page.getByTestId("device-screen").boundingBox())!;
+  await page.getByTestId("tab-snap").click();
+  await expect(page.getByTestId("snap-sheet")).toBeVisible();
+  await page.waitForTimeout(600);
+  const sheet = (await page.getByTestId("snap-sheet").boundingBox())!;
+  expect(sheet.x).toBeGreaterThanOrEqual(screen.x - 1);
+  expect(sheet.x + sheet.width).toBeLessThanOrEqual(screen.x + screen.width + 1);
+  expect(sheet.y + sheet.height).toBeLessThanOrEqual(screen.y + screen.height + 1);
+});

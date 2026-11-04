@@ -156,7 +156,7 @@ export function MiniCard({
           >
             {kind}
           </span>
-          <span className="typed text-[9px] text-faint">agent · just now</span>
+          <span className="typed text-[9px] text-muted">agent · just now</span>
         </div>
         <p className="mt-2.5 font-display text-[19px] leading-[1.1] font-bold text-ink">{title}</p>
         {children && <div className="mt-2 text-[13px] leading-snug text-muted">{children}</div>}

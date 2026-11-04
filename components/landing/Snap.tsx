@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Camera, ScanLine, Shapes, Sparkles } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { MiniCard } from "./bits";
-import { Eyebrow, Headline, PopIn, Reveal, SPRING } from "./motion";
+import { Eyebrow, H2, Headline, PopIn, Reveal, SPRING } from "./motion";
 
 export interface Outline {
   label: string;
@@ -19,7 +19,7 @@ const TONES = ["var(--color-yellow)", "var(--color-mint)", "var(--color-rose)"];
 const STEPS = [
   { icon: Camera, name: "Snap", line: "Point the camera at the invoice on the counter." },
   { icon: ScanLine, name: "Read", line: "Muse Spark vision reads every line and matches it to the supplier's email." },
-  { icon: Shapes, name: "Outline", line: "SAM 3.1 outlines what it found, one plain noun per request." },
+  { icon: Shapes, name: "Outline", line: "SAM 3.1 outlines what it found, one short phrase per request." },
   { icon: Sparkles, name: "Follow up", line: "Preparers turn it into cards you can approve." },
 ] as const;
 
@@ -32,13 +32,13 @@ const LINES = [
 
 export function Snap({ outlines }: { outlines: Outline[] }) {
   return (
-    <section id="snap" className="relative scroll-mt-8 bg-elevated/60 py-24 lg:py-36">
+    <section id="snap" className="relative bg-elevated/60 py-24 lg:py-32">
       <div className="mx-auto max-w-[1360px] px-4 sm:px-8">
         <Eyebrow>06 · Snap</Eyebrow>
         <Headline
-          text={"Take a photo.\nGet the paperwork done."}
-          mark="photo."
-          className="mt-5 text-[clamp(44px,11vw,64px)] lg:text-[clamp(64px,6.4vw,104px)]"
+          text={"A photo in.\nPaperwork out."}
+          mark="photo"
+          className={H2}
         />
 
         <div className="mt-14 grid gap-12 lg:mt-20 lg:grid-cols-[1.05fr_1fr] lg:gap-16">
@@ -70,7 +70,7 @@ export function Snap({ outlines }: { outlines: Outline[] }) {
                   whileInView={{ scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ type: "spring", stiffness: 500, damping: 16, delay: 1.2 + i * 0.4 }}
-                  className="typed absolute rounded-full border-[1.5px] border-onpastel px-2 py-1 text-[9px] font-bold text-onpastel sm:text-[10px]"
+                  className="typed absolute rounded-full border-[1.5px] border-onpastel px-2 py-1 text-[9px] whitespace-nowrap font-bold text-onpastel sm:text-[10px]"
                   style={{
                     left: `${(o.box.x1 / SIZE) * 100 + 2}%`,
                     top: `${(o.box.y1 / SIZE) * 100 + 2}%`,
@@ -81,7 +81,7 @@ export function Snap({ outlines }: { outlines: Outline[] }) {
                 </motion.span>
               ))}
             </div>
-            <p className="typed mt-3 text-[10px] text-faint">Real SAM 3.1 masks on this photo, recorded from the live API.</p>
+            <p className="typed mt-3 text-[10px] text-muted">Real SAM 3.1 masks on this photo, recorded from the live API.</p>
             <PopIn rotate={8} className="absolute -top-6 -right-2 sm:-right-6">
               <span className="typed inline-block rounded-full border-[1.5px] border-onpastel bg-yellow px-3 py-1.5 text-[11px] font-bold text-onpastel shadow-[2px_2px_0_0_var(--color-onpastel)]">
                 1 photo → 3 cards
@@ -105,7 +105,7 @@ export function Snap({ outlines }: { outlines: Outline[] }) {
                     </span>
                     <div>
                       <h3 className="font-display text-[26px] leading-none font-bold text-ink">
-                        <span className="typed mr-2 align-middle text-[10px] text-faint">0{i + 1}</span>
+                        <span className="typed mr-2 align-middle text-[10px] text-muted">0{i + 1}</span>
                         {s.name}
                       </h3>
                       <p className="mt-1.5 text-[16px] leading-snug text-muted">{s.line}</p>
@@ -115,9 +115,9 @@ export function Snap({ outlines }: { outlines: Outline[] }) {
             </ol>
 
             <Reveal className="mt-10 rounded-[22px] border border-line bg-surface p-5 shadow-card">
-              <div className="flex items-center justify-between">
-                <p className="typed font-bold text-ink">Invoice HGI-20931</p>
-                <p className="typed text-[10px] text-faint">Highland Green · due Nov 19</p>
+              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                <p className="typed font-bold whitespace-nowrap text-ink">Invoice HGI-20931</p>
+                <p className="typed text-[10px] whitespace-nowrap text-muted">Highland Green · due Nov 19</p>
               </div>
               <ul className="mt-4 space-y-2 text-[14px]">
                 {LINES.map(([label, amount], i) => (

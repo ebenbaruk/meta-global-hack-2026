@@ -5,7 +5,7 @@ import { Check, MessageCircle, Pencil, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { MiniCard, type KindTone } from "./bits";
-import { Eyebrow, Headline, Reveal, SPRING } from "./motion";
+import { Eyebrow, H2, Headline, Reveal, SPRING } from "./motion";
 
 /** Same math as lib/taste.ts: approve +0.15, dismiss −0.25, clamped to [0.2, 2.5]. */
 const DELTA = { approve: 0.15, dismiss: -0.25 } as const;
@@ -116,9 +116,9 @@ export function Gestures() {
         <div>
           <Eyebrow>05 · The gestures</Eyebrow>
           <Headline
-            text={"Four moves.\nThat's the whole UI."}
-            mark="whole"
-            className="mt-5 text-[clamp(44px,11vw,64px)] lg:text-[clamp(60px,5.6vw,88px)]"
+            text={"Four moves.\nZero prompts."}
+            mark="Zero"
+            className={H2}
           />
           <div className="mt-10 grid grid-cols-2 gap-3">
             {GESTURES.map((g, i) => (
@@ -137,7 +137,7 @@ export function Gestures() {
           <div className="rounded-card border-[1.5px] border-line-strong bg-elevated p-5 sm:p-8">
             <div className="flex items-center justify-between gap-3">
               <p className="typed font-bold text-ink">Try it: swipe the card</p>
-              <p className="typed hidden text-[10px] text-faint sm:block">← dismiss · approve →</p>
+              <p className="typed hidden text-[10px] text-muted sm:block">← dismiss · approve →</p>
             </div>
 
             <div className="relative mx-auto mt-6 h-[200px] w-full max-w-[330px]">
@@ -207,8 +207,8 @@ export function Gestures() {
                 ))}
               </ul>
               <p className="mt-5 text-[14px] leading-snug text-muted">
-                Every gesture moves a weight. Every three, Muse Spark rewrites Maya&apos;s taste notes, and the next batch of cards
-                is visibly different.
+                Every gesture moves a weight. Every three, Muse Spark rewrites Maya&apos;s taste notes, which steer the next batch of
+                cards.
               </p>
             </div>
           </div>

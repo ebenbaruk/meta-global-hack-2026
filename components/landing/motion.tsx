@@ -8,6 +8,9 @@ import { cn } from "@/lib/cn";
 export const SPRING = { type: "spring", stiffness: 260, damping: 24 } as const;
 export const POP = { type: "spring", stiffness: 500, damping: 16 } as const;
 
+/** The one size of section headlines. Lines are written to stay ≤ 14 characters, so they never wrap on a phone. */
+export const H2 = "mt-5 text-[clamp(40px,11.5vw,64px)] lg:text-[clamp(68px,6.6vw,104px)]";
+
 /** Fades and rises into place the first time it scrolls into view. */
 export function Reveal({
   children,
@@ -57,7 +60,7 @@ export function Headline({
     ? { animate: "show" as const }
     : { whileInView: "show" as const, viewport: { once: true, amount: 0.4 } };
   return (
-    <Tag className={cn("font-display font-black leading-[0.92]", color, className)}>
+    <Tag className={cn("font-display leading-[0.92] font-black text-balance", color, className)}>
       <span className="sr-only">{text.replace(/\n/g, " ")}</span>
       <motion.span className="block" initial="hide" {...trigger} aria-hidden>
         {lines.map((line, l) => (

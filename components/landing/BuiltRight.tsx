@@ -2,14 +2,14 @@
 
 import { motion } from "framer-motion";
 import { cn } from "@/lib/cn";
-import { Eyebrow, Headline, Reveal, SPRING } from "./motion";
+import { Eyebrow, H2, Headline, Reveal, SPRING } from "./motion";
 
 /** Shapes of the real /api/feed NDJSON events (lib/ndjson.ts, app/api/feed/route.ts). */
 const LOG = [
-  ["0.0s", '{"type":"skeleton","kind":"email_reply","label":"Reading your inbox…"}'],
-  ["0.0s", '{"type":"skeleton","kind":"team_update","label":"Pulling 14 days of sales…"}'],
+  ["0.0s", '{"type":"skeleton","id":"…","kind":"email_reply","label":"Reading your inbox…"}'],
+  ["0.0s", '{"type":"skeleton","id":"…","kind":"team_update","label":"Pulling 14 days of sales…"}'],
   ["12.8s", '{"type":"trace","trace":{"step":"Miner","model":"muse-spark-1.3","ms":12790,"status":"ok"}}'],
-  ["12.8s", '{"type":"skeleton","kind":"email_reply","label":"Drafting reply to Lena…"}'],
+  ["12.8s", '{"type":"skeleton","id":"…","kind":"email_reply","label":"Drafting reply to Lena…"}'],
   ["21.4s", '{"type":"card","card":{"kind":"email_reply","title":"Reply to Lena at Bloom Café"}}'],
   ["24.9s", '{"type":"card","card":{"kind":"team_update","title":"Web sales +33.4% …"}}'],
   ["36.2s", '{"type":"image","id":"social_post","image":"data:image/webp;base64,…"}'],
@@ -18,26 +18,26 @@ const LOG = [
 
 const FACTS = [
   { t: "Streams, never spins", d: "/api/feed answers in NDJSON. Skeletons appear at 0 s with live labels; each card lands the moment its agent finishes." },
-  { t: "Strict JSON, checked twice", d: "Every model output is constrained by a json_schema generated from zod, then parsed by that same zod schema." },
+  { t: "Strict JSON, checked twice", d: "Every structured output is constrained by a json_schema generated from zod, then parsed by that same schema." },
   { t: "Numbers come from code", d: "Sales deltas and free calendar slots are computed, not guessed. If the model picks a busy slot, code swaps in a free one." },
-  { t: "Fails small", d: "30 s timeout and one retry per call. A failed card becomes a retry button, a failed image keeps its card." },
-  { t: "Mock mode", d: "META_MOCK=1 replays recorded fixtures, raw SAM output included. The e2e suite runs on it; the demo can too." },
-  { t: "Tested", d: "Vitest for ranking, taste math, SAM parsing and schemas. Playwright for six full flows, approve to snap." },
+  { t: "Fails small", d: "30 s timeout and one retry per call. A failed card becomes a retry button; a slow image never blocks its card." },
+  { t: "Mock mode", d: "META_MOCK=1 replays deterministic fixtures, with SAM and vision output recorded from the live API. The e2e suite runs on it." },
+  { t: "Tested", d: "Vitest for ranking, taste math, SAM parsing and strict schemas. Eight Playwright tests, from approve to snap." },
 ] as const;
 
 export function BuiltRight() {
   return (
-    <section id="built" className="mx-auto max-w-[1360px] scroll-mt-8 px-4 py-24 sm:px-8 lg:py-36">
+    <section id="built" className="mx-auto max-w-[1360px] px-4 py-24 sm:px-8 lg:py-32">
       <Eyebrow>07 · Under the hood</Eyebrow>
       <Headline
         text={"Honest, and\nbuilt right."}
         mark="right."
-        className="mt-5 text-[clamp(52px,13vw,72px)] lg:text-[clamp(72px,7vw,112px)]"
+        className={H2}
       />
       <Reveal>
         <p className="mt-6 max-w-[38rem] text-[18px] leading-relaxed text-muted sm:text-[19px]">
-          Nothing is hardcoded. Every card is generated live from Maya&apos;s sandbox, and the Agent Lens shows each model call
-          as it happens.
+          No canned cards: every card is written live from Maya&apos;s sandbox data, and the Agent Lens logs each model call
+          the moment it returns.
         </p>
       </Reveal>
 
@@ -60,7 +60,7 @@ export function BuiltRight() {
                   transition={{ duration: 0.25, delay: i * 0.22 }}
                   className="flex gap-4"
                 >
-                  <span className="w-11 shrink-0 text-right text-faint">{t}</span>
+                  <span className="w-11 shrink-0 text-right text-muted">{t}</span>
                   <span className={cn("min-w-0 break-all", line.includes('"card"') ? "text-lilac-ink" : "text-ink")}>{line}</span>
                 </motion.li>
               ))}
@@ -70,7 +70,7 @@ export function BuiltRight() {
               </li>
             </ol>
           </div>
-          <p className="typed mt-3 text-[10px] text-faint">Timings from a live run: first card ≈ 21 s, all cards ≈ 28 s, image ≈ 34–44 s.</p>
+          <p className="typed mt-3 text-[10px] text-muted">Timings from a live run: first card ≈ 21 s, all cards ≈ 28 s, image ≈ 34–44 s.</p>
         </Reveal>
 
         <div className="grid gap-x-8 gap-y-7 sm:grid-cols-2">

@@ -26,9 +26,12 @@ export function Nav() {
   return (
     <header>
       <Marquee items={TICKER} speed={34} className="border-b-[1.5px] border-onpastel bg-lilac py-2.5 text-onpastel" />
-      <nav className="mx-auto flex max-w-[1360px] items-center justify-between gap-4 px-4 py-4 sm:px-8">
+      <nav className="mx-auto flex max-w-[1360px] items-center justify-between gap-3 px-4 py-4 sm:px-8">
         <Link href="/" aria-label="Feedforward home">
-          <Logo className="[&>span:last-child]:text-[20px] sm:[&>span:last-child]:text-[22px]" />
+          <Logo
+            className="gap-1.5 [&>span:last-child]:text-[18px] min-[380px]:gap-2 min-[380px]:[&>span:last-child]:text-[20px] sm:[&>span:last-child]:text-[22px]"
+            markClassName="size-8 min-[380px]:size-9"
+          />
         </Link>
         <ul className="hidden items-center gap-7 lg:flex">
           {LINKS.map((l) => (
@@ -42,11 +45,11 @@ export function Nav() {
             </li>
           ))}
         </ul>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <ThemeToggle />
           <Link
             href="/app"
-            className="inline-flex h-10 items-center rounded-full whitespace-nowrap border-[1.5px] border-onpastel bg-yellow px-4 text-[14px] font-semibold text-onpastel shadow-[2px_2px_0_0_var(--color-onpastel)] transition hover:-translate-y-px active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+            className="inline-flex h-10 items-center rounded-full whitespace-nowrap border-[1.5px] border-onpastel bg-yellow px-3.5 text-[14px] min-[380px]:px-4 font-semibold text-onpastel shadow-[2px_2px_0_0_var(--color-onpastel)] transition hover:-translate-y-px active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
           >
             Open app
           </Link>

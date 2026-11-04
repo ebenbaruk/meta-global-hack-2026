@@ -3,36 +3,36 @@
 import { motion } from "framer-motion";
 import { cn } from "@/lib/cn";
 import { BrandImage } from "./bits";
-import { Eyebrow, Headline, Reveal, SPRING } from "./motion";
+import { Eyebrow, H2, Headline, Reveal, SPRING } from "./motion";
 
 const STAGES = [
   {
     n: "01",
     name: "Miner",
     tone: "bg-sky",
-    line: "Reads the inbox, calendar, sales and notes. Finds the five things worth doing today.",
-    spec: "muse-spark-1.3 · strict json_schema",
+    line: "Reads the inbox, calendar, sales and notes. Picks up to five things worth doing today.",
+    spec: "muse-spark-1.3 · json_schema",
   },
   {
     n: "02",
     name: "Preparers",
     tone: "bg-mint",
     line: "Five agents in parallel, each doing the whole job: the draft, the numbers, the slot, the visual.",
-    spec: "5 calls in parallel · zod per card kind",
+    spec: "up to 5 at once · zod per kind",
   },
   {
     n: "03",
     name: "Ranker",
     tone: "bg-yellow",
     line: "Urgency × your taste × freshness. Runs on your phone and re-ranks after every swipe.",
-    spec: "client side · learns from gestures",
+    spec: "client side · per swipe",
   },
   {
     n: "04",
     name: "Executor",
     tone: "bg-rose",
     line: "Approve runs the action: send, post, book, log. A receipt lands in the outbox.",
-    spec: "sandboxed tools · optimistic ui",
+    spec: "sandboxed tools · receipts",
   },
 ] as const;
 
@@ -90,7 +90,7 @@ function StageVisual({ name }: { name: string }) {
       <ol className="mt-4 space-y-1.5">
         {RANKED.map(([t, score], i) => (
           <motion.li key={t} {...item(i)} className="flex items-center gap-2 rounded-xl bg-elevated px-3 py-1.5 text-[13px] text-ink">
-            <span className="typed text-[9px] text-faint">{i + 1}</span>
+            <span className="typed text-[9px] text-muted">{i + 1}</span>
             <span className="flex-1 truncate">{t}</span>
             <span className="typed text-[10px] font-bold text-lilac-ink">{score}</span>
           </motion.li>
@@ -112,7 +112,7 @@ function StageVisual({ name }: { name: string }) {
 /** A connector arrow between stages that draws itself when it scrolls in. */
 function Connector({ i }: { i: number }) {
   return (
-    <div aria-hidden className="flex items-center justify-center py-1 lg:px-1 lg:py-0">
+    <div aria-hidden className="flex items-center justify-center py-1 md:hidden lg:flex lg:px-1 lg:py-0">
       <svg viewBox="0 0 40 40" className="size-9 rotate-90 text-ink lg:rotate-0">
         <motion.path
           d="M4 20 H32 M24 11 L33 20 L24 29"
@@ -133,19 +133,19 @@ function Connector({ i }: { i: number }) {
 
 export function Pipeline() {
   return (
-    <section id="how" className="mx-auto max-w-[1360px] scroll-mt-8 px-4 py-24 sm:px-8 lg:py-36">
+    <section id="how" className="mx-auto max-w-[1360px] px-4 py-24 sm:px-8 lg:py-32">
       <div className="grid items-end gap-8 lg:grid-cols-[1fr_auto]">
         <div>
           <Eyebrow>03 · How it works</Eyebrow>
           <Headline
             text={"Four agents.\nOne feed."}
             mark="feed."
-            className="mt-5 text-[clamp(52px,13vw,72px)] lg:text-[clamp(72px,7vw,112px)]"
+            className={H2}
           />
           <Reveal>
             <p className="mt-6 max-w-[36rem] text-[18px] leading-relaxed text-muted sm:text-[19px]">
               While Maya sleeps, a real multi-agent pipeline turns her raw context into finished work. Cards stream in one
-              by one as soon as each is ready.
+              by one, as soon as each is ready.
             </p>
           </Reveal>
         </div>
@@ -154,7 +154,7 @@ export function Pipeline() {
         </Reveal>
       </div>
 
-      <div className="mt-14 grid lg:grid-cols-[1fr_auto_1.15fr_auto_1fr_auto_1fr]">
+      <div className="mt-14 grid md:grid-cols-2 md:gap-4 lg:grid-cols-[1fr_auto_1.15fr_auto_1fr_auto_1fr] lg:gap-0">
         {STAGES.map((s, i) => (
           <div key={s.name} className="contents">
             <motion.article
@@ -173,7 +173,7 @@ export function Pipeline() {
                 >
                   {s.n}
                 </span>
-                {s.name === "Preparers" && <span className="typed text-[10px] font-bold text-faint">× 5</span>}
+                {s.name === "Preparers" && <span className="typed text-[10px] font-bold text-muted">× 5</span>}
               </div>
               <h3 className="mt-5 font-display text-[32px] leading-none font-black text-ink">{s.name}</h3>
               <p className="mt-3 text-[15px] leading-snug text-muted">{s.line}</p>

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Sticker } from "@/components/ui/Sticker";
 import { cn } from "@/lib/cn";
 import { BrandImage, KIND_TONE, type KindTone } from "./bits";
-import { Eyebrow, Headline, PopIn, Reveal, SPRING } from "./motion";
+import { Eyebrow, H2, Headline, PopIn, Reveal, SPRING } from "./motion";
 
 /** Facts straight from data/persona (inbox, calendar, sales, notes). */
 const MORNING: { tone: KindTone; kind: string; seen: string; done: string }[] = [
@@ -55,7 +55,7 @@ function Photo({ name, alt, className, label }: { name: string; alt: string; cla
 
 export function Maya() {
   return (
-    <section id="maya" className="relative overflow-x-clip bg-elevated/60 py-24 lg:py-36">
+    <section id="maya" className="relative overflow-x-clip bg-elevated/60 py-24 lg:py-32">
       <div className="mx-auto grid max-w-[1360px] gap-14 px-4 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
         <div className="relative">
           <Reveal>
@@ -85,7 +85,7 @@ export function Maya() {
 
         <div className="pt-10 lg:pt-4">
           <Eyebrow>02 · The persona</Eyebrow>
-          <Headline text="Meet Maya." mark="Maya." className="mt-5 text-[clamp(52px,13vw,72px)] lg:text-[112px]" />
+          <Headline text="Meet Maya." mark="Maya." className={H2} />
           <Reveal>
             <p className="mt-6 max-w-[34rem] text-[18px] leading-relaxed text-muted sm:text-[19px]">
               Maya Chen runs <span className="font-semibold text-ink">Ember &amp; Oak Coffee Roasters</span>: a roaster, a café
@@ -122,7 +122,7 @@ export function Maya() {
             ))}
           </ol>
           <Reveal>
-            <p className="typed mt-6 text-faint">All data is sandboxed. Every card is generated live.</p>
+            <p className="typed mt-6 text-muted">Sandboxed data. Every card written live by the agents.</p>
           </Reveal>
         </div>
       </div>

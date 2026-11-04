@@ -3,7 +3,7 @@
 import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import { useRef } from "react";
 import { MiniCard } from "./bits";
-import { Eyebrow, Headline, PopIn, Reveal, SPRING } from "./motion";
+import { Eyebrow, H2, Headline, PopIn, Reveal, SPRING } from "./motion";
 import { Sticker } from "@/components/ui/Sticker";
 
 const FAN = [
@@ -32,26 +32,26 @@ export function Insight() {
   const spread = useTransform(scrollYProgress, [0.15, 1], [0, 1]);
 
   return (
-    <section id="insight" className="mx-auto max-w-[1360px] scroll-mt-8 px-4 py-24 sm:px-8 lg:py-36">
+    <section id="insight" className="mx-auto max-w-[1360px] px-4 py-24 sm:px-8 lg:py-32">
       <Eyebrow>01 · The insight</Eyebrow>
       <Headline
-        text={"Chat is the wrong\nshape for agents."}
+        text={"Chat is the\nwrong shape\nfor agents."}
         mark="wrong"
-        className="mt-5 text-[clamp(44px,11vw,64px)] lg:text-[clamp(64px,7vw,112px)]"
+        className={H2}
       />
 
       <div className="mt-14 grid gap-14 lg:mt-20 lg:grid-cols-2 lg:gap-20">
         {/* Chat: the blank box */}
         <Reveal className="relative">
-          <p className="typed font-bold text-faint">Chat asks you</p>
+          <p className="typed font-bold text-muted">Chat asks you</p>
           <div className="mt-4 rounded-card border border-line bg-surface p-5 shadow-card sm:p-7">
             <p className="text-[15px] text-muted">What would you like me to do today?</p>
             <div className="mt-24 flex items-center gap-3 rounded-full border border-line bg-elevated py-2 pr-2 pl-5">
-              <span className="flex-1 text-[15px] text-faint">
+              <span className="flex-1 text-[15px] text-muted">
                 Ask anything
                 <span className="ml-0.5 inline-block h-4 w-[2px] translate-y-0.5 animate-pulse bg-ink" />
               </span>
-              <span className="grid size-9 place-items-center rounded-full bg-elevated text-faint ring-1 ring-line">↑</span>
+              <span className="grid size-9 place-items-center rounded-full bg-elevated text-muted ring-1 ring-line">↑</span>
             </div>
           </div>
           <ul className="mt-6 space-y-2.5 text-[16px] text-muted sm:text-[17px]">
@@ -64,7 +64,7 @@ export function Insight() {
                 transition={{ ...SPRING, delay: 0.1 + i * 0.08 }}
                 className="flex gap-3"
               >
-                <span className="typed pt-1 text-[10px] text-faint">0{i + 1}</span>
+                <span className="typed pt-1 text-[10px] text-muted">0{i + 1}</span>
                 <span className={i === 3 ? "font-semibold text-ink" : undefined}>{t}</span>
               </motion.li>
             ))}
@@ -76,14 +76,14 @@ export function Insight() {
 
         {/* Feed: the work is already done */}
         <div>
-          <p className="typed font-bold text-faint">The feed tells you</p>
+          <p className="typed font-bold text-muted">The feed tells you</p>
           <div ref={fan} className="relative mt-4 h-[250px] sm:h-[330px]">
             {FAN.map((c, i) => (
               <FanCard key={c.title} card={c} i={i} progress={spread} />
             ))}
           </div>
           <Reveal className="mt-8">
-            <p className="max-w-[30rem] text-[17px] leading-relaxed text-muted sm:text-[19px]">
+            <p className="max-w-[30rem] text-[17px] leading-relaxed text-pretty text-muted sm:text-[19px]">
               Billions of people already know how to scroll, spot something useful and act on it. So we{" "}
               <span className="font-semibold text-ink">inverted the prompt</span>: the agent brings you the next useful
               action, fully prepared. You just decide.
@@ -93,7 +93,7 @@ export function Insight() {
       </div>
 
       <Reveal className="mt-20 lg:mt-28">
-        <blockquote className="mx-auto max-w-[56rem] text-center font-display text-[clamp(28px,6vw,52px)] leading-[1.05] font-bold text-ink">
+        <blockquote className="mx-auto max-w-[56rem] text-center text-balance font-display text-[clamp(28px,6vw,52px)] leading-[1.05] font-bold text-ink">
           “Meta invented the feed, and the feed pays for Meta. This is what it becomes when{" "}
           <span className="text-lilac-ink">agents fill it.</span>”
         </blockquote>

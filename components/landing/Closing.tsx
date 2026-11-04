@@ -5,6 +5,7 @@ import { ArrowRight, Play } from "lucide-react";
 import { useRef } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Logo } from "@/components/ui/Logo";
+import { Marquee } from "@/components/ui/Marquee";
 import { BrandImage, CtaLink, Starburst } from "./bits";
 import { Eyebrow, Headline, Reveal } from "./motion";
 
@@ -20,7 +21,7 @@ function Demo() {
   const photoY = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
   const Wrapper = DEMO_URL ? "a" : "div";
   return (
-    <section id="demo" className="mx-auto max-w-[1360px] scroll-mt-8 px-4 pb-24 sm:px-8 lg:pb-32">
+    <section id="demo" className="mx-auto max-w-[1360px] px-4 pb-24 sm:px-8 lg:pb-32">
       <motion.div ref={ref} style={{ scale }} className="relative">
         <Wrapper
           {...(DEMO_URL ? { href: DEMO_URL, target: "_blank", rel: "noreferrer" } : {})}
@@ -64,33 +65,50 @@ export function Closing() {
     <>
       <Demo />
       <section className="relative overflow-hidden border-t-[1.5px] border-line-strong bg-lilac text-onpastel">
-        <div className="mx-auto grid max-w-[1360px] items-center gap-10 px-4 py-24 sm:px-8 lg:grid-cols-[1fr_auto] lg:py-32">
-          <div>
-            <p className="typed flex items-center gap-2 font-bold">
-              <span aria-hidden>✺</span> The closing line
-            </p>
-            <Headline
-              text={"Chat asks you for labor.\nThe feed gives you leverage."}
-              color="text-onpastel"
-              className="mt-6 text-[clamp(48px,11vw,64px)] lg:text-[clamp(72px,6.6vw,108px)]"
-            />
-            <Reveal className="mt-10 flex flex-wrap gap-3">
-              <CtaLink href="/app">
-                Open Maya&apos;s feed <ArrowRight className="size-[18px]" />
-              </CtaLink>
-              <a
-                href={REPO}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex h-12 items-center gap-2 rounded-full border-[1.5px] border-onpastel px-6 text-[16px] font-semibold text-onpastel transition hover:bg-lilac-soft/40"
-              >
-                <GithubMark /> Read the code
-              </a>
+        <Marquee
+          items={["Approve", "Edit", "Dismiss", "Dive in", "Zero prompts typed", "Your morning, handled"]}
+          speed={30}
+          className="border-b-[1.5px] border-onpastel bg-onpastel py-3 text-yellow"
+        />
+        <div className="mx-auto max-w-[1360px] px-4 pt-20 pb-16 sm:px-8 lg:pt-28 lg:pb-20">
+          <p className="typed flex items-center gap-2 font-bold">
+            <span aria-hidden>✺</span> 08 · The point
+          </p>
+          <Headline
+            text={"Chat asks you for labor.\nThe feed gives you leverage."}
+            color="text-onpastel"
+            className="mt-6 text-[clamp(40px,11.5vw,64px)] lg:text-[clamp(64px,6vw,92px)]"
+          />
+          <div className="mt-10 flex flex-col gap-10 sm:flex-row sm:items-end sm:justify-between">
+            <Reveal className="flex flex-col gap-6">
+              <p className="max-w-[30rem] text-[18px] leading-relaxed text-pretty sm:text-[19px]">
+                Flip through Maya&apos;s morning: real cards, prepared live by three Meta models while you watch the Agent
+                Lens.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <CtaLink href="/app">
+                  Open Maya&apos;s feed <ArrowRight className="size-[18px]" />
+                </CtaLink>
+                <a
+                  href={REPO}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-12 items-center gap-2 rounded-full border-[1.5px] border-onpastel px-6 text-[16px] font-semibold text-onpastel transition hover:bg-lilac-soft/40"
+                >
+                  <GithubMark /> Read the code
+                </a>
+              </div>
             </Reveal>
+            <motion.div
+              initial={{ y: 60, rotate: -12, opacity: 0 }}
+              whileInView={{ y: 0, rotate: 0, opacity: 1 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ type: "spring", stiffness: 200, damping: 14 }}
+              className="mx-auto w-52 shrink-0 sm:mx-0 sm:w-60 lg:-mt-24 lg:w-72"
+            >
+              <BrandImage name="mascot-coffee.webp" alt="Ford, the mascot, with a coffee and a thumbs up" outlined className="h-auto w-full" />
+            </motion.div>
           </div>
-          <Reveal className="mx-auto w-56 sm:w-72">
-            <BrandImage name="mascot-coffee.webp" alt="Ford, the mascot, with a coffee and a thumbs up" outlined className="h-auto w-full" />
-          </Reveal>
         </div>
       </section>
       <Footer />
@@ -125,7 +143,7 @@ function Footer() {
         </div>
       </div>
       <div className="mt-14 flex flex-col gap-4 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
-        <p className="typed text-[10px] leading-relaxed text-faint">
+        <p className="typed text-[10px] leading-relaxed text-muted">
           Maya, Ember &amp; Oak and every person, brand and sponsor shown are fictional.
         </p>
         <ThemeToggle />

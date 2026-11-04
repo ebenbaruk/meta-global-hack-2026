@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => {
   consoleErrors.length = 0;
   page.on("console", (m) => m.type() === "error" && consoleErrors.push(m.text()));
   page.on("pageerror", (e) => consoleErrors.push(e.message));
-  await page.goto("/");
+  await page.goto("/app");
   await page.evaluate(() => localStorage.clear());
   await page.reload();
 });

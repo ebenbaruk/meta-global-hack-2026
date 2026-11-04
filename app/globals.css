@@ -1,95 +1,169 @@
 @import "tailwindcss";
 
-/* Feedforward design tokens. Dark-first, one accent (electric blue), glass used sparingly. Text tokens clear 4.5:1 on every surface; white on accent is 4.5:1. */
-@theme {
-  --color-bg: #07080b;
-  --color-surface: #0f1116;
-  --color-elevated: #161921;
-  --color-line: rgb(255 255 255 / 0.08);
-  --color-line-strong: rgb(255 255 255 / 0.14);
-  --color-fg: #f4f5f7;
-  --color-muted: #a2a8b6;
-  --color-faint: #7f8595;
-  --color-accent: #2e6bff;
-  --color-accent-strong: #5b8fff;
-  --color-accent-soft: rgb(46 107 255 / 0.14);
-  --color-violet: #8b5cf6;
-  --color-success: #2fd47a;
-  --color-danger: #ff5d6c;
-  --color-warning: #ffb547;
-  --color-sponsor: #f5c86a;
+/* Feedforward design tokens (see docs/DESIGN.md). Oat = light, Night = dark.
+   Components only use these names: never raw hex, never white/ or black/. */
 
+:root {
+  --bg: #fff3e8;
+  --surface: #fffdfb;
+  --elevated: #f7e9dc;
+  --ink: #1e0a2b;
+  --muted: #6a5872;
+  --faint: #8c7a93;
+  --line: rgb(30 10 43 / 0.12);
+  --line-strong: rgb(30 10 43 / 0.9);
+  --lilac: #d9a8ff;
+  --lilac-soft: #f1e0ff;
+  --lilac-ink: #5b1f8c;
+  --danger: #d93a4a;
+  --grain-opacity: 0.035;
+  --shadow-card: 0 1px 0 rgb(30 10 43 / 0.04), 0 18px 40px -28px rgb(30 10 43 / 0.45);
+  --shadow-pop: 0 30px 80px -30px rgb(30 10 43 / 0.45);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #160a1f;
+    --surface: #21122d;
+    --elevated: #2d1a3b;
+    --ink: #fff1e7;
+    --muted: #c6b5cf;
+    --faint: #9a87a5;
+    --line: rgb(255 241 231 / 0.1);
+    --line-strong: rgb(255 241 231 / 0.85);
+    --lilac: #c995f5;
+    --lilac-soft: #3a2150;
+    --lilac-ink: #e7ccff;
+    --danger: #ff6b7a;
+    --grain-opacity: 0.05;
+    --shadow-card: 0 1px 0 rgb(255 241 231 / 0.04) inset, 0 18px 40px -24px rgb(0 0 0 / 0.7);
+    --shadow-pop: 0 30px 80px -30px rgb(0 0 0 / 0.8);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #160a1f;
+  --surface: #21122d;
+  --elevated: #2d1a3b;
+  --ink: #fff1e7;
+  --muted: #c6b5cf;
+  --faint: #9a87a5;
+  --line: rgb(255 241 231 / 0.1);
+  --line-strong: rgb(255 241 231 / 0.85);
+  --lilac: #c995f5;
+  --lilac-soft: #3a2150;
+  --lilac-ink: #e7ccff;
+  --danger: #ff6b7a;
+  --grain-opacity: 0.05;
+  --shadow-card: 0 1px 0 rgb(255 241 231 / 0.04) inset, 0 18px 40px -24px rgb(0 0 0 / 0.7);
+  --shadow-pop: 0 30px 80px -30px rgb(0 0 0 / 0.8);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-elevated: var(--elevated);
+  --color-ink: var(--ink);
+  --color-fg: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-lilac: var(--lilac);
+  --color-lilac-soft: var(--lilac-soft);
+  --color-lilac-ink: var(--lilac-ink);
+  --color-danger: var(--danger);
+  /* Pastel "can" colors: identical in both modes, always behind ink-dark text. */
+  --color-yellow: #f4f75a;
+  --color-tangerine: #ff8a4c;
+  --color-sky: #8ccbff;
+  --color-mint: #93e2b0;
+  --color-rose: #ff9cc2;
+  /* Fixed dark ink for text on pastels, in both modes. */
+  --color-onpastel: #1e0a2b;
+
+  /* Legacy names, kept so older components still render while they migrate. */
+  --color-accent: var(--lilac-ink);
+  --color-accent-strong: var(--lilac-ink);
+  --color-accent-soft: var(--lilac-soft);
+  --color-violet: var(--lilac-ink);
+  --color-success: #2f9e5b;
+  --color-warning: #d9661f;
+  --color-sponsor: #b38a00;
+
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-mono: var(--font-space-mono), ui-monospace, monospace;
 
-  --radius-card: 24px;
-  --shadow-card: 0 1px 0 0 rgb(255 255 255 / 0.04) inset, 0 20px 40px -24px rgb(0 0 0 / 0.8);
-  --shadow-glow: 0 0 0 1px rgb(61 123 255 / 0.35), 0 8px 30px -8px rgb(61 123 255 / 0.55);
+  --radius-card: 28px;
+  --shadow-card: var(--shadow-card);
+  --shadow-pop: var(--shadow-pop);
+  --shadow-ink: 2px 2px 0 0 var(--ink);
+  --shadow-ink-lg: 4px 4px 0 0 var(--ink);
 
   --animate-shimmer: shimmer 1.6s linear infinite;
+  --animate-marquee: marquee 28s linear infinite;
   @keyframes shimmer {
     from { background-position: -200% 0; }
     to { background-position: 200% 0; }
   }
-}
-
-:root {
-  color-scheme: dark;
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
 }
 
 html,
 body {
-  background: var(--color-bg);
-  color: var(--color-fg);
+  background: var(--bg);
+  color: var(--ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
-  /* Cards fly out sideways on approve/dismiss: never let that become a horizontal scroll. */
   overflow-x: clip;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Soft ambient glow behind the app. */
-body::before {
+/* Paper grain over everything, very faint. */
+body::after {
   content: "";
   position: fixed;
-  inset: -20% -10% auto -10%;
-  height: 60vh;
-  background: radial-gradient(60% 60% at 50% 0%, rgb(61 123 255 / 0.12), transparent 70%),
-    radial-gradient(40% 50% at 85% 10%, rgb(139 92 246 / 0.08), transparent 70%);
+  inset: 0;
   pointer-events: none;
-  z-index: 0;
+  z-index: 100;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* Glass border: a 1px gradient hairline. Use on hero surfaces only. */
-.glass-border {
-  position: relative;
+/* Chunky soft serif for display text. */
+.font-display {
+  font-variation-settings: "SOFT" 100, "WONK" 0;
+  letter-spacing: -0.02em;
 }
-.glass-border::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(160deg, rgb(255 255 255 / 0.16), rgb(255 255 255 / 0.03) 40%, rgb(61 123 255 / 0.18));
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
+
+/* Typed label: Space Mono caps. */
+.typed {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 11px;
 }
 
 .skeleton {
-  background: linear-gradient(90deg, rgb(255 255 255 / 0.04) 0%, rgb(255 255 255 / 0.09) 50%, rgb(255 255 255 / 0.04) 100%);
+  background: linear-gradient(90deg, var(--elevated) 0%, var(--lilac-soft) 50%, var(--elevated) 100%);
   background-size: 200% 100%;
   animation: var(--animate-shimmer);
 }
 
-/* A soft band of light that reads down a skeleton card, like an agent scanning the page. */
+/* A band of lilac light reading down a skeleton card. */
 .scanline {
   position: absolute;
   inset-inline: 0;
   top: 0;
   height: 30%;
-  background: linear-gradient(180deg, transparent, rgb(61 123 255 / 0.07) 60%, rgb(91 143 255 / 0.16) 98%, transparent);
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--lilac) 18%, transparent) 70%, color-mix(in srgb, var(--lilac) 35%, transparent) 98%, transparent);
   animation: scan 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
   pointer-events: none;
 }
@@ -102,7 +176,7 @@ body::before {
 .no-scrollbar { scrollbar-width: none; }
 
 :focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--lilac-ink);
   outline-offset: 2px;
 }
 

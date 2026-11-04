@@ -15,7 +15,7 @@ const arg = (name: string, fallback: string) => {
   const i = process.argv.indexOf(`--${name}`);
   return i > 0 ? process.argv[i + 1] : fallback;
 };
-const URL = arg("url", "http://localhost:3130");
+const URL = arg("url", "http://localhost:3130/app");
 const PASS = arg("pass", "both");
 const OUT = "video/out/capture";
 

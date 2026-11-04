@@ -87,7 +87,7 @@ export function SnapSheet({
             aria-modal="true"
             aria-labelledby="snap-title"
             data-testid="snap-sheet"
-            className="relative max-h-[calc(100%-max(env(safe-area-inset-top),44px)-12px)] w-full max-w-[560px] overflow-y-auto overscroll-contain rounded-t-[32px] border-[1.5px] border-b-0 border-line-strong bg-surface pb-[max(env(safe-area-inset-bottom),20px)] shadow-pop"
+            className="relative max-h-[calc(100%-max(var(--safe-top,0px),44px)-12px)] w-full max-w-[560px] overflow-y-auto overscroll-contain rounded-t-[32px] border-[1.5px] border-b-0 border-line-strong bg-surface pb-[max(var(--safe-bottom,0px),20px)] shadow-pop"
             initial={reduce ? { opacity: 0 } : { y: "100%" }}
             animate={reduce ? { opacity: 1 } : { y: 0 }}
             exit={reduce ? { opacity: 0 } : { y: "100%" }}

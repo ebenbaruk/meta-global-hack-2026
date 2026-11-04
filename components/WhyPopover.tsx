@@ -3,10 +3,12 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Info, ShieldCheck } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Sticker } from "@/components/ui/Sticker";
 
-/** "Why am I seeing this?" for sponsored cards: the reason, in plain words, on an ink-outlined sticker. */
-export function WhyPopover({ brand, reason }: { brand: string; reason: string }) {
+/**
+ * "Why am I seeing this?" for sponsored cards. The matched need is already the card's subtitle,
+ * so the popover explains the rule behind it instead of repeating it.
+ */
+export function WhyPopover({ brand }: { brand: string }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
@@ -51,11 +53,11 @@ export function WhyPopover({ brand, reason }: { brand: string; reason: string })
               aria-hidden
               className="absolute -top-[7px] left-5 size-3 rotate-45 border-t-[1.5px] border-l-[1.5px] border-line-strong bg-surface"
             />
-            <Sticker tone="yellow" rotate={-3}>
-              Sponsored
-            </Sticker>
-            <p className="mt-2.5 font-display text-[19px] leading-tight font-extrabold text-ink">{brand}</p>
-            <p className="mt-1.5 text-[14px] leading-relaxed text-muted">{reason}</p>
+            <p className="typed text-[10px] text-faint">Why this partner</p>
+            <p className="mt-1.5 font-display text-[19px] leading-tight font-extrabold text-ink">{brand} paid to be here.</p>
+            <p className="mt-1.5 text-[14px] leading-relaxed text-muted">
+              Your agent only lets a partner in when it solves something on your plate, like the need above.
+            </p>
             <div className="mt-3 flex items-start gap-2.5 rounded-[14px] bg-elevated p-2.5 text-[12.5px] leading-snug text-muted">
               <span className="grid size-6 shrink-0 place-items-center rounded-full border-[1.5px] border-onpastel bg-mint text-onpastel">
                 <ShieldCheck className="size-3.5" strokeWidth={2.4} />

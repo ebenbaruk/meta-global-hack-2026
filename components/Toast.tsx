@@ -44,7 +44,7 @@ export function Toaster() {
                 <Icon className="size-4" strokeWidth={2.5} />
               </span>
               <div className="min-w-0">
-                <p className="truncate text-[13.5px] font-semibold text-ink">{t.title}</p>
+                <p className="line-clamp-2 text-[13.5px] leading-snug font-semibold text-ink">{t.title}</p>
                 {t.detail && <p className="line-clamp-2 text-[12.5px] leading-snug text-muted">{t.detail}</p>}
               </div>
             </motion.div>

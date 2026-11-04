@@ -276,7 +276,7 @@ function ChatBody({
           </span>
           <div className="min-w-0 flex-1">
             <p className="typed text-[10px] text-faint">Dive in · {meta.label}</p>
-            <h2 className="mt-1 line-clamp-2 font-display text-[20px] leading-[1.1] font-extrabold text-ink">{card.title}</h2>
+            <h2 className="mt-1 line-clamp-2 font-display text-[20px] leading-[1.1] font-extrabold text-balance text-ink">{card.title}</h2>
           </div>
           <button
             type="button"
@@ -316,7 +316,7 @@ function ChatBody({
       </div>
 
       {/* Starters + composer */}
-      <footer className="shrink-0 border-t border-line bg-surface pb-[max(env(safe-area-inset-bottom),12px)]">
+      <footer className="shrink-0 border-t border-line bg-surface pb-[max(var(--safe-bottom,0px),12px)]">
         <div className="no-scrollbar flex gap-2 overflow-x-auto px-4 pt-3">
           {STARTERS.map((s) => (
             <button

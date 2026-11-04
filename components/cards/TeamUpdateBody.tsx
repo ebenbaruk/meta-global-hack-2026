@@ -56,7 +56,7 @@ export function TeamUpdateBody({ card }: { card: TeamUpdateCard }) {
           <div className="mt-3">
             <div className="typed flex items-center justify-between text-[9.5px] opacity-75">
               <span>Last {series.length} days</span>
-              <span className="tabular-nums">Peak {Math.max(...series).toLocaleString("en-US")}</span>
+              <span className="tabular-nums">Peak ${Math.round(Math.max(...series)).toLocaleString("en-US")}</span>
             </div>
             <Sparkline values={series} color="var(--color-onpastel)" height={52} className="mt-2" />
           </div>

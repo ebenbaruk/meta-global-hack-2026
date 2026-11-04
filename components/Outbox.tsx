@@ -36,7 +36,7 @@ export function Outbox({ onBrowse }: { onBrowse: () => void }) {
   const done = outbox.filter((e) => e.state === "done").length;
 
   return (
-    <section data-testid="outbox" className="pb-[calc(env(safe-area-inset-bottom)+112px)]">
+    <section data-testid="outbox" className="pb-[calc(var(--safe-bottom,0px)+112px)]">
       <header className="px-1 pt-5 pb-5">
         <p className="typed text-[10.5px] text-faint">Receipts</p>
         <h1 className="mt-1 font-display text-[40px] leading-[0.95] font-black text-ink">Done for you.</h1>

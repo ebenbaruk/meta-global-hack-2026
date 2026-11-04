@@ -15,7 +15,7 @@ All colors are CSS variables. Light mode is **Oat**, dark mode is **Night**. The
 | `elevated` | `#F7E9DC` | `#2D1A3B` | inputs, chips, inner wells |
 | `ink` / `fg` | `#1E0A2B` | `#FFF1E7` | text, 1.5px outlines |
 | `muted` | `#6A5872` | `#C6B5CF` | secondary text (≥4.5:1) |
-| `faint` | `#8C7A93` | `#9A87A5` | tertiary text, meta |
+| `faint` | `#75637D` | `#9A87A5` | tertiary text, meta (≥4.5:1 on bg and elevated) |
 | `line` | `rgb(30 10 43 / .12)` | `rgb(255 241 231 / .10)` | hairlines |
 | `line-strong` | `rgb(30 10 43 / .9)` | `rgb(255 241 231 / .85)` | ink outlines on pills and stickers |
 | `lilac` | `#D9A8FF` | `#C995F5` | brand color, highlights, marquee, Lens |

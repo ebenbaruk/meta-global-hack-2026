@@ -135,12 +135,12 @@ export function FeedCard({
         <p className="typed mt-3 truncate text-[10px] text-faint">
           {sponsored ? "Paid partner · picked by your agent" : `${meta.agent} · prepared ${ago(card.createdAt)}`}
         </p>
-        <h3 className="font-display mt-1 text-[24px] leading-[1.08] font-bold text-ink">{card.title}</h3>
+        <h3 className="font-display mt-1 text-[24px] leading-[1.08] font-bold text-balance text-ink">{card.title}</h3>
 
         {card.why && <p className="mt-2 text-[14px] leading-[1.5] text-muted">{card.why}</p>}
         {sponsored && card.sponsored && (
           <div className="mt-2">
-            <WhyPopover brand={card.sponsored.brand} reason={card.sponsored.reason} />
+            <WhyPopover brand={card.sponsored.brand} />
           </div>
         )}
 

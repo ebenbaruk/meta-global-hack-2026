@@ -57,7 +57,7 @@ export function EmptyState({
         )}
       </motion.div>
       {kicker && <p className="typed text-[10.5px] text-faint">{kicker}</p>}
-      <h2 className="font-display mt-1.5 text-[34px] leading-[0.98] font-black text-ink">{title}</h2>
+      <h2 className="font-display mt-1.5 text-[34px] leading-[0.98] font-black text-balance text-ink">{title}</h2>
       <p className="mt-3 max-w-[290px] text-[15px] leading-[1.5] text-muted">{body}</p>
       {action && <div className="mt-6">{action}</div>}
     </div>

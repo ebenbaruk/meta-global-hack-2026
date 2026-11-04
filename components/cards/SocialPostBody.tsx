@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Bookmark, Heart, ImageOff, MessageCircle, Send, Sparkles } from "lucide-react";
+import { Bookmark, Heart, ImageOff, MessageCircle, Send } from "lucide-react";
 import type { Card } from "@/lib/schemas";
 
 type SocialPostCard = Extract<Card, { kind: "social_post" }>;
@@ -11,18 +11,12 @@ const HANDLE = "emberandoak";
 function ImageSkeleton() {
   return (
     <div className="absolute inset-0 overflow-hidden bg-elevated">
-      <div
-        className="absolute -inset-1/2 animate-[spin_9s_linear_infinite] blur-3xl"
-        style={{
-          background:
-            "conic-gradient(from 0deg, rgb(61 123 255 / 0.55), rgb(139 92 246 / 0.5), rgb(245 200 106 / 0.3), rgb(255 93 108 / 0.3), rgb(61 123 255 / 0.55))",
-        }}
-      />
       <div className="skeleton absolute inset-0" />
-      <div className="absolute inset-x-0 bottom-0 flex items-center justify-center p-4">
-        <span className="inline-flex items-center gap-2 rounded-full border border-line-strong bg-black/40 px-3 py-1.5 text-xs font-medium text-fg backdrop-blur-md">
-          <Sparkles className="size-3.5 animate-pulse text-accent-strong" aria-hidden />
-          Muse Image is rendering…
+      <div className="scanline" aria-hidden />
+      <div className="absolute inset-x-0 bottom-0 flex justify-center p-4">
+        <span className="typed inline-flex items-center gap-2 rounded-full border-[1.5px] border-onpastel bg-yellow px-3 py-1.5 text-[10px] leading-none font-bold text-onpastel">
+          <span className="size-1.5 animate-pulse rounded-full bg-onpastel" aria-hidden />
+          Muse Image is developing…
         </span>
       </div>
     </div>
@@ -31,26 +25,26 @@ function ImageSkeleton() {
 
 function ImageFallback() {
   return (
-    <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-elevated to-surface">
+    <div className="absolute inset-0 grid place-items-center bg-elevated">
       <div className="flex max-w-[16rem] flex-col items-center gap-2 px-6 text-center">
-        <span className="grid size-10 place-items-center rounded-full border border-line bg-white/[0.04]">
-          <ImageOff className="size-4.5 text-faint" aria-hidden />
+        <span className="grid size-11 place-items-center rounded-full border-[1.5px] border-line-strong bg-surface">
+          <ImageOff className="size-5 text-ink" aria-hidden />
         </span>
-        <p className="text-sm font-medium text-fg">Image didn&apos;t come through</p>
-        <p className="text-xs leading-snug text-faint">The caption is ready and can go out on its own.</p>
+        <p className="font-display text-[18px] font-bold text-ink">The photo didn&apos;t develop</p>
+        <p className="text-[13px] leading-snug text-muted">The caption is ready and can go out on its own.</p>
       </div>
     </div>
   );
 }
 
-/** Splits the caption so inline #tags render in the accent color. */
+/** Splits the caption so inline #tags render as links. */
 function Caption({ text }: { text: string }) {
   const parts = text.split(/(#[\p{L}\p{N}_]+)/u);
   return (
     <>
       {parts.map((part, i) =>
         part.startsWith("#") ? (
-          <span key={i} className="text-accent-strong">
+          <span key={i} className="text-lilac-ink">
             {part}
           </span>
         ) : (
@@ -61,6 +55,7 @@ function Caption({ text }: { text: string }) {
   );
 }
 
+/** The post exactly as it will appear: account row, square photo, action icons, caption. */
 export function SocialPostBody({ card }: { card: SocialPostCard }) {
   const { caption, hashtags, platform } = card.payload;
   const reduce = useReducedMotion();
@@ -68,18 +63,18 @@ export function SocialPostBody({ card }: { card: SocialPostCard }) {
   const tags = hashtags.map((t) => (t.startsWith("#") ? t : `#${t}`)).filter((t) => !caption.includes(t));
 
   return (
-    <div className="min-w-0 overflow-hidden rounded-2xl border border-line bg-black">
+    <div className="min-w-0 overflow-hidden rounded-[20px] border border-line bg-surface">
       <div className="flex items-center gap-2.5 px-3 py-2.5">
-        <span className="rounded-full bg-gradient-to-tr from-sponsor via-danger to-violet p-[1.5px]">
-          <span className="grid size-7 place-items-center rounded-full border-2 border-black bg-elevated text-[10px] font-bold text-fg">
+        <span className="rounded-full bg-[conic-gradient(var(--color-yellow),var(--color-tangerine),var(--color-rose),var(--color-lilac),var(--color-yellow))] p-[2px]">
+          <span className="font-display grid size-8 place-items-center rounded-full border-2 border-surface bg-ink text-[10px] font-black text-surface">
             E&amp;O
           </span>
         </span>
         <div className="min-w-0 flex-1 leading-tight">
-          <div className="truncate text-[13px] font-semibold text-fg">{HANDLE}</div>
-          <div className="truncate text-[11px] text-faint">Portland, Oregon</div>
+          <div className="truncate text-[13.5px] font-semibold text-ink">{HANDLE}</div>
+          <div className="truncate text-[11.5px] text-faint">Portland, Oregon</div>
         </div>
-        <span className="rounded-full bg-white/[0.06] px-2 py-0.5 text-[11px] font-medium text-muted capitalize">
+        <span className="typed rounded-full border-[1.5px] border-onpastel bg-rose px-2 py-1 text-[9.5px] leading-none font-bold text-onpastel">
           {platform}
         </span>
       </div>
@@ -108,17 +103,17 @@ export function SocialPostBody({ card }: { card: SocialPostCard }) {
         </AnimatePresence>
       </div>
 
-      <div className="flex items-center gap-4 px-3 pt-2.5 text-fg" aria-hidden>
-        <Heart className="size-5" />
-        <MessageCircle className="size-5" />
-        <Send className="size-5" />
-        <Bookmark className="ml-auto size-5" />
+      <div className="flex items-center gap-4 px-3 pt-3 text-ink" aria-hidden>
+        <Heart className="size-[22px]" />
+        <MessageCircle className="size-[22px]" />
+        <Send className="size-[22px]" />
+        <Bookmark className="ml-auto size-[22px]" />
       </div>
 
-      <p className="px-3 pt-2 pb-3 text-[14px] leading-[1.45] break-words whitespace-pre-line text-fg/90">
-        <span className="mr-1.5 font-semibold text-fg">{HANDLE}</span>
+      <p className="px-3 pt-2 pb-3.5 text-[14px] leading-[1.5] break-words whitespace-pre-line text-ink">
+        <span className="mr-1.5 font-semibold">{HANDLE}</span>
         <Caption text={caption} />
-        {tags.length > 0 && <span className="mt-1 block text-accent-strong">{tags.join(" ")}</span>}
+        {tags.length > 0 && <span className="mt-1.5 block text-lilac-ink">{tags.join(" ")}</span>}
       </p>
     </div>
   );

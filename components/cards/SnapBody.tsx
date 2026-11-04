@@ -7,7 +7,7 @@ type SnapCard = Extract<Card, { kind: "snap" }>;
 type SnapObject = SnapCard["payload"]["objects"][number];
 
 /** One color per concept, so "Invoice" and "Guji sack" read as separate finds. */
-const PALETTE = ["#2fd47a", "#3d7bff", "#8b5cf6", "#ffb547"];
+const PALETTE = ["var(--color-mint)", "var(--color-yellow)", "var(--color-lilac)", "var(--color-tangerine)"];
 
 /** Below this share of the photo an object is outlined but not labeled (single beans, crumbs). */
 const MIN_CHIP_AREA = 0.02;
@@ -44,7 +44,7 @@ export function SnapBody({ card }: { card: SnapCard }) {
   return (
     <div className="flex min-w-0 flex-col gap-4">
       <div
-        className="relative w-full overflow-hidden rounded-2xl border border-line bg-elevated"
+        className="relative w-full overflow-hidden rounded-[20px] border border-line bg-elevated"
         style={{ aspectRatio: `${width} / ${height}` }}
         data-testid="snap-photo"
       >
@@ -52,12 +52,12 @@ export function SnapBody({ card }: { card: SnapCard }) {
           // eslint-disable-next-line @next/next/no-img-element -- data URL photo, nothing to optimize
           <img src={card.image} alt={card.why || "Your photo"} className="absolute inset-0 size-full object-cover" />
         )}
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/30" />
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-onpastel/10 via-transparent to-onpastel/40" />
 
         {!reduce && (
           <motion.div
             aria-hidden
-            className="absolute inset-x-0 h-24 bg-gradient-to-b from-transparent via-success/25 to-transparent"
+            className="absolute inset-x-0 h-24 bg-gradient-to-b from-transparent via-mint/45 to-transparent"
             initial={{ top: "-25%", opacity: 1 }}
             animate={{ top: "105%", opacity: 0 }}
             transition={{ duration: 1.3, ease: [0.4, 0, 0.2, 1] }}
@@ -108,7 +108,7 @@ export function SnapBody({ card }: { card: SnapCard }) {
             return (
               <motion.span
                 key={o.label}
-                className="absolute flex items-center gap-1.5 rounded-full border border-white/15 bg-black/55 px-2.5 py-1 text-[11px] font-medium text-white shadow-lg backdrop-blur-md"
+                className="absolute flex items-center gap-1.5 rounded-full border-[1.5px] border-onpastel bg-surface py-1 pr-2.5 pl-1.5 text-[11.5px] font-semibold text-ink shadow-[2px_2px_0_0_var(--color-onpastel)]"
                 style={{
                   ...(above ? { bottom: `calc(${100 - top}% + 6px)` } : { top: `calc(${top}% + 8px)` }),
                   maxWidth: "calc(50% - 8px)",
@@ -118,36 +118,43 @@ export function SnapBody({ card }: { card: SnapCard }) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ type: "spring", stiffness: 420, damping: 28, delay: reduce ? 0 : 0.9 + i * 0.12 }}
               >
-                <span className="size-1.5 shrink-0 rounded-full" style={{ background: o.color }} />
+                <span className="size-2.5 shrink-0 rounded-full border border-onpastel" style={{ background: o.color }} />
                 <span className="truncate">{o.label}</span>
               </motion.span>
             );
           })}
 
         {objects.length > 0 && (
-          <span className="absolute right-2.5 bottom-2.5 rounded-full border border-white/10 bg-black/55 px-2 py-0.5 font-mono text-[10px] tracking-wide text-white/80 backdrop-blur-md">
+          <span className="typed absolute right-2.5 bottom-2.5 rotate-[-3deg] rounded-full border-[1.5px] border-onpastel bg-yellow px-2 py-1 text-[9.5px] leading-none font-bold text-onpastel">
             SAM 3.1 · {found} {found === 1 ? "object" : "objects"}
           </span>
         )}
       </div>
 
-      <p className="text-[14px] leading-[1.5] text-muted">{summary}</p>
+      <p className="text-[14.5px] leading-[1.5] text-ink">{summary}</p>
 
       {lines.length > 0 && (
-        <dl className="overflow-hidden rounded-2xl border border-line bg-elevated/60 text-[13px]">
-          {rows.map((l, i) => (
-            <div key={i} className="flex items-baseline gap-3 border-b border-line px-4 py-2.5 last:border-b-0">
-              <dt className="min-w-0 flex-1 text-muted">{l.label}</dt>
-              <dd className="shrink-0 text-fg tabular-nums">{l.amount}</dd>
-            </div>
-          ))}
-          {total && (
-            <div className="flex items-baseline gap-3 border-t border-line bg-white/[0.03] px-4 py-3">
-              <dt className="flex-1 font-medium text-fg">{total.label}</dt>
-              <dd className="text-[17px] font-semibold text-fg tabular-nums">{total.amount}</dd>
-            </div>
-          )}
-        </dl>
+        <div className="relative min-w-0 rounded-[20px] border border-line bg-bg px-4 pt-3 pb-3.5">
+          <div className="typed flex items-center justify-between text-[9.5px] text-faint">
+            <span>Read off the photo</span>
+            <span>Ready to log</span>
+          </div>
+          <dl className="mt-2 font-mono text-[12px]">
+            {rows.map((l, i) => (
+              <div key={i} className="flex items-baseline gap-2 py-1">
+                <dt className="min-w-0 truncate text-muted">{l.label}</dt>
+                <span aria-hidden className="min-w-4 flex-1 translate-y-[-3px] border-b border-dotted border-line-strong/40" />
+                <dd className="shrink-0 text-ink tabular-nums">{l.amount}</dd>
+              </div>
+            ))}
+            {total && (
+              <div className="mt-2 flex items-baseline gap-3 border-t-[1.5px] border-dashed border-line-strong pt-2.5">
+                <dt className="typed flex-1 text-[11px] text-ink">{total.label}</dt>
+                <dd className="font-display text-[26px] leading-none font-black text-ink tabular-nums">{total.amount}</dd>
+              </div>
+            )}
+          </dl>
+        </div>
       )}
     </div>
   );

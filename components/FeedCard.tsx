@@ -2,33 +2,33 @@
 
 import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion, useTransform, type PanInfo } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { BarChart3, CalendarDays, Camera, Check, Mail, Megaphone, StickyNote, X } from "lucide-react";
 import { ActionBar } from "@/components/ActionBar";
 import { CardBody } from "@/components/cards/CardBody";
+import { KindSticker } from "@/components/cards/KindSticker";
 import { KIND_META } from "@/components/cards/kindMeta";
 import { WhyPopover } from "@/components/WhyPopover";
 import { cn } from "@/lib/cn";
-import type { Card, SourceRef } from "@/lib/schemas";
+import type { Card } from "@/lib/schemas";
 
 const SWIPE_DISTANCE = 110;
 const SWIPE_VELOCITY = 650;
-/** How long the success burst plays before the card leaves. */
-const APPROVE_BEAT_MS = 360;
-
-const SOURCE_ICON: Record<SourceRef["type"], typeof Mail> = {
-  email: Mail,
-  event: CalendarDays,
-  sales: BarChart3,
-  note: StickyNote,
-  photo: Camera,
-  sponsor: Megaphone,
-};
+/** How long the DONE stamp shows before the card leaves. */
+const APPROVE_BEAT_MS = 460;
 
 const URGENCY = {
-  3: { label: "Needs you now", dot: "bg-danger shadow-[0_0_8px_rgb(255_93_108/0.8)]" },
-  2: { label: "Today", dot: "bg-warning" },
-  1: { label: "When you can", dot: "bg-faint" },
+  3: { label: "Needs you now", dot: "bg-tangerine", pulse: true },
+  2: { label: "Today", dot: "bg-lilac", pulse: false },
+  1: { label: "When you can", dot: "bg-faint", pulse: false },
 } as const;
+
+/** "just now", "4 min ago", "2 h ago", "3 d ago". */
+function ago(at: number) {
+  const min = Math.max(0, Math.round((Date.now() - at) / 60_000));
+  if (min < 1) return "just now";
+  if (min < 60) return `${min} min ago`;
+  const h = Math.round(min / 60);
+  return h < 24 ? `${h} h ago` : `${Math.round(h / 24)} d ago`;
+}
 
 /** One prepared action. Swipe right to approve, left to dismiss, or use the buttons. */
 export function FeedCard({
@@ -46,13 +46,13 @@ export function FeedCard({
 }) {
   const reduce = useReducedMotion();
   const x = useMotionValue(0);
-  const rotate = useTransform(x, [-240, 0, 240], [-7, 0, 7]);
+  const rotate = useTransform(x, [-240, 0, 240], [-6, 0, 6]);
   const [approving, setApproving] = useState(false);
   const beat = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => () => clearTimeout(beat.current), []);
 
-  /** Button approve: a check burst first, then the card flies out (instant with reduced motion). */
-  const approveWithBurst = () => {
+  /** Button approve: the DONE stamp lands first, then the card flies out (instant with reduced motion). */
+  const approveWithStamp = () => {
     if (approving) return;
     if (reduce) return onApprove();
     setApproving(true);
@@ -60,10 +60,11 @@ export function FeedCard({
   };
   const approveOpacity = useTransform(x, [0, SWIPE_DISTANCE], [0, 1]);
   const dismissOpacity = useTransform(x, [-SWIPE_DISTANCE, 0], [1, 0]);
+  const approveWash = useTransform(x, [0, SWIPE_DISTANCE], [0, 0.22]);
+  const dismissWash = useTransform(x, [-SWIPE_DISTANCE, 0], [0.12, 0]);
   const stampScale = useTransform(x, [-SWIPE_DISTANCE, 0, SWIPE_DISTANCE], [1, 0.6, 1]);
 
   const meta = KIND_META[card.kind];
-  const Icon = meta.icon;
   const urgency = URGENCY[card.urgency];
   const sponsored = card.kind === "sponsored" || !!card.sponsored;
 
@@ -88,88 +89,75 @@ export function FeedCard({
       dragMomentum={false}
       onDragEnd={onDragEnd}
       whileDrag={{ cursor: "grabbing", scale: 1.015 }}
-      className={cn(
-        "glass-border relative rounded-card bg-surface shadow-card select-none",
-        sponsored && "bg-[linear-gradient(180deg,rgb(245_200_106/0.06),transparent_40%)]",
-      )}
+      className="relative rounded-card border border-line bg-surface shadow-card select-none"
     >
-      {/* Swipe feedback: glow + stamp, proportional to the drag. */}
+      {/* The kind's "can" color as a thin band across the top. */}
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-8 overflow-hidden rounded-t-[27px]">
+        <div className={cn("h-1.5", card.kind === "task" ? "bg-line-strong" : meta.can)} />
+      </div>
+
+      {/* Swipe feedback: a wash and a sticker, proportional to the drag. */}
+      <motion.div aria-hidden style={{ opacity: approveWash }} className="pointer-events-none absolute inset-0 z-10 rounded-card bg-mint" />
+      <motion.div aria-hidden style={{ opacity: dismissWash }} className="pointer-events-none absolute inset-0 z-10 rounded-card bg-ink" />
       <motion.div
         aria-hidden
-        style={{ opacity: approveOpacity }}
-        className="pointer-events-none absolute inset-0 z-10 rounded-card shadow-[inset_0_0_0_2px_rgb(47_212_122/0.7),0_0_40px_-6px_rgb(47_212_122/0.5)]"
-      />
-      <motion.div
-        aria-hidden
-        style={{ opacity: dismissOpacity }}
-        className="pointer-events-none absolute inset-0 z-10 rounded-card shadow-[inset_0_0_0_2px_rgb(255_93_108/0.7),0_0_40px_-6px_rgb(255_93_108/0.5)]"
-      />
-      <motion.div
-        aria-hidden
-        style={{ opacity: approveOpacity, scale: stampScale }}
-        className="pointer-events-none absolute top-5 left-5 z-20 flex -rotate-12 items-center gap-1.5 rounded-xl border-2 border-success bg-bg/80 px-3 py-1.5 text-sm font-bold tracking-widest text-success uppercase backdrop-blur"
+        style={{ opacity: approveOpacity, scale: stampScale, rotate: -10 }}
+        className="typed pointer-events-none absolute top-6 left-5 z-20 rounded-full border-2 border-onpastel bg-mint px-3.5 py-1.5 text-[14px] font-bold text-onpastel shadow-[3px_3px_0_0_var(--color-onpastel)]"
       >
-        <Check className="size-4" strokeWidth={3} /> {card.actionLabel.split(" ")[0] || "Approve"}
+        {card.actionLabel.split(" ")[0] || "Approve"} ✓
       </motion.div>
       <motion.div
         aria-hidden
-        style={{ opacity: dismissOpacity, scale: stampScale }}
-        className="pointer-events-none absolute top-5 right-5 z-20 flex rotate-12 items-center gap-1.5 rounded-xl border-2 border-danger bg-bg/80 px-3 py-1.5 text-sm font-bold tracking-widest text-danger uppercase backdrop-blur"
+        style={{ opacity: dismissOpacity, scale: stampScale, rotate: 10 }}
+        className="typed pointer-events-none absolute top-6 right-5 z-20 rounded-full border-2 border-line-strong bg-elevated px-3.5 py-1.5 text-[14px] text-ink shadow-ink"
       >
-        <X className="size-4" strokeWidth={3} /> Dismiss
+        Skip ✕
       </motion.div>
 
-      <AnimatePresence>{approving && <ApproveBurst sponsored={sponsored} />}</AnimatePresence>
+      <AnimatePresence>{approving && <DoneStamp key="done" />}</AnimatePresence>
 
-      <header className="space-y-3 p-4 pb-3">
-        <div className="flex items-start gap-3">
-          <span className={cn("grid size-10 shrink-0 place-items-center rounded-xl bg-current/12", meta.tint)}>
-            <Icon className="size-[18px]" />
-          </span>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 text-[12px] text-faint">
-              <span className={cn("font-medium", sponsored ? "text-sponsor" : "text-muted")}>
-                {sponsored ? "Partner offer" : meta.label}
+      <header className="px-4 pt-5 pb-3">
+        <div className="flex items-center justify-between gap-2">
+          <KindSticker kind={card.kind} className={sponsored ? "-rotate-3" : undefined} />
+          {!sponsored && (
+            <span className="typed flex items-center gap-1.5 text-[10px] text-muted">
+              <span className="relative flex size-2">
+                {urgency.pulse && !reduce && (
+                  <span className={cn("absolute inline-flex size-full animate-ping rounded-full opacity-70", urgency.dot)} />
+                )}
+                <span className={cn("relative inline-flex size-2 rounded-full border border-onpastel/40", urgency.dot)} />
               </span>
-              {!sponsored && (
-                <>
-                  <span aria-hidden>·</span>
-                  <span className="flex items-center gap-1.5">
-                    <span className={cn("size-1.5 rounded-full", urgency.dot)} />
-                    {urgency.label}
-                  </span>
-                </>
-              )}
-              {sponsored && (
-                <span className="rounded-full border border-sponsor/30 bg-sponsor/10 px-2 py-px text-[10.5px] font-semibold tracking-wide text-sponsor uppercase">
-                  Sponsored
-                </span>
-              )}
-            </div>
-            <h3 className="mt-0.5 text-[16.5px] leading-snug font-semibold tracking-tight text-fg">{card.title}</h3>
-          </div>
+              {urgency.label}
+            </span>
+          )}
         </div>
 
-        {card.why && <p className="text-[13.5px] leading-relaxed text-muted">{card.why}</p>}
-        {sponsored && card.sponsored && <WhyPopover brand={card.sponsored.brand} reason={card.sponsored.reason} />}
+        <p className="typed mt-3 truncate text-[10px] text-faint">
+          {sponsored ? "Paid partner · picked by your agent" : `${meta.agent} · prepared ${ago(card.createdAt)}`}
+        </p>
+        <h3 className="font-display mt-1 text-[24px] leading-[1.08] font-bold text-ink">{card.title}</h3>
+
+        {card.why && <p className="mt-2 text-[14px] leading-[1.5] text-muted">{card.why}</p>}
+        {sponsored && card.sponsored && (
+          <div className="mt-2">
+            <WhyPopover brand={card.sponsored.brand} reason={card.sponsored.reason} />
+          </div>
+        )}
 
         {card.source.length > 0 && (
           <div
-            className="no-scrollbar -mx-4 flex gap-1.5 overflow-x-auto px-4 [mask-image:linear-gradient(to_right,transparent,#000_16px,#000_calc(100%-32px),transparent)]"
+            className="no-scrollbar -mx-4 mt-3 flex gap-1.5 overflow-x-auto px-4 [mask-image:linear-gradient(to_right,transparent,var(--color-ink)_16px,var(--color-ink)_calc(100%-32px),transparent)]"
             onPointerDown={(e) => e.stopPropagation()}
           >
-            {card.source.map((s) => {
-              const SourceIcon = SOURCE_ICON[s.type] ?? StickyNote;
-              return (
-                <span
-                  key={s.id}
-                  className="flex h-7 shrink-0 items-center gap-1.5 rounded-full border border-line bg-white/[0.03] px-2.5 text-[12px] text-muted"
-                >
-                  <SourceIcon className="size-3.5 text-faint" />
-                  <span className="max-w-[200px] truncate">{s.label}</span>
-                </span>
-              );
-            })}
+            {card.source.map((s) => (
+              <span
+                key={s.id}
+                className="flex h-6 shrink-0 items-center gap-1.5 rounded-md border border-line bg-elevated px-2 font-mono text-[10.5px] text-muted"
+              >
+                <span className="font-bold text-lilac-ink">[{s.id}]</span>
+                <span className="max-w-[200px] truncate">{s.label}</span>
+              </span>
+            ))}
           </div>
         )}
       </header>
@@ -180,8 +168,7 @@ export function FeedCard({
 
       <ActionBar
         label={card.actionLabel}
-        sponsored={sponsored}
-        onApprove={approveWithBurst}
+        onApprove={approveWithStamp}
         onEdit={onEdit}
         onDismiss={onDismiss}
         onDiveIn={onDiveIn}
@@ -190,36 +177,28 @@ export function FeedCard({
   );
 }
 
-/** The approve moment: a soft wash, a ring that bursts outward, and a check that draws itself. */
-function ApproveBurst({ sponsored }: { sponsored: boolean }) {
-  const color = sponsored ? "245 200 106" : "47 212 122";
+/** The approve moment: a mint wash and a rotated "DONE ✓" sticker stamped onto the card. */
+function DoneStamp() {
   return (
     <motion.div
       aria-hidden
-      className="pointer-events-none absolute inset-0 z-30 grid place-items-center overflow-hidden rounded-card"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+      className="pointer-events-none absolute inset-0 z-30 grid place-items-center rounded-card"
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.15 }}
-      style={{ background: `radial-gradient(circle at 50% 50%, rgb(${color} / 0.22), rgb(${color} / 0.06) 55%, transparent 75%)` }}
+      transition={{ duration: 0.12 }}
     >
-      <motion.span
-        className="absolute size-24 rounded-full border-2"
-        style={{ borderColor: `rgb(${color} / 0.7)` }}
-        initial={{ scale: 0.4, opacity: 1 }}
-        animate={{ scale: 2.6, opacity: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+      <motion.div
+        className="absolute inset-0 rounded-card bg-mint"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.28 }}
+        transition={{ duration: 0.2 }}
       />
       <motion.span
-        className="relative grid size-16 place-items-center rounded-full text-[#04140b]"
-        style={{ background: `rgb(${color})`, boxShadow: `0 0 40px -4px rgb(${color} / 0.8)` }}
-        initial={{ scale: 0.3 }}
-        animate={{ scale: 1 }}
-        transition={{ type: "spring", stiffness: 520, damping: 18 }}
+        className="font-display relative rounded-[18px] border-[2.5px] border-onpastel bg-mint px-6 py-2.5 text-[44px] leading-none font-black text-onpastel shadow-[5px_5px_0_0_var(--color-onpastel)]"
+        initial={{ scale: 2.2, rotate: -22, opacity: 0 }}
+        animate={{ scale: [2.2, 0.92, 1.06, 1], rotate: -9, opacity: [0, 1, 1, 1] }}
+        transition={{ duration: 0.32, times: [0, 0.5, 0.78, 1], ease: "easeOut" }}
       >
-        <svg viewBox="0 0 24 24" className="size-8" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
-          <motion.path d="M5 12.5l4.5 4.5L19 7.5" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.06, duration: 0.25 }} />
-        </svg>
+        DONE ✓
       </motion.span>
     </motion.div>
   );

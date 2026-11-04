@@ -1,12 +1,15 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "framer-motion";
-import { Check, CheckCheck, Loader2, RefreshCw } from "lucide-react";
+import { Check, CheckCheck, RefreshCw } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMinerDone } from "@/components/AgentLens";
+import { appScroller } from "@/components/DeviceFrame";
 import { EmptyState } from "@/components/EmptyState";
 import { FeedCard } from "@/components/FeedCard";
 import { SkeletonCard } from "@/components/SkeletonCard";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { isPlaceholder, rankFeed, type Placeholder } from "@/lib/ranker";
 import type { Card, Verdict } from "@/lib/schemas";
@@ -18,17 +21,18 @@ const MINER_GHOSTS: Placeholder[] = [
   { id: "g2", kind: "schedule", label: "Checking your calendar…", status: "preparing", createdAt: 0 },
 ];
 
-const spring = { type: "spring", stiffness: 420, damping: 36, mass: 0.9 } as const;
+/** DESIGN.md §4: cards materialize with a spring, rising 16px from a 0.98 scale. */
+const spring = { type: "spring", stiffness: 260, damping: 24 } as const;
+const layoutSpring = { type: "spring", stiffness: 420, damping: 38 } as const;
 
 const variants: Variants = {
-  initial: { opacity: 0, y: 28, scale: 0.97 },
+  initial: { opacity: 0, y: 16, scale: 0.98 },
   animate: { opacity: 1, y: 0, scale: 1, transition: spring },
   exit: (verdict: Verdict) => ({
     opacity: 0,
-    x: verdict === "dismiss" ? -260 : 260,
-    rotate: verdict === "dismiss" ? -6 : 6,
-    scale: 0.92,
-    transition: { duration: 0.34, ease: [0.4, 0, 0.2, 1] },
+    x: verdict === "dismiss" ? -420 : 460,
+    rotate: verdict === "dismiss" ? -7 : 9,
+    transition: { duration: 0.38, ease: [0.5, 0, 0.75, 0], opacity: { duration: 0.38, ease: "easeIn" } },
   }),
 };
 const reducedVariants: Variants = {
@@ -57,6 +61,7 @@ export function Feed({ onEdit, onDiveIn }: { onEdit: (card: Card) => void; onDiv
     const el = sentinel.current;
     if (!el || loading || exhausted || ready === 0) return;
     const io = new IntersectionObserver(([entry]) => entry?.isIntersecting && void loadBatch(), {
+      root: appScroller(),
       rootMargin: "0px 0px 1100px 0px",
     });
     io.observe(el);
@@ -64,7 +69,7 @@ export function Feed({ onEdit, onDiveIn }: { onEdit: (card: Card) => void; onDiv
   }, [loading, exhausted, ready, loadBatch]);
 
   return (
-    <section data-testid="feed" className="pb-[calc(env(safe-area-inset-bottom)+112px)]">
+    <section data-testid="feed" className="pb-[calc(var(--safe-bottom,0px)+112px)]">
       <Greeting ready={ready} preparing={preparing} loading={loading} />
 
       <div className="flex flex-col gap-4">
@@ -78,14 +83,14 @@ export function Feed({ onEdit, onDiveIn }: { onEdit: (card: Card) => void; onDiv
               initial="initial"
               animate="animate"
               exit="exit"
-              transition={{ layout: spring }}
+              transition={{ layout: layoutSpring }}
               className="relative"
             >
               <AnimatePresence mode="popLayout" initial={false}>
                 <motion.div
                   key={isPlaceholder(item) ? "skeleton" : "card"}
-                  initial={{ opacity: 0, filter: "blur(6px)" }}
-                  animate={{ opacity: 1, filter: "blur(0px)" }}
+                  initial={{ opacity: 0, scale: reduce ? 1 : 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.35 }}
                 >
@@ -120,21 +125,25 @@ export function Feed({ onEdit, onDiveIn }: { onEdit: (card: Card) => void; onDiv
       {ranked.length === 0 && !loading && batch > 0 && (
         <EmptyState
           icon={CheckCheck}
-          title="You're all caught up"
-          body="Your agents handled everything for now. They'll keep watching your inbox, calendar and sales."
+          art="/brand/mascot-sleep.webp"
+          sticker="Inbox zero"
+          kicker="Nothing left on your plate"
+          title="All caught up. Go roast something."
+          body="Your agents handled everything for now. Ford is napping, but he's still watching your inbox, calendar and sales."
           action={<LoadMore onClick={() => void loadBatch({ force: true })} />}
         />
       )}
 
       {ranked.length > 0 && loading && preparing === 0 && (
-        <p className="flex items-center justify-center gap-2 py-8 text-[13px] text-faint">
-          <Loader2 className="size-4 animate-spin" /> Finding more for you…
+        <p className="typed flex items-center justify-center gap-2 py-8 text-[11px] text-lilac-ink">
+          <span className="size-2 animate-pulse rounded-full bg-lilac" aria-hidden /> Digging up more for you…
         </p>
       )}
 
       {ranked.length > 0 && !loading && exhausted && (
         <div className="flex flex-col items-center gap-3 py-10 text-center">
-          <p className="text-[13px] text-faint">That&apos;s everything for now.</p>
+          <p className="font-display text-[22px] font-bold text-ink">That&apos;s the whole paper.</p>
+          <p className="typed -mt-1 text-[10.5px] text-faint">Fresh edition when something changes</p>
           <LoadMore onClick={() => void loadBatch({ force: true })} />
         </div>
       )}
@@ -144,13 +153,9 @@ export function Feed({ onEdit, onDiveIn }: { onEdit: (card: Card) => void; onDiv
 
 function LoadMore({ onClick }: { onClick: () => void }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="flex h-10 items-center gap-2 rounded-full border border-line-strong bg-white/[0.04] px-4 text-[13.5px] font-medium text-fg transition hover:bg-white/[0.08]"
-    >
-      <RefreshCw className="size-4" /> Load more
-    </button>
+    <Button variant="secondary" onClick={onClick} className="h-11">
+      <RefreshCw className="size-4" aria-hidden /> Load more
+    </Button>
   );
 }
 
@@ -175,23 +180,30 @@ function Greeting({ ready, preparing, loading }: { ready: number; preparing: num
   const date = now.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
   const things = (n: number) => `${n} thing${n === 1 ? "" : "s"}`;
   const working = loading || preparing > 0;
+  const hour = now.getHours();
+  const when = hour < 12 ? "overnight" : "today";
 
   let line: string;
-  if (ready > 0) line = `${things(ready)} ${ready === 1 ? "is" : "are"} ready.`;
+  if (ready > 0) line = `Your agents prepared ${things(ready)} ${when}.`;
   else if (working) line = "Your agents are getting today ready.";
   else line = "Nothing needs you right now.";
 
   return (
-    <header className="px-1 pt-5 pb-5">
-      <p className="text-[12px] font-medium tracking-wider text-faint uppercase">{date}</p>
-      <h1 className="mt-1.5 text-[28px] leading-tight font-semibold tracking-tight text-fg">
-        {greetingFor(now.getHours())}, Maya.
+    <header className="pt-5 pb-6">
+      <p className="typed text-[10.5px] text-faint">
+        {date} <span className="text-lilac-ink">✺</span> {greetingFor(hour)}, Maya
+      </p>
+      <h1 className="font-display mt-1.5 text-[56px] leading-[0.9] font-black text-ink">
+        <span className="relative inline-block">
+          <span aria-hidden className="absolute inset-x-[-3px] bottom-[0.02em] h-[0.22em] -rotate-1 rounded-full bg-lilac" />
+          <span className="relative">Today.</span>
+        </span>
       </h1>
-      <p className="mt-1 text-[15px] text-muted">
+      <p className="mt-3 text-[16px] leading-snug text-muted">
         <motion.span key={line} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="inline-block">
           {line}
         </motion.span>
-        {ready > 0 && preparing > 0 && <span className="text-accent-strong"> {preparing} more on the way.</span>}
+        {ready > 0 && preparing > 0 && <span className="font-medium text-lilac-ink"> {preparing} more on the way.</span>}
       </p>
       <AnimatePresence initial={false}>
         {working && ready === 0 && <WorkingStatus key="status" preparing={preparing} />}
@@ -201,8 +213,8 @@ function Greeting({ ready, preparing, loading }: { ready: number; preparing: num
 }
 
 /**
- * The wait, made legible: a cycling line of what the agents are doing, an elapsed timer,
- * and a progress track that fills as drafted cards land.
+ * The wait, made legible: Ford at work, a cycling typed line of what the agents are doing,
+ * an elapsed timer, the three stages, and a progress track that fills as drafted cards land.
  */
 function WorkingStatus({ preparing }: { preparing: number }) {
   const reduce = useReducedMotion();
@@ -229,47 +241,50 @@ function WorkingStatus({ preparing }: { preparing: number }) {
       transition={{ duration: 0.25 }}
       className="overflow-hidden"
     >
-      <div className="mt-4 rounded-2xl border border-accent/20 bg-accent-soft/60 px-3.5 py-3">
-        <div className="flex items-center gap-2.5">
-          <span className="relative flex size-2 shrink-0">
-            <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent-strong opacity-60" />
-            <span className="relative inline-flex size-2 rounded-full bg-accent-strong" />
-          </span>
-          <div className="relative h-5 min-w-0 flex-1 overflow-hidden">
-            <AnimatePresence mode="popLayout" initial={false}>
-              <motion.p
-                key={phrase}
-                initial={reduce ? { opacity: 0 } : { opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={reduce ? { opacity: 0 } : { opacity: 0, y: -14 }}
-                transition={{ type: "spring", stiffness: 420, damping: 34 }}
-                className="truncate text-[13.5px] leading-5 font-medium text-fg"
-              >
-                {phrase}
-                <span className="text-accent-strong">…</span>
-              </motion.p>
-            </AnimatePresence>
+      <div className="mt-5 rounded-[24px] border border-line bg-surface p-3.5 shadow-card">
+        <div className="flex items-center gap-3">
+          <motion.div
+            className="grid size-14 shrink-0 place-items-center rounded-full border-[1.5px] border-onpastel bg-yellow"
+            animate={reduce ? undefined : { rotate: [-4, 4, -4] }}
+            transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <Image src="/brand/mascot-scan.webp" alt="" width={52} height={52} className="size-[52px]" priority />
+          </motion.div>
+          <div className="min-w-0 flex-1">
+            <div className="relative h-5 overflow-hidden">
+              <AnimatePresence mode="popLayout" initial={false}>
+                <motion.p
+                  key={phrase}
+                  initial={reduce ? { opacity: 0 } : { opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={reduce ? { opacity: 0 } : { opacity: 0, y: -14 }}
+                  transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                  className="typed truncate text-[11px] leading-5 text-ink"
+                >
+                  {phrase}
+                  <span className="text-lilac-ink">…</span>
+                </motion.p>
+              </AnimatePresence>
+            </div>
+            <div className="mt-1.5 flex items-center gap-1.5">
+              <Stage label="Miner" state={mined ? "done" : "active"} />
+              <span className="h-px w-2 bg-line-strong" />
+              <Stage label="Preparers" state={mined ? "active" : "waiting"} />
+              <span className="h-px w-2 bg-line-strong" />
+              <Stage label="Ranker" state="waiting" />
+            </div>
           </div>
-          <span className="shrink-0 font-mono text-[12px] text-accent-strong tabular-nums" aria-label={`${elapsed} seconds`}>
+          <span className="shrink-0 self-start font-mono text-[11px] font-bold text-lilac-ink tabular-nums" aria-label={`${elapsed} seconds`}>
             {elapsed}s
           </span>
         </div>
-        <div className="mt-2.5 flex items-center gap-1.5 text-[11.5px] text-muted">
-          <Stage label="Miner" state={mined ? "done" : "active"} />
-          <span className="h-px w-3 bg-line-strong" />
-          <Stage label="Preparers" state={mined ? "active" : "waiting"} />
-          <span className="h-px w-3 bg-line-strong" />
-          <Stage label="Ranker" state="waiting" />
-          <span className="ml-auto hidden text-faint sm:inline">Muse Spark</span>
-        </div>
-        <div className="relative mt-2.5 h-[3px] overflow-hidden rounded-full bg-white/[0.06]">
+        <div className="relative mt-3 h-2.5 overflow-hidden rounded-full border border-line-strong bg-elevated">
           <motion.div
-            className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-accent to-violet"
+            className="absolute inset-y-0 left-0 rounded-full bg-lilac"
             initial={false}
             animate={{ width: mined ? "62%" : `${Math.min(45, 6 + elapsed * 4)}%` }}
             transition={{ type: "spring", stiffness: 60, damping: 20 }}
           />
-          {!reduce && <div className="skeleton absolute inset-0 opacity-60" />}
         </div>
       </div>
     </motion.div>
@@ -280,13 +295,17 @@ function Stage({ label, state }: { label: string; state: "done" | "active" | "wa
   return (
     <span
       className={cn(
-        "flex items-center gap-1 transition-colors",
-        state === "active" && "font-medium text-accent-strong",
-        state === "done" && "text-success",
+        "typed flex items-center gap-1 text-[9.5px] transition-colors",
+        state === "active" && "font-bold text-lilac-ink",
+        state === "done" && "text-ink",
         state === "waiting" && "text-faint",
       )}
     >
-      {state === "done" ? <Check className="size-3" strokeWidth={3} /> : <span className={cn("size-1 rounded-full", state === "active" ? "bg-accent-strong" : "bg-faint")} />}
+      {state === "done" ? (
+        <Check className="size-3" strokeWidth={3} />
+      ) : (
+        <span className={cn("size-1.5 rounded-full", state === "active" ? "animate-pulse bg-lilac-ink" : "bg-faint")} />
+      )}
       {label}
     </span>
   );

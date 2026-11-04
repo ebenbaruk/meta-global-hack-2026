@@ -7,17 +7,17 @@ import type { Card } from "@/lib/schemas";
 type Payload = Card["payload"];
 
 const fieldClass =
-  "w-full min-w-0 rounded-xl border border-line bg-elevated/70 px-3 py-2.5 text-[14px] leading-[1.5] text-fg placeholder:text-faint outline-none transition-[border-color,box-shadow] focus:border-accent/60 focus:shadow-[0_0_0_3px_rgb(61_123_255/0.18)] focus-visible:outline-none";
+  "w-full min-w-0 rounded-2xl border-[1.5px] border-line bg-elevated px-3.5 py-3 text-[15px] leading-[1.5] text-ink placeholder:text-faint outline-none transition-[border-color,box-shadow] focus:border-line-strong focus:shadow-[2px_2px_0_0_var(--color-ink)] focus-visible:outline-none";
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: (id: string) => ReactNode }) {
   const id = useId();
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
       <div className="flex items-baseline justify-between gap-2">
-        <label htmlFor={id} className="text-xs font-medium text-muted">
+        <label htmlFor={id} className="typed text-[10px] text-muted">
           {label}
         </label>
-        {hint && <span className="text-[11px] text-faint">{hint}</span>}
+        {hint && <span className="font-mono text-[10.5px] text-faint">{hint}</span>}
       </div>
       {children(id)}
     </div>
@@ -55,7 +55,7 @@ function AutoTextarea({
 }
 
 function TextInput({ id, value, onChange, type = "text" }: { id?: string; value: string; onChange: (v: string) => void; type?: string }) {
-  return <input id={id} type={type} value={value} onChange={(e) => onChange(e.target.value)} className={`${fieldClass} [color-scheme:dark]`} />;
+  return <input id={id} type={type} value={value} onChange={(e) => onChange(e.target.value)} className={fieldClass} />;
 }
 
 /** Datetime-local inputs want "YYYY-MM-DDTHH:mm"; payloads may carry seconds. */
@@ -80,11 +80,11 @@ function StepsEditor({ steps, onChange }: { steps: string[]; onChange: (steps: s
   const set = (i: number, v: string) => onChange(steps.map((s, j) => (j === i ? v : s)));
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-xs font-medium text-muted">Steps</span>
+      <span className="typed text-[10px] text-muted">Steps</span>
       <ol className="flex flex-col gap-1.5">
         {steps.map((step, i) => (
           <li key={i} className="flex items-start gap-2">
-            <span className="mt-2.5 grid size-5 shrink-0 place-items-center rounded-full border border-line-strong text-[10px] font-semibold text-muted tabular-nums">
+            <span className="mt-3 grid size-5 shrink-0 place-items-center rounded-md border-[1.5px] border-line-strong font-mono text-[10px] font-bold text-ink tabular-nums">
               {i + 1}
             </span>
             <div className="min-w-0 flex-1">
@@ -94,7 +94,7 @@ function StepsEditor({ steps, onChange }: { steps: string[]; onChange: (steps: s
               type="button"
               onClick={() => onChange(steps.filter((_, j) => j !== i))}
               aria-label={`Remove step ${i + 1}`}
-              className="mt-1.5 grid size-8 shrink-0 place-items-center rounded-lg text-faint transition-colors hover:bg-white/[0.05] hover:text-danger"
+              className="mt-1.5 grid size-8 shrink-0 place-items-center rounded-lg text-faint transition-colors hover:bg-elevated hover:text-danger"
             >
               <X className="size-4" aria-hidden />
             </button>
@@ -104,7 +104,7 @@ function StepsEditor({ steps, onChange }: { steps: string[]; onChange: (steps: s
       <button
         type="button"
         onClick={() => onChange([...steps, ""])}
-        className="mt-1 inline-flex w-fit items-center gap-1.5 rounded-full border border-dashed border-line-strong px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:border-accent/50 hover:text-fg"
+        className="mt-1 inline-flex h-9 w-fit items-center gap-1.5 rounded-full border-[1.5px] border-dashed border-line-strong px-3.5 text-[13px] font-semibold text-ink transition-colors hover:bg-elevated"
       >
         <Plus className="size-3.5" aria-hidden />
         Add step
@@ -115,7 +115,7 @@ function StepsEditor({ steps, onChange }: { steps: string[]; onChange: (steps: s
 
 function ReadOnlyNote({ children }: { children: ReactNode }) {
   return (
-    <div className="flex items-center gap-2.5 rounded-xl border border-line bg-elevated/50 px-3 py-3 text-sm text-muted">
+    <div className="flex items-center gap-2.5 rounded-2xl border border-line bg-elevated px-3.5 py-3 text-[14px] text-muted">
       <Lock className="size-4 shrink-0 text-faint" aria-hidden />
       {children}
     </div>
@@ -151,7 +151,7 @@ export function CardEditor({ card, onChange }: { card: Card; onChange: (payload:
       const p = card.payload;
       return (
         <div className="flex flex-col gap-3">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3">
             <Field label="Starts">
               {(id) => (
                 <TextInput

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowDown, CalendarX2, CalendarCheck2, Quote } from "lucide-react";
+import { ArrowDown } from "lucide-react";
 import type { Card } from "@/lib/schemas";
 
 type ScheduleCard = Extract<Card, { kind: "schedule" }>;
@@ -17,105 +17,105 @@ function formatTime(d: Date) {
   return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }).replace(":00", "");
 }
 
-const DAY_START = 7;
-const DAY_END = 19;
-const TICKS = [9, 12, 15, 18];
-
-function hourLabel(h: number) {
-  return h === 12 ? "12p" : h > 12 ? `${h - 12}p` : `${h}a`;
+/** "… (10:30–11:30)" → [10.5, 11.5]. Small hours are afternoon (a café's day). */
+function parseRange(text: string): [number, number] | null {
+  const m = text.match(/(\d{1,2})(?::(\d{2}))?\s*(?:am|pm)?\s*[–—-]\s*(\d{1,2})(?::(\d{2}))?/i);
+  if (!m) return null;
+  const h = (hh: string, mm?: string) => {
+    const v = +hh + (mm ? +mm / 60 : 0);
+    return v < 7 ? v + 12 : v;
+  };
+  const a = h(m[1], m[2]);
+  const b = h(m[3], m[4]);
+  return b > a ? [a, b] : null;
 }
 
+const DAY_START = 8;
+const DAY_END = 18;
+const TICKS = [8, 10, 12, 14, 16, 18];
+const pct = (h: number) => Math.min(100, Math.max(0, ((h - DAY_START) / (DAY_END - DAY_START)) * 100));
+const hourLabel = (h: number) => (h === 12 ? "12p" : h > 12 ? `${h - 12}p` : `${h}a`);
+
+const STRIPES = {
+  backgroundImage: "repeating-linear-gradient(135deg, color-mix(in srgb, var(--color-onpastel) 14%, transparent) 0 5px, transparent 5px 11px)",
+};
+
+/** The clash (tangerine, striped) and the fix (ink-outlined ticket), plus a day strip proving they no longer overlap. */
 export function ScheduleBody({ card }: { card: ScheduleCard }) {
   const { event, conflict, proposed, message } = card.payload;
   const reduce = useReducedMotion();
   const start = parseLocal(proposed.start);
   const end = parseLocal(proposed.end);
+  const clash = parseRange(conflict);
 
-  const day = start?.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
+  const day = start?.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
   const range = start && end ? `${formatTime(start)} – ${formatTime(end)}` : `${proposed.start} – ${proposed.end}`;
-
-  const toPct = (d: Date) => {
-    const h = d.getHours() + d.getMinutes() / 60;
-    return Math.min(100, Math.max(0, ((h - DAY_START) / (DAY_END - DAY_START)) * 100));
-  };
-  const left = start ? toPct(start) : 0;
-  const width = start && end ? Math.max(4, toPct(end) - left) : 0;
+  const hours = (d: Date) => d.getHours() + d.getMinutes() / 60;
 
   return (
-    <div className="flex min-w-0 flex-col gap-3">
-      <div className="relative flex min-w-0 flex-col">
-        {/* Conflict: striped, muted, clearly the thing being replaced. */}
-        <div
-          className="flex min-w-0 items-start gap-3 rounded-2xl border border-warning/25 px-3.5 py-3"
-          style={{
-            backgroundImage:
-              "repeating-linear-gradient(135deg, rgb(255 181 71 / 0.08) 0 6px, transparent 6px 12px)",
-          }}
-        >
-          <CalendarX2 className="mt-0.5 size-4 shrink-0 text-warning" aria-hidden />
-          <div className="min-w-0">
-            <div className="text-[11px] font-medium tracking-wide text-warning uppercase">Conflict</div>
-            <p className="mt-0.5 break-words text-sm leading-snug text-muted">{conflict}</p>
-          </div>
-        </div>
-
-        <div className="relative z-10 -my-2 flex justify-center">
-          <span className="grid size-6 place-items-center rounded-full border border-line-strong bg-surface text-faint">
-            <ArrowDown className="size-3.5" aria-hidden />
-          </span>
-        </div>
-
-        {/* Proposal: accent, glowing, the hero. */}
-        <motion.div
-          initial={reduce ? false : { opacity: 0, y: 6, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ delay: 0.1, type: "spring", stiffness: 300, damping: 26 }}
-          className="min-w-0 rounded-2xl border border-accent/40 bg-accent-soft px-3.5 py-3 shadow-[0_8px_30px_-12px_rgb(61_123_255/0.6)]"
-        >
-          <div className="flex min-w-0 items-start gap-3">
-            <CalendarCheck2 className="mt-0.5 size-4 shrink-0 text-accent-strong" aria-hidden />
-            <div className="min-w-0 flex-1">
-              <div className="text-[11px] font-medium tracking-wide text-accent-strong uppercase">Proposed</div>
-              <div className="mt-0.5 break-words text-[15px] font-semibold text-fg">{event}</div>
-              <div className="mt-0.5 text-sm text-muted tabular-nums">
-                {day && <span className="text-fg/90">{day}</span>}
-                {day && <span className="mx-1.5 text-faint">·</span>}
-                {range}
-              </div>
-            </div>
-          </div>
-
-          {start && end && (
-            <div className="mt-3 pl-7">
-              <div className="relative h-2 rounded-full bg-white/[0.06]">
-                <motion.div
-                  className="absolute inset-y-0 rounded-full bg-accent shadow-[0_0_12px_2px_rgb(61_123_255/0.6)]"
-                  style={{ left: `${left}%`, width: `${width}%`, transformOrigin: "left" }}
-                  initial={reduce ? false : { scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ delay: 0.3, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                />
-              </div>
-              <div className="relative mt-1 h-3 text-[10px] text-faint tabular-nums">
-                {TICKS.map((h) => (
-                  <span
-                    key={h}
-                    className="absolute -translate-x-1/2"
-                    style={{ left: `${((h - DAY_START) / (DAY_END - DAY_START)) * 100}%` }}
-                  >
-                    {hourLabel(h)}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-        </motion.div>
+    <div className="flex min-w-0 flex-col">
+      {/* The clash */}
+      <div className="relative min-w-0 rounded-[20px] bg-tangerine px-4 pt-3.5 pb-4 text-onpastel" style={STRIPES}>
+        <span className="typed inline-flex -rotate-3 items-center rounded-full border-[1.5px] border-onpastel bg-surface px-2 py-1 text-[9.5px] leading-none font-bold text-ink">
+          Clash ✺
+        </span>
+        <p className="mt-2 text-[14px] leading-snug font-medium break-words">{conflict}</p>
       </div>
 
+      <div className="relative z-10 -my-3 flex justify-center">
+        <span className="grid size-8 place-items-center rounded-full border-[1.5px] border-line-strong bg-yellow text-onpastel">
+          <ArrowDown className="size-4" strokeWidth={2.5} aria-hidden />
+        </span>
+      </div>
+
+      {/* The fix */}
+      <motion.div
+        initial={reduce ? false : { opacity: 0, y: 8, rotate: -1 }}
+        animate={{ opacity: 1, y: 0, rotate: 0 }}
+        transition={{ delay: 0.1, type: "spring", stiffness: 300, damping: 24 }}
+        className="min-w-0 rounded-[20px] border-[1.5px] border-line-strong bg-surface px-4 pt-4 pb-3.5 shadow-ink"
+      >
+        <div className="typed text-[10px] text-lilac-ink">Moved to · {day}</div>
+        <div className="font-display mt-1 text-[30px] leading-none font-black text-ink tabular-nums">{range}</div>
+        <div className="mt-1.5 text-[14px] leading-snug break-words text-muted">{event}</div>
+
+        {start && end && (
+          <div className="mt-3.5">
+            <div className="relative h-5 rounded-full border border-line bg-elevated">
+              {clash && (
+                <div
+                  className="absolute inset-y-0.5 rounded-full bg-tangerine"
+                  style={{ left: `${pct(clash[0])}%`, width: `${pct(clash[1]) - pct(clash[0])}%`, ...STRIPES }}
+                  title="The other commitment"
+                />
+              )}
+              <motion.div
+                className="absolute inset-y-0.5 rounded-full border-[1.5px] border-onpastel bg-lilac"
+                style={{ left: `${pct(hours(start))}%`, width: `${Math.max(4, pct(hours(end)) - pct(hours(start)))}%`, transformOrigin: "left" }}
+                initial={reduce ? false : { scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ delay: 0.35, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+              />
+            </div>
+            <div className="relative mt-1 h-3 font-mono text-[9.5px] text-faint tabular-nums">
+              {TICKS.map((h, i) => (
+                <span
+                  key={h}
+                  className={i === 0 ? "absolute" : i === TICKS.length - 1 ? "absolute -translate-x-full" : "absolute -translate-x-1/2"}
+                  style={{ left: `${pct(h)}%` }}
+                >
+                  {hourLabel(h)}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </motion.div>
+
       {message && (
-        <div className="flex min-w-0 gap-2.5 rounded-2xl border border-line bg-elevated/60 px-3.5 py-3">
-          <Quote className="mt-0.5 size-3.5 shrink-0 text-faint" aria-hidden />
-          <p className="min-w-0 whitespace-pre-line break-words text-sm leading-[1.5] text-muted">{message}</p>
+        <div className="mt-3 min-w-0 rounded-[20px] border border-line bg-elevated px-4 py-3">
+          <div className="typed text-[9.5px] text-faint">Note they&apos;ll get</div>
+          <p className="mt-1 whitespace-pre-line break-words text-[14px] leading-[1.5] text-ink">{message}</p>
         </div>
       )}
     </div>

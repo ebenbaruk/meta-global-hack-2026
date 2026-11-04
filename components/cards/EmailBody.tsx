@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ChevronDown, PenLine } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 import type { Card } from "@/lib/schemas";
 
@@ -19,6 +19,7 @@ function parseRecipient(to: string) {
 
 const LONG_BODY = 320;
 
+/** The drafted reply as a letter: typed envelope lines, then the body in Geist. */
 export function EmailBody({ card }: { card: EmailCard }) {
   const { to, subject, body } = card.payload;
   const { name, email } = parseRecipient(to);
@@ -27,31 +28,36 @@ export function EmailBody({ card }: { card: EmailCard }) {
   const collapsible = body.length > LONG_BODY || body.split("\n").length > 7;
 
   return (
-    <div className="min-w-0 overflow-hidden rounded-2xl border border-line bg-elevated/60">
-      <div className="flex min-w-0 items-center gap-3 border-b border-line px-4 py-3">
-        <span className="text-xs font-medium text-muted">To</span>
-        <div className="flex min-w-0 items-center gap-2 rounded-full bg-white/[0.05] py-1 pr-3 pl-1">
-          <span
-            aria-hidden
-            className="grid size-6 shrink-0 place-items-center rounded-full bg-gradient-to-br from-accent to-violet text-[11px] font-semibold text-white"
-          >
-            {name.charAt(0).toUpperCase()}
-          </span>
-          <span className="truncate text-sm text-fg">{name}</span>
-          <span className="hidden truncate text-xs text-faint sm:inline">{email}</span>
+    <div className="relative mt-2 min-w-0 rounded-[20px] border border-line bg-bg">
+      {/* Postmark */}
+      <span
+        aria-hidden
+        className="typed absolute -top-3 right-3 rotate-3 rounded-md border-[1.5px] border-onpastel bg-sky px-2 py-1 text-[9.5px] leading-none font-bold text-onpastel"
+      >
+        Drafted in your voice
+      </span>
+
+      <dl className="font-mono text-[11.5px] leading-tight">
+        <div className="flex min-w-0 items-baseline gap-3 border-b border-dashed border-line px-4 pt-4 pb-2.5">
+          <dt className="w-8 shrink-0 font-bold tracking-wider text-faint uppercase">To</dt>
+          <dd className="min-w-0 truncate text-ink">
+            {name} <span className="text-faint">&lt;{email}&gt;</span>
+          </dd>
         </div>
-      </div>
+        <div className="flex min-w-0 items-baseline gap-3 border-b border-dashed border-line px-4 py-2.5">
+          <dt className="w-8 shrink-0 font-bold tracking-wider text-faint uppercase">Re</dt>
+          <dd className="min-w-0 break-words text-ink">{subject.replace(/^re:\s*/i, "")}</dd>
+        </div>
+      </dl>
 
-      <div className="px-4 pt-3 pb-4">
-        <h3 className="text-[15px] leading-snug font-semibold break-words text-fg">{subject}</h3>
-
+      <div className="px-4 pt-3 pb-3.5">
         <motion.div
           initial={false}
-          animate={{ height: expanded || !collapsible ? "auto" : "10.5em" }}
+          animate={{ height: expanded || !collapsible ? "auto" : "11em" }}
           transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 260, damping: 32 }}
-          className="relative mt-2 overflow-hidden text-[14px] leading-[1.5]"
+          className="relative overflow-hidden text-[14.5px] leading-[1.55]"
         >
-          <p className="whitespace-pre-line break-words text-muted">{body}</p>
+          <p className="whitespace-pre-line break-words text-ink">{body}</p>
           <AnimatePresence>
             {collapsible && !expanded && (
               <motion.div
@@ -59,29 +65,23 @@ export function EmailBody({ card }: { card: EmailCard }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#13161d] to-transparent"
+                className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-bg to-transparent"
               />
             )}
           </AnimatePresence>
         </motion.div>
 
-        <div className="mt-3 flex items-center justify-between gap-3">
-          <span className="inline-flex items-center gap-1.5 text-xs whitespace-nowrap text-muted">
-            <PenLine className="size-3.5" aria-hidden />
-            Drafted in your voice
-          </span>
-          {collapsible && (
-            <button
-              type="button"
-              onClick={() => setExpanded((v) => !v)}
-              aria-expanded={expanded}
-              className="-mr-2 inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium whitespace-nowrap text-accent-strong transition-colors hover:bg-accent-soft"
-            >
-              {expanded ? "Show less" : "Show full draft"}
-              <ChevronDown className={`size-3.5 transition-transform ${expanded ? "rotate-180" : ""}`} aria-hidden />
-            </button>
-          )}
-        </div>
+        {collapsible && (
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            aria-expanded={expanded}
+            className="typed mt-2 -ml-2 inline-flex items-center gap-1 rounded-full px-2 py-1.5 text-[10.5px] text-lilac-ink transition-colors hover:bg-lilac-soft"
+          >
+            {expanded ? "Fold the letter" : "Read the whole letter"}
+            <ChevronDown className={`size-3.5 transition-transform ${expanded ? "rotate-180" : ""}`} aria-hidden />
+          </button>
+        )}
       </div>
     </div>
   );

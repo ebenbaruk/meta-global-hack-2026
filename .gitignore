@@ -27,3 +27,9 @@ build/
 
 # Demo video outputs
 video/out/
+
+# Test artifacts
+test-results/
+playwright-report/
+*.tsbuildinfo
+next-env.d.ts

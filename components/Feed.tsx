@@ -176,6 +176,7 @@ const READING = [
 ];
 
 function Greeting({ ready, preparing, loading }: { ready: number; preparing: number; loading: boolean }) {
+  const preparedAt = useFeed((s) => s.preparedAt);
   const now = new Date();
   const date = now.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
   const things = (n: number) => `${n} thing${n === 1 ? "" : "s"}`;
@@ -213,6 +214,12 @@ function Greeting({ ready, preparing, loading }: { ready: number; preparing: num
         </motion.span>
         {ready > 0 && preparing > 0 && <span className="font-medium text-lilac-ink"> {preparing} more on the way.</span>}
       </p>
+      {preparedAt && ready > 0 && (
+        <p data-testid="prepared-at" className="typed mt-2 text-[10.5px] text-faint">
+          <span className="text-lilac-ink">✺</span> Ready since{" "}
+          {new Date(preparedAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}, prepared ahead
+        </p>
+      )}
       <AnimatePresence initial={false}>
         {working && ready === 0 && <WorkingStatus key="status" preparing={preparing} />}
       </AnimatePresence>

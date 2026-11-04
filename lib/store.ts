@@ -38,6 +38,8 @@ interface Data {
   /** Last weight change, for the Taste panel highlight and the Ranker stage. */
   lastTuned?: { kind: CardKind; delta: number; at: number };
   hydrated: boolean;
+  /** When the morning feed was prepared ahead of time (overnight run), if it was. */
+  preparedAt: number | null;
 }
 
 interface Actions {
@@ -67,6 +69,7 @@ const initialData = (): Data => ({
   toasts: [],
   lastVerdict: "approve",
   hydrated: false,
+  preparedAt: null,
 });
 
 let seq = 0;
@@ -138,6 +141,9 @@ export const useFeed = create<FeedState>()(
           }
           case "drop":
             set((s) => ({ items: s.items.filter((i) => i.id !== e.id || !isPlaceholder(i)) }));
+            return;
+          case "prepared":
+            set({ preparedAt: e.at });
             return;
           case "done":
             return;
@@ -342,12 +348,13 @@ export const useFeed = create<FeedState>()(
         taste: s.taste,
         traces: s.traces.slice(0, PERSISTED_TRACES),
         batch: s.batch,
+        preparedAt: s.preparedAt,
       }),
     },
   ),
 );
 
-type Persisted = Pick<Data, "items" | "outbox" | "taste" | "traces" | "batch">;
+type Persisted = Pick<Data, "items" | "outbox" | "taste" | "traces" | "batch" | "preparedAt">;
 
 /** localStorage that survives the quota: if images don't fit, it saves without them. */
 function safeStorage(): PersistStorage<Persisted> {

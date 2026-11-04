@@ -343,12 +343,24 @@ export type FeedEvent =
   | { type: "image"; id: string; image: string }
   | { type: "image_error"; id: string; message: string } // card stays usable, retry via /api/image
   | { type: "card_error"; id: string; message: string }
+  | { type: "prepared"; at: number } // the morning feed was prepared ahead of time, at `at`
   | { type: "done" };
 ```
 
 A single protocol covers progress (`skeleton` with a repeated id renames a placeholder in place), results (`card`, `image`), partial failure (`card_error`, `image_error` on one id, never the whole stream), observability (`trace`) and completion. The client applies events to the store as they arrive ([`lib/feedClient.ts`](lib/feedClient.ts), [`lib/store.ts`](lib/store.ts)); any placeholder still "preparing" when a stream ends becomes a retryable error card.
 
-### Skeleton-first latency design
+### The overnight run: the morning feed is already there
+
+The pitch is *"your agents worked while you slept"*, so the app does exactly that. The morning feed (batch 1, nothing learned yet) is prepared ahead of time by a **real pipeline run** against the Meta API: `pnpm overnight` (cron-able), or automatically on the first live visit. The run is saved only if it is clean (no card or image errors, at least 3 cards) and is replayed when Maya opens the app:
+
+- the full feed is on screen in **about 1 s** instead of ~21 s, with cards still materializing one by one (140 ms apart);
+- the Agent Lens shows the real calls of that run, with their real timestamps and latencies;
+- the header says when it was prepared (*"Ready since 6:12 AM, prepared ahead"*) — nothing pretends to be live when it isn't;
+- every replay gets fresh card ids; the recording expires after 24 h (`lib/overnight.ts`).
+
+Everything after that stays fully live: later batches (shaped by taste notes), Snap, Dive in, revise and taste rewrites. Mock mode (`META_MOCK=1`) bypasses the recording so tests stay deterministic.
+
+### Skeleton-first latency design (every live batch)
 
 Spark's reasoning makes every step take seconds, and the steps depend on each other. So the feed is designed to **never look idle**:
 
@@ -496,6 +508,7 @@ META_MOCK=1 pnpm dev
 | `pnpm test` | Vitest unit tests |
 | `pnpm e2e` | Playwright e2e in mock mode, mobile and desktop projects (starts its own server on port 3190) |
 | `pnpm smoke` | Live: one real call each to Muse Spark, Muse Image and SAM 3.1 (needs `META_API_KEY`) |
+| `pnpm overnight` | Live: runs the full pipeline and saves Maya's morning feed to `.cache/overnight.json`, so the app opens on a ready feed |
 | `bash video/build.sh` | Renders the demo video end to end against the live API: voiceover, slides, scripted Playwright capture, ffmpeg edit → `video/out/feedforward-demo.mp4`. `--mock` for mock mode, `--edit` to re-cut only. Needs `ffmpeg` and `uvx` |
 
 ### Project structure
@@ -566,7 +579,7 @@ docs/                         IDEA, SPEC, DESIGN, BUILD_NOTES, SUBMISSION, archi
 
 ## Limitations and honest notes
 
-- **Latency.** Muse Spark is a reasoning model. Even at `reasoning_effort: "low"`, one call takes 6–14 s (we saw up to 28 s with a large prompt), and the pipeline's steps depend on each other. A live batch shows its first card after about 21 s. Skeletons, parallelism and the Agent Lens make the wait legible, but it's slower than a real feed should be.
+- **Latency.** Muse Spark is a reasoning model. Even at `reasoning_effort: "low"`, one call takes 6–14 s (we saw up to 28 s with a large prompt), and the pipeline's steps depend on each other. A live batch shows its first card after about 21 s; the morning feed hides this through the overnight run, later batches don't. Skeletons, parallelism and the Agent Lens make the wait legible, but it's slower than a real feed should be.
 - **Streaming arrives in a burst.** With a reasoning model, streamed text arrives almost all at once after the thinking phase, so the chat shows a typing indicator rather than word-by-word text.
 - **Sandboxed tools.** Approve runs deterministic tools that return receipts. No email is sent, no event is created, no post is published. Real connectors are the next step.
 - **Fictional data.** Every person, company, sponsor brand and number in the persona is invented. Cards are generated live from that data, but it's a sandbox, not a real business.

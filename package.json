@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "e2e": "playwright test",
-    "smoke": "tsx --conditions=react-server --env-file=.env scripts/smoke.ts"
+    "smoke": "tsx --conditions=react-server --env-file=.env scripts/smoke.ts",
+    "overnight": "tsx --conditions=react-server --env-file=.env scripts/overnight.ts"
   },
   "dependencies": {
     "@meta-sam/parser": "^0.1.0",

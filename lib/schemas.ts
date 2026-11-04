@@ -158,6 +158,7 @@ export type FeedEvent =
   | { type: "image"; id: string; image: string }
   | { type: "image_error"; id: string; message: string } // card stays usable, retry via /api/image
   | { type: "card_error"; id: string; message: string }
+  | { type: "prepared"; at: number } // the morning feed was prepared ahead of time, at `at`
   | { type: "done" };
 
 // ---------- Executor ----------

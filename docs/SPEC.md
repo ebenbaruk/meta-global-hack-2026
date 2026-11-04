@@ -111,7 +111,7 @@ Kind-specific payloads (zod-validated, `lib/schemas.ts`): `email_reply {to, subj
 
 ### 5.1 Feed generation: `POST /api/feed`
 Input: `{ notes, seenTitles, batch }` (taste notes, titles already in the feed, batch number). Output: an **NDJSON stream** of `FeedEvent`s:
-`{type:"trace", trace}` · `{type:"skeleton", id, kind, label}` (a repeated id renames it) · `{type:"drop", id}` (placeholder not needed) · `{type:"card", card}` · `{type:"image", id, image}` · `{type:"image_error", id, message}` (card stays usable, retry via `/api/image`) · `{type:"card_error", id, message}` · `{type:"done"}`.
+`{type:"trace", trace}` · `{type:"skeleton", id, kind, label}` (a repeated id renames it) · `{type:"drop", id}` (placeholder not needed) · `{type:"card", card}` · `{type:"image", id, image}` · `{type:"image_error", id, message}` (card stays usable, retry via `/api/image`) · `{type:"card_error", id, message}` · `{type:"prepared", at}` (overnight replay, see 5.1b) · `{type:"done"}`.
 
 1. **Scanning skeletons**: 5 skeletons go out immediately with generic live labels ("Reading your inbox…", "Pulling 14 days of sales…") while the Miner reads.
 2. **Miner** (Spark, `json_schema`, effort low): persona context + taste notes + seen titles → **5** opportunities `{kind, title, why, sourceIds, urgency}`. Batch 1 is exactly one each of email_reply, team_update, schedule, social_post, task; later batches dig deeper. Skeletons are renamed to what was found ("Drafting reply to Lena…"), and unused ones are dropped.
@@ -120,6 +120,9 @@ Input: `{ notes, seenTitles, batch }` (taste notes, titles already in the feed, 
 5. **Sponsor**: the sponsor match starts in parallel with the Miner and is sent right after the 3rd card (or at the end if fewer cards made it). One per batch.
 6. **Ranker** (client, `lib/ranker.ts`): `score = urgency × weights[kind] × freshness` (freshness halves every 6 h, floor 0.5). Placeholders keep their slot, snap cards are pinned on top, sponsored cards go at position 4 then every 6 cards. Acted cards leave the feed.
 7. **Infinite scroll**: an IntersectionObserver near the end loads the next batch, up to 4 automatic batches (then a designed caught-up state). Dedup through `seenTitles` in the Miner prompt plus an exact-title filter.
+
+### 5.1b Overnight run (`lib/overnight.ts`, `lib/pipeline.ts`)
+The morning feed (`batch 1`, no notes, no seen titles, live mode) is served from a saved real run: `pnpm overnight` (or the first live visit) runs `runFeed`, and a clean run (no `card_error`/`image_error`, ≥3 cards) is saved to `.cache/overnight.json` (24 h TTL, in memory after first read). A replay sends `{type:"prepared", at}` first, then the recorded traces, cards (140 ms apart) and images with fresh ids; skeletons and drops are not replayed. The client shows "Ready since …, prepared ahead". Mock mode always runs the pipeline.
 
 ### 5.2 Learning: client side + `POST /api/taste`
 - Approve: `weights[kind] += 0.15`. Edit: `+0.05`. Dismiss: `weights[kind] -= 0.25`. Clamped to [0.2, 2.5]. A toast says "Tuned: fewer *team updates*" (`lib/taste.ts`).

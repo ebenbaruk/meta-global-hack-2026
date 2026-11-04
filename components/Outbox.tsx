@@ -35,7 +35,7 @@ export function Outbox({ onBrowse }: { onBrowse: () => void }) {
   return (
     <section data-testid="outbox" className="pb-[calc(env(safe-area-inset-bottom)+112px)]">
       <header className="px-1 pt-5 pb-5">
-        <p className="text-[12px] font-medium tracking-wider text-faint uppercase">Outbox</p>
+        <p className="text-[12px] font-medium tracking-wider text-faint uppercase">Receipts</p>
         <h1 className="mt-1.5 text-[28px] leading-tight font-semibold tracking-tight text-fg">Done for you</h1>
         <p className="mt-1 text-[15px] text-muted">
           {outbox.length === 0
@@ -53,7 +53,7 @@ export function Outbox({ onBrowse }: { onBrowse: () => void }) {
             <button
               type="button"
               onClick={onBrowse}
-              className="h-10 rounded-full bg-accent px-5 text-[14px] font-semibold text-white transition hover:bg-accent-strong"
+              className="h-10 rounded-full bg-accent px-5 text-[14px] font-semibold text-white transition hover:brightness-110"
             >
               Go to your feed
             </button>
@@ -67,6 +67,9 @@ export function Outbox({ onBrowse }: { onBrowse: () => void }) {
             ))}
           </AnimatePresence>
         </ul>
+      )}
+      {outbox.length > 0 && (
+        <p className="mt-4 px-1 text-center text-[12px] text-faint">Actions run against Maya&apos;s sandbox tools. Nothing leaves the demo.</p>
       )}
     </section>
   );

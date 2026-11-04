@@ -47,7 +47,7 @@ export function Sheet({
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center">
+        <div className="fixed inset-0 z-50 flex items-end justify-center md:items-center md:p-6">
           <motion.div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             initial={{ opacity: 0 }}
@@ -60,7 +60,7 @@ export function Sheet({
             aria-modal="true"
             data-testid={testId}
             className={cn(
-              "glass-border relative flex max-h-[90dvh] w-full max-w-[560px] flex-col rounded-t-[28px] bg-surface shadow-[0_-20px_60px_-20px_rgb(0_0_0/0.8)]",
+              "glass-border relative flex max-h-[90dvh] w-full max-w-[560px] flex-col rounded-t-[28px] bg-surface shadow-[0_-20px_60px_-20px_rgb(0_0_0/0.8)] md:max-h-[85dvh] md:rounded-[28px] md:shadow-[0_30px_80px_-20px_rgb(0_0_0/0.9)]",
               className,
             )}
             initial={reduce ? { opacity: 0 } : { y: "100%" }}
@@ -75,7 +75,7 @@ export function Sheet({
             onDragEnd={onDragEnd}
           >
             <div className="shrink-0 cursor-grab touch-none px-5 pt-3 pb-3 active:cursor-grabbing" onPointerDown={(e) => drag.start(e)}>
-              <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/15" />
+              <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/15 md:invisible md:mb-0 md:h-0" />
               {(title || subtitle) && (
                 <div className="flex items-start gap-3">
                   <div className="min-w-0 flex-1">

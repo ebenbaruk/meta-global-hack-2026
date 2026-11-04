@@ -36,7 +36,13 @@ export function SkeletonCard({ item, onRetry }: { item: Placeholder; onRetry: ()
   }
 
   return (
-    <article data-testid="skeleton-card" data-kind={item.kind} aria-busy="true" className="glass-border rounded-card bg-surface shadow-card">
+    <article
+      data-testid="skeleton-card"
+      data-kind={item.kind}
+      aria-busy="true"
+      className="glass-border relative overflow-hidden rounded-card bg-surface shadow-card"
+    >
+      <div className="scanline" aria-hidden />
       <div className="flex items-center gap-3 p-4 pb-3">
         <span className={cn("grid size-10 shrink-0 place-items-center rounded-xl bg-current/10 transition-colors", meta.tint)}>
           <Icon key={item.kind} className="size-[18px] opacity-70" />

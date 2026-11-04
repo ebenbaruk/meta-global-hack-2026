@@ -46,7 +46,7 @@ export function EditSheet({
               type="button"
               data-testid="edit-save-approve"
               onClick={() => onSaveAndApprove(editing.payload)}
-              className="flex h-11 flex-[1.6] items-center justify-center gap-2 rounded-full bg-accent text-[14.5px] font-semibold text-white shadow-[0_8px_24px_-10px_rgb(61_123_255/0.9)] transition hover:bg-accent-strong"
+              className="flex h-11 flex-[1.6] items-center justify-center gap-2 rounded-full bg-accent text-[14.5px] font-semibold text-white shadow-[0_8px_24px_-10px_rgb(61_123_255/0.9)] transition hover:brightness-110"
             >
               <Check className="size-4" strokeWidth={2.5} />
               Save &amp; {editing.actionLabel.charAt(0).toLowerCase() + editing.actionLabel.slice(1)}

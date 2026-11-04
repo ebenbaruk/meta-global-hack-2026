@@ -1,7 +1,8 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Activity } from "lucide-react";
+import type { Tab } from "@/components/TabBar";
 import { cn } from "@/lib/cn";
 import { selectPreparingCount, useFeed } from "@/lib/store";
 
@@ -19,32 +20,65 @@ export function Wordmark() {
   );
 }
 
-/** Live status of the agents: how many are preparing right now. */
+/** Live status of the agents: how many are preparing right now. The pill grows, sweeps and counts while they work. */
 export function AgentStatus() {
+  const reduce = useReducedMotion();
   const preparing = useFeed(selectPreparingCount);
   const busy = useFeed((s) => s.loading || s.snapping);
-  const label =
-    preparing > 0 ? `${preparing} agent${preparing === 1 ? "" : "s"} working` : busy ? "Agents reading" : "Up to date";
   const live = preparing > 0 || busy;
+  const label = preparing > 0 ? "working" : busy ? "Reading" : "Up to date";
+  // "5 agents working" on roomy screens, "5 working" on a phone.
+  const noun = preparing > 0 ? `agent${preparing === 1 ? "" : "s"} ` : busy ? "" : null;
 
   return (
-    <div
+    <motion.div
+      layout={!reduce}
       data-testid="agent-status"
+      transition={{ type: "spring", stiffness: 500, damping: 36 }}
       className={cn(
-        "flex h-7 shrink-0 items-center gap-1.5 rounded-full border px-2.5 text-[12px] font-medium whitespace-nowrap transition-colors",
-        live ? "border-accent/30 bg-accent-soft text-accent-strong" : "border-line bg-white/[0.03] text-faint",
+        "relative flex h-7 shrink-0 items-center gap-1.5 overflow-hidden rounded-full border px-2.5 text-[12px] font-medium whitespace-nowrap transition-colors duration-300",
+        live ? "border-accent/35 bg-accent-soft text-accent-strong" : "border-line bg-white/[0.03] text-muted",
       )}
     >
-      <span className="relative flex size-1.5">
+      {live && !reduce && (
+        <motion.span
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 w-10 bg-gradient-to-r from-transparent via-white/15 to-transparent"
+          initial={{ x: -48 }}
+          animate={{ x: 200 }}
+          transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut", repeatDelay: 0.4 }}
+        />
+      )}
+      <motion.span layout={!reduce ? "position" : false} className="relative flex size-1.5">
         {live && <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent-strong opacity-70" />}
         <span className={cn("relative inline-flex size-1.5 rounded-full", live ? "bg-accent-strong" : "bg-success")} />
-      </span>
+      </motion.span>
       <AnimatePresence mode="popLayout" initial={false}>
-        <motion.span key={label} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
+        {preparing > 0 && (
+          <motion.span
+            key={preparing}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="relative font-mono font-semibold tabular-nums"
+          >
+            {preparing}
+          </motion.span>
+        )}
+      </AnimatePresence>
+      <AnimatePresence mode="popLayout" initial={false}>
+        <motion.span
+          key={label}
+          className="relative"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
+        >
+          {noun && <span className="hidden sm:inline">{noun}</span>}
           {label}
         </motion.span>
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }
 
@@ -62,11 +96,19 @@ export function Avatar({ size = "sm" }: { size?: "sm" | "lg" }) {
   );
 }
 
-export function TopBar({ onOpenLens }: { onOpenLens: () => void }) {
+export function TopBar({ tab, onOpenLens }: { tab: Tab; onOpenLens: () => void }) {
   return (
-    <div className="sticky top-0 z-30 -mx-4 border-b border-line/60 bg-bg/70 px-4 pt-[env(safe-area-inset-top)] backdrop-blur-xl lg:mx-0 lg:border-none lg:bg-transparent lg:px-1 lg:backdrop-blur-none">
-      <div className="flex h-14 items-center gap-2">
-        <Wordmark />
+    <div className="sticky top-0 z-30 -mx-4 border-b border-line/60 bg-bg/75 px-4 pt-[env(safe-area-inset-top)] backdrop-blur-xl backdrop-saturate-150 lg:mx-0 lg:border-none lg:bg-transparent lg:px-1 lg:backdrop-blur-none">
+      {/* Desktop: no bar, just a soft fade so cards slide under the status pill. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 hidden h-[72px] bg-bg/85 backdrop-blur-xl [mask-image:linear-gradient(to_bottom,#000_65%,transparent)] lg:block"
+      />
+      <div className="relative flex h-14 items-center gap-2">
+        <span className="lg:hidden">
+          <Wordmark />
+        </span>
+        <span className="hidden text-[13px] font-medium text-muted lg:inline">{tab === "feed" ? "For you" : "Outbox"}</span>
         <div className="flex-1" />
         <AgentStatus />
         <button
@@ -74,7 +116,7 @@ export function TopBar({ onOpenLens }: { onOpenLens: () => void }) {
           onClick={onOpenLens}
           aria-label="Open Agent Lens"
           data-testid="lens-btn"
-          className="grid size-8 place-items-center rounded-full bg-white/[0.06] text-muted transition hover:bg-white/10 hover:text-fg lg:hidden"
+          className="grid size-8 shrink-0 place-items-center rounded-full bg-white/[0.06] text-muted transition hover:bg-white/10 hover:text-fg lg:hidden"
         >
           <Activity className="size-4" />
         </button>

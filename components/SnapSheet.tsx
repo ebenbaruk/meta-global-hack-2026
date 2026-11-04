@@ -188,10 +188,10 @@ export function SnapSheet({
                       alt=""
                       className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                     />
-                    <span className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+                    <span className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 via-45% to-transparent" />
                     <span className="absolute inset-x-3 bottom-2.5">
                       <span className="block text-[13px] font-semibold text-white">{d.label}</span>
-                      <span className="block text-[11px] text-white/65">{d.hint}</span>
+                      <span className="block text-[11px] text-white/80">{d.hint}</span>
                     </span>
                     {busy === d.id && (
                       <span className="absolute inset-0 grid place-items-center bg-black/40 backdrop-blur-[2px]">
@@ -249,7 +249,7 @@ function OptionButton({
       className={cn(
         "flex min-h-[112px] flex-col justify-between rounded-2xl p-4 text-left transition-[transform,background-color] active:scale-[0.98] disabled:opacity-60",
         primary
-          ? "bg-accent text-white shadow-glow hover:bg-accent-strong"
+          ? "bg-accent text-white shadow-glow hover:brightness-110"
           : "border border-line-strong bg-elevated text-fg hover:bg-white/[0.06]",
       )}
     >

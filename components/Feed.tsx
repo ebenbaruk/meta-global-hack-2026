@@ -1,11 +1,13 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "framer-motion";
-import { CheckCheck, Loader2, RefreshCw } from "lucide-react";
-import { useEffect, useMemo, useRef } from "react";
+import { Check, CheckCheck, Loader2, RefreshCw } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useMinerDone } from "@/components/AgentLens";
 import { EmptyState } from "@/components/EmptyState";
 import { FeedCard } from "@/components/FeedCard";
 import { SkeletonCard } from "@/components/SkeletonCard";
+import { cn } from "@/lib/cn";
 import { isPlaceholder, rankFeed, type Placeholder } from "@/lib/ranker";
 import type { Card, Verdict } from "@/lib/schemas";
 import { MAX_AUTO_BATCHES, useFeed } from "@/lib/store";
@@ -23,9 +25,10 @@ const variants: Variants = {
   animate: { opacity: 1, y: 0, scale: 1, transition: spring },
   exit: (verdict: Verdict) => ({
     opacity: 0,
-    x: verdict === "dismiss" ? -140 : 140,
-    scale: 0.94,
-    transition: { duration: 0.28, ease: [0.4, 0, 0.2, 1] },
+    x: verdict === "dismiss" ? -260 : 260,
+    rotate: verdict === "dismiss" ? -6 : 6,
+    scale: 0.92,
+    transition: { duration: 0.34, ease: [0.4, 0, 0.2, 1] },
   }),
 };
 const reducedVariants: Variants = {
@@ -158,15 +161,24 @@ function greetingFor(hour: number) {
   return "Good evening";
 }
 
+/** What the Miner is reading, cycled while it works (counts mirror Maya's sandbox data). */
+const READING = [
+  "Reading 15 emails",
+  "Scanning 14 calendar events",
+  "Pulling 14 days of sales",
+  "Cross-checking your notes",
+  "Deciding what needs you today",
+];
+
 function Greeting({ ready, preparing, loading }: { ready: number; preparing: number; loading: boolean }) {
   const now = new Date();
   const date = now.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
   const things = (n: number) => `${n} thing${n === 1 ? "" : "s"}`;
+  const working = loading || preparing > 0;
 
   let line: string;
   if (ready > 0) line = `${things(ready)} ${ready === 1 ? "is" : "are"} ready.`;
-  else if (preparing > 0) line = `Your agents are preparing ${things(preparing)}…`;
-  else if (loading) line = "Your agents are reading your inbox, calendar and sales…";
+  else if (working) line = "Your agents are getting today ready.";
   else line = "Nothing needs you right now.";
 
   return (
@@ -181,6 +193,101 @@ function Greeting({ ready, preparing, loading }: { ready: number; preparing: num
         </motion.span>
         {ready > 0 && preparing > 0 && <span className="text-accent-strong"> {preparing} more on the way.</span>}
       </p>
+      <AnimatePresence initial={false}>
+        {working && ready === 0 && <WorkingStatus key="status" preparing={preparing} />}
+      </AnimatePresence>
     </header>
+  );
+}
+
+/**
+ * The wait, made legible: a cycling line of what the agents are doing, an elapsed timer,
+ * and a progress track that fills as drafted cards land.
+ */
+function WorkingStatus({ preparing }: { preparing: number }) {
+  const reduce = useReducedMotion();
+  const mined = useMinerDone();
+  const [started] = useState(() => Date.now());
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const elapsed = Math.floor((Date.now() - started) / 1000);
+  const phrase = mined
+    ? `Drafting ${preparing} card${preparing === 1 ? "" : "s"} in your voice`
+    : READING[Math.floor(tick / 2) % READING.length];
+
+  return (
+    <motion.div
+      data-testid="working-status"
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: "auto" }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ duration: 0.25 }}
+      className="overflow-hidden"
+    >
+      <div className="mt-4 rounded-2xl border border-accent/20 bg-accent-soft/60 px-3.5 py-3">
+        <div className="flex items-center gap-2.5">
+          <span className="relative flex size-2 shrink-0">
+            <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent-strong opacity-60" />
+            <span className="relative inline-flex size-2 rounded-full bg-accent-strong" />
+          </span>
+          <div className="relative h-5 min-w-0 flex-1 overflow-hidden">
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.p
+                key={phrase}
+                initial={reduce ? { opacity: 0 } : { opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={reduce ? { opacity: 0 } : { opacity: 0, y: -14 }}
+                transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                className="truncate text-[13.5px] leading-5 font-medium text-fg"
+              >
+                {phrase}
+                <span className="text-accent-strong">…</span>
+              </motion.p>
+            </AnimatePresence>
+          </div>
+          <span className="shrink-0 font-mono text-[12px] text-accent-strong tabular-nums" aria-label={`${elapsed} seconds`}>
+            {elapsed}s
+          </span>
+        </div>
+        <div className="mt-2.5 flex items-center gap-1.5 text-[11.5px] text-muted">
+          <Stage label="Miner" state={mined ? "done" : "active"} />
+          <span className="h-px w-3 bg-line-strong" />
+          <Stage label="Preparers" state={mined ? "active" : "waiting"} />
+          <span className="h-px w-3 bg-line-strong" />
+          <Stage label="Ranker" state="waiting" />
+          <span className="ml-auto hidden text-faint sm:inline">Muse Spark</span>
+        </div>
+        <div className="relative mt-2.5 h-[3px] overflow-hidden rounded-full bg-white/[0.06]">
+          <motion.div
+            className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-accent to-violet"
+            initial={false}
+            animate={{ width: mined ? "62%" : `${Math.min(45, 6 + elapsed * 4)}%` }}
+            transition={{ type: "spring", stiffness: 60, damping: 20 }}
+          />
+          {!reduce && <div className="skeleton absolute inset-0 opacity-60" />}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function Stage({ label, state }: { label: string; state: "done" | "active" | "waiting" }) {
+  return (
+    <span
+      className={cn(
+        "flex items-center gap-1 transition-colors",
+        state === "active" && "font-medium text-accent-strong",
+        state === "done" && "text-success",
+        state === "waiting" && "text-faint",
+      )}
+    >
+      {state === "done" ? <Check className="size-3" strokeWidth={3} /> : <span className={cn("size-1 rounded-full", state === "active" ? "bg-accent-strong" : "bg-faint")} />}
+      {label}
+    </span>
   );
 }

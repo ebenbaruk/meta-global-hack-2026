@@ -66,7 +66,7 @@ export function EmailBody({ card }: { card: EmailCard }) {
         </motion.div>
 
         <div className="mt-3 flex items-center justify-between gap-3">
-          <span className="inline-flex items-center gap-1.5 text-xs text-muted">
+          <span className="inline-flex items-center gap-1.5 text-xs whitespace-nowrap text-muted">
             <PenLine className="size-3.5" aria-hidden />
             Drafted in your voice
           </span>
@@ -75,7 +75,7 @@ export function EmailBody({ card }: { card: EmailCard }) {
               type="button"
               onClick={() => setExpanded((v) => !v)}
               aria-expanded={expanded}
-              className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium text-accent-strong transition-colors hover:bg-accent-soft"
+              className="-mr-2 inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium whitespace-nowrap text-accent-strong transition-colors hover:bg-accent-soft"
             >
               {expanded ? "Show less" : "Show full draft"}
               <ChevronDown className={`size-3.5 transition-transform ${expanded ? "rotate-180" : ""}`} aria-hidden />

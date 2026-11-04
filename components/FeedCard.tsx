@@ -1,6 +1,7 @@
 "use client";
 
-import { animate, motion, useMotionValue, useReducedMotion, useTransform, type PanInfo } from "framer-motion";
+import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion, useTransform, type PanInfo } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import { BarChart3, CalendarDays, Camera, Check, Mail, Megaphone, StickyNote, X } from "lucide-react";
 import { ActionBar } from "@/components/ActionBar";
 import { CardBody } from "@/components/cards/CardBody";
@@ -11,6 +12,8 @@ import type { Card, SourceRef } from "@/lib/schemas";
 
 const SWIPE_DISTANCE = 110;
 const SWIPE_VELOCITY = 650;
+/** How long the success burst plays before the card leaves. */
+const APPROVE_BEAT_MS = 360;
 
 const SOURCE_ICON: Record<SourceRef["type"], typeof Mail> = {
   email: Mail,
@@ -43,7 +46,18 @@ export function FeedCard({
 }) {
   const reduce = useReducedMotion();
   const x = useMotionValue(0);
-  const rotate = useTransform(x, [-240, 0, 240], [-5, 0, 5]);
+  const rotate = useTransform(x, [-240, 0, 240], [-7, 0, 7]);
+  const [approving, setApproving] = useState(false);
+  const beat = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(beat.current), []);
+
+  /** Button approve: a check burst first, then the card flies out (instant with reduced motion). */
+  const approveWithBurst = () => {
+    if (approving) return;
+    if (reduce) return onApprove();
+    setApproving(true);
+    beat.current = setTimeout(onApprove, APPROVE_BEAT_MS);
+  };
   const approveOpacity = useTransform(x, [0, SWIPE_DISTANCE], [0, 1]);
   const dismissOpacity = useTransform(x, [-SWIPE_DISTANCE, 0], [1, 0]);
   const stampScale = useTransform(x, [-SWIPE_DISTANCE, 0, SWIPE_DISTANCE], [1, 0.6, 1]);
@@ -73,7 +87,7 @@ export function FeedCard({
       dragElastic={0.85}
       dragMomentum={false}
       onDragEnd={onDragEnd}
-      whileDrag={{ cursor: "grabbing" }}
+      whileDrag={{ cursor: "grabbing", scale: 1.015 }}
       className={cn(
         "glass-border relative rounded-card bg-surface shadow-card select-none",
         sponsored && "bg-[linear-gradient(180deg,rgb(245_200_106/0.06),transparent_40%)]",
@@ -104,6 +118,8 @@ export function FeedCard({
       >
         <X className="size-4" strokeWidth={3} /> Dismiss
       </motion.div>
+
+      <AnimatePresence>{approving && <ApproveBurst sponsored={sponsored} />}</AnimatePresence>
 
       <header className="space-y-3 p-4 pb-3">
         <div className="flex items-start gap-3">
@@ -139,7 +155,7 @@ export function FeedCard({
 
         {card.source.length > 0 && (
           <div
-            className="no-scrollbar -mx-4 flex gap-1.5 overflow-x-auto px-4"
+            className="no-scrollbar -mx-4 flex gap-1.5 overflow-x-auto px-4 [mask-image:linear-gradient(to_right,transparent,#000_16px,#000_calc(100%-32px),transparent)]"
             onPointerDown={(e) => e.stopPropagation()}
           >
             {card.source.map((s) => {
@@ -165,11 +181,46 @@ export function FeedCard({
       <ActionBar
         label={card.actionLabel}
         sponsored={sponsored}
-        onApprove={onApprove}
+        onApprove={approveWithBurst}
         onEdit={onEdit}
         onDismiss={onDismiss}
         onDiveIn={onDiveIn}
       />
     </motion.article>
+  );
+}
+
+/** The approve moment: a soft wash, a ring that bursts outward, and a check that draws itself. */
+function ApproveBurst({ sponsored }: { sponsored: boolean }) {
+  const color = sponsored ? "245 200 106" : "47 212 122";
+  return (
+    <motion.div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 z-30 grid place-items-center overflow-hidden rounded-card"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
+      style={{ background: `radial-gradient(circle at 50% 50%, rgb(${color} / 0.22), rgb(${color} / 0.06) 55%, transparent 75%)` }}
+    >
+      <motion.span
+        className="absolute size-24 rounded-full border-2"
+        style={{ borderColor: `rgb(${color} / 0.7)` }}
+        initial={{ scale: 0.4, opacity: 1 }}
+        animate={{ scale: 2.6, opacity: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      />
+      <motion.span
+        className="relative grid size-16 place-items-center rounded-full text-[#04140b]"
+        style={{ background: `rgb(${color})`, boxShadow: `0 0 40px -4px rgb(${color} / 0.8)` }}
+        initial={{ scale: 0.3 }}
+        animate={{ scale: 1 }}
+        transition={{ type: "spring", stiffness: 520, damping: 18 }}
+      >
+        <svg viewBox="0 0 24 24" className="size-8" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+          <motion.path d="M5 12.5l4.5 4.5L19 7.5" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.06, duration: 0.25 }} />
+        </svg>
+      </motion.span>
+    </motion.div>
   );
 }

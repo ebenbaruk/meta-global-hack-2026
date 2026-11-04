@@ -9,10 +9,10 @@ import { Feed } from "@/components/Feed";
 import { Outbox } from "@/components/Outbox";
 import { Sheet } from "@/components/Sheet";
 import { SnapSheet } from "@/components/SnapSheet";
-import { TabBar, type Tab } from "@/components/TabBar";
+import { SideNav, TabBar, useIsDesktop, type Tab } from "@/components/TabBar";
 import { TastePanel } from "@/components/TastePanel";
 import { Toaster } from "@/components/Toast";
-import { TopBar } from "@/components/TopBar";
+import { TopBar, Wordmark } from "@/components/TopBar";
 import { cn } from "@/lib/cn";
 import { isPlaceholder } from "@/lib/ranker";
 import type { Card } from "@/lib/schemas";
@@ -24,6 +24,7 @@ export default function Page() {
   const items = useFeed((s) => s.items);
   const { loadBatch, approve, edit, revise, snap } = useFeed.getState();
 
+  const desktop = useIsDesktop();
   const [tab, setTab] = useState<Tab>("feed");
   const [snapOpen, setSnapOpen] = useState(false);
   const [lensOpen, setLensOpen] = useState(false);
@@ -60,13 +61,17 @@ export default function Page() {
     <>
       <div className="relative z-10 mx-auto grid max-w-[1480px] grid-cols-1 px-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,480px)_minmax(0,1fr)] lg:gap-8 lg:px-8 xl:grid-cols-[minmax(0,1fr)_520px_minmax(0,1fr)]">
         <aside className="hidden lg:block">
-          <div className="no-scrollbar sticky top-0 ml-auto h-dvh max-w-[340px] overflow-y-auto py-6">
+          <div className="no-scrollbar sticky top-0 ml-auto flex h-dvh max-w-[340px] flex-col gap-4 overflow-y-auto pb-6">
+            <div className="flex h-14 shrink-0 items-center px-1">
+              <Wordmark />
+            </div>
+            {desktop && <SideNav tab={tab} onTab={changeTab} onSnap={() => setSnapOpen(true)} />}
             {hydrated && <TastePanel />}
           </div>
         </aside>
 
         <main className="relative z-20 min-w-0">
-          <TopBar onOpenLens={() => setLensOpen(true)} />
+          <TopBar tab={tab} onOpenLens={() => setLensOpen(true)} />
           {hydrated && (
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
@@ -87,13 +92,13 @@ export default function Page() {
         </main>
 
         <aside className="hidden lg:block">
-          <div className="sticky top-0 flex h-dvh max-w-[400px] flex-col py-6">
+          <div className="sticky top-0 flex h-dvh max-w-[400px] flex-col pt-[18px] pb-6">
             {hydrated && <AgentLens className="flex-1" />}
           </div>
         </aside>
       </div>
 
-      <TabBar tab={tab} onTab={changeTab} onSnap={() => setSnapOpen(true)} />
+      {!desktop && <TabBar tab={tab} onTab={changeTab} onSnap={() => setSnapOpen(true)} />}
       <Toaster />
 
       <EditSheet

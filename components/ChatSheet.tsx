@@ -451,7 +451,7 @@ function RevisionBlock({
                 onClick={onApply}
                 className={cn(
                   "flex h-10 w-full items-center justify-center gap-2 rounded-xl text-[14px] font-semibold transition-colors",
-                  entry.applied ? "bg-success/15 text-success" : "bg-accent text-white hover:bg-accent-strong",
+                  entry.applied ? "bg-success/15 text-success" : "bg-accent text-white hover:brightness-110",
                 )}
               >
                 {entry.applied ? (
@@ -518,7 +518,7 @@ function Composer({
         data-testid="chat-send"
         disabled={disabled || !value.trim()}
         aria-label="Send"
-        className="grid size-11 shrink-0 place-items-center rounded-full bg-accent text-white transition-all hover:bg-accent-strong disabled:bg-elevated disabled:text-faint"
+        className="grid size-11 shrink-0 place-items-center rounded-full bg-accent text-white transition-all hover:brightness-110 disabled:bg-elevated disabled:text-faint"
       >
         <ArrowUp className="size-5" />
       </button>

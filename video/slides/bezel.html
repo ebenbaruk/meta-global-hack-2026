@@ -1,5 +1,24 @@
 <!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css"><style>
-  /* Phone frame drawn around a 444x960 screen whose top-left corner is at (1068, 60). */
-  .frame { position: absolute; left: 1054px; top: 46px; width: 472px; height: 988px; border-radius: 70px;
-    box-shadow: 0 0 0 14px #0c0d11 inset, 0 0 0 15.5px rgb(255 255 255 / 0.09) inset, 0 0 0 1.5px rgb(255 255 255 / 0.16), 0 50px 120px -30px rgb(0 0 0 / 0.95), 0 0 80px -20px rgb(61 123 255 / 0.35); }
-</style></head><body class="transparent"><div class="frame"></div></body></html>
+  /* Phone frame drawn around a 444x960 screen whose top-left corner is at (1068, 60): ink bezel, lilac offset shadow,
+     status bar, island and home indicator, as on the app's desktop device frame. */
+  .frame { position: absolute; left: 1056px; top: 48px; width: 468px; height: 984px; border-radius: 68px;
+    box-shadow: 0 0 0 12px var(--ink) inset, 0 0 0 2px var(--ink), 12px 14px 0 2px var(--lilac), 0 40px 100px -30px rgb(30 10 43 / 0.5); }
+  .btn { position: absolute; width: 4px; background: var(--ink); }
+  .status { position: absolute; left: 1068px; top: 60px; width: 444px; height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 4px 34px 0 46px; color: var(--ink); }
+  .status .t { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+  .status svg { height: 15px; }
+  .island { position: absolute; left: calc(1068px + 222px - 64px); top: 71px; width: 128px; height: 36px; border-radius: 999px; background: var(--ink); }
+  .home { position: absolute; left: calc(1068px + 222px - 70px); top: 1010px; width: 140px; height: 5px; border-radius: 999px; background: rgb(30 10 43 / .8); }
+</style></head><body class="transparent"><div class="frame"></div>
+  <span class="btn" style="left:1050px; top:220px; height:38px; border-radius:3px 0 0 3px"></span>
+  <span class="btn" style="left:1050px; top:280px; height:64px; border-radius:3px 0 0 3px"></span>
+  <span class="btn" style="left:1050px; top:356px; height:64px; border-radius:3px 0 0 3px"></span>
+  <span class="btn" style="left:1526px; top:300px; height:92px; border-radius:0 3px 3px 0"></span>
+  <div class="status"><span class="t">9:41</span>
+    <svg viewBox="0 0 64 15" fill="#1E0A2B"><rect x="0" y="9" width="3.5" height="5" rx="1"/><rect x="5.5" y="6.5" width="3.5" height="7.5" rx="1"/><rect x="11" y="4" width="3.5" height="10" rx="1"/><rect x="16.5" y="1" width="3.5" height="13" rx="1"/>
+      <path d="M33 13.5l2.6-3a3.6 3.6 0 0 0-5.2 0zM28.2 8.3a6.8 6.8 0 0 1 9.6 0l1.6-1.8a9.2 9.2 0 0 0-12.8 0zM25 5a11.5 11.5 0 0 1 16 0l1.6-1.8a14 14 0 0 0-19.2 0z"/>
+      <rect x="44" y="2" width="17" height="11" rx="3" fill="none" stroke="#1E0A2B" stroke-width="1.6"/><rect x="46" y="4" width="11.5" height="7" rx="1.5"/><rect x="62" y="5.5" width="1.6" height="4" rx=".8"/></svg>
+  </div>
+  <div class="island"></div>
+  <div class="home"></div>
+</body></html>

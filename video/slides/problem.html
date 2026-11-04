@@ -1,32 +1,33 @@
 <!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css"><style>
-  .wrap { position: absolute; inset: 0; padding: 150px 160px; display: grid; grid-template-columns: 1fr 1fr; gap: 100px; align-items: center; }
-  h1 { font-size: 96px; line-height: 1.04; font-weight: 650; letter-spacing: -0.04em; margin-top: 28px; }
-  .left p { margin-top: 36px; font-size: 32px; line-height: 1.4; color: var(--muted); max-width: 680px; }
-  .left p b { color: var(--fg); font-weight: 600; }
-  .box { padding: 22px 26px; display: flex; align-items: center; gap: 14px; color: var(--faint); font-size: 26px; margin-bottom: 34px; }
-  .box .cursor { width: 3px; height: 32px; background: var(--accent-strong); border-radius: 2px; }
+  .wrap { position: absolute; inset: 0; padding: 140px 160px; display: grid; grid-template-columns: 1fr 1fr; gap: 110px; align-items: center; }
+  .eyebrow { color: var(--muted); font-size: 20px; }
+  h1 { font-size: 124px; margin-top: 30px; }
+  .left p { margin-top: 44px; font-size: 32px; line-height: 1.4; color: var(--muted); max-width: 700px; }
+  .left p b { color: var(--ink); font-weight: 700; }
+  .feed { margin-top: 52px; font-size: 64px; }
+  .box { padding: 24px 28px; display: flex; align-items: center; gap: 16px; color: var(--faint); font-size: 28px; margin-bottom: 38px; box-shadow: 6px 6px 0 var(--ink); }
+  .box .cursor { width: 3px; height: 34px; background: var(--ink); border-radius: 2px; }
   ol { list-style: none; display: flex; flex-direction: column; gap: 18px; }
-  li { display: flex; gap: 24px; align-items: center; padding: 22px 28px; }
-  .n { width: 52px; height: 52px; border-radius: 15px; display: grid; place-items: center; font-family: "Geist Mono"; font-size: 22px; font-weight: 600; background: rgb(255 93 108 / 0.12); color: #ff8a95; flex: none; }
-  .s { font-size: 32px; font-weight: 600; letter-spacing: -0.01em; }
-  .d { font-size: 21px; color: var(--faint); margin-top: 4px; }
-  li.repeat .n { background: rgb(255 255 255 / 0.06); color: var(--muted); }
-  .feed { margin-top: 56px; display: inline-flex; align-items: center; gap: 14px; font-size: 34px; font-weight: 600; }
-</style></head><body class="glow grain">
+  li { display: flex; gap: 24px; align-items: center; padding: 20px 26px; background: var(--surface); border: 1.5px solid var(--line); border-radius: 24px; }
+  .n { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; font-family: "Space Mono", monospace; font-size: 22px; font-weight: 700; background: var(--tangerine); border: 2px solid var(--ink); flex: none; }
+  .s { font-family: "Fraunces", serif; font-weight: 800; font-variation-settings: "opsz" 48, "SOFT" 100; font-size: 36px; letter-spacing: -0.01em; }
+  .d { font-size: 22px; color: var(--muted); margin-top: 4px; }
+  li.repeat .n { background: var(--elevated); }
+</style></head><body class="grain">
   <div class="wrap">
     <div class="left">
-      <div class="eyebrow">The problem</div>
-      <h1>Chat asks you<br>for <span style="color:#ff8a95">labor.</span></h1>
+      <div class="eyebrow typed">The problem</div>
+      <h1 class="display">Chat asks you<br>for <span class="mark yellow">labor.</span></h1>
       <p>Every AI product hands you an empty box. But <b>3 billion people</b> already know an interface that asks nothing of them.</p>
-      <div class="feed"><span class="grad">→ The feed.</span></div>
+      <div class="feed display">→ The <span class="mark">feed.</span></div>
     </div>
     <div>
-      <div class="box glass"><span class="cursor"></span>What do you want to do today?</div>
+      <div class="box card"><span class="cursor"></span>What do you want to do today?</div>
       <ol>
-        <li class="glass"><span class="n">1</span><div><div class="s">Figure out</div><div class="d">what the AI can even do for you</div></div></li>
-        <li class="glass"><span class="n">2</span><div><div class="s">Explain</div><div class="d">the task, in the right words</div></div></li>
-        <li class="glass"><span class="n">3</span><div><div class="s">Give context</div><div class="d">paste the email, the numbers, the notes</div></div></li>
-        <li class="glass repeat"><span class="n">↻</span><div><div class="s">Repeat</div><div class="d">for every single task, every day</div></div></li>
+        <li><span class="n">1</span><div><div class="s">Figure out</div><div class="d">what the AI can even do for you</div></div></li>
+        <li><span class="n">2</span><div><div class="s">Explain</div><div class="d">the task, in the right words</div></div></li>
+        <li><span class="n">3</span><div><div class="s">Give context</div><div class="d">paste the email, the numbers, the notes</div></div></li>
+        <li class="repeat"><span class="n">↻</span><div><div class="s">Repeat</div><div class="d">for every single task, every day</div></div></li>
       </ol>
     </div>
   </div>

@@ -1,11 +1,11 @@
 <!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css"><style>
-  .cap { position: absolute; left: 190px; top: 50%; transform: translateY(-50%); width: 620px; }
-  .num { font-family: "Geist Mono", monospace; font-size: 22px; color: var(--faint); letter-spacing: .12em; }
-  h2 { margin-top: 22px; font-size: 64px; line-height: 1.08; font-weight: 650; letter-spacing: -0.035em; }
-  .tag { margin-top: 32px; }
-  .tag .chip { font-size: 22px; padding: 9px 16px; border-radius: 12px; }
+  .cap { position: absolute; left: 190px; top: 50%; transform: translateY(-50%); width: 700px; }
+  .num { font-size: 20px; color: var(--muted); }
+  h2 { margin-top: 26px; font-size: 92px; }
+  .tag { margin-top: 40px; }
+  .tag .sticker { font-size: 22px; padding: 10px 20px; transform: rotate(-3deg); display: inline-flex; }
 </style></head><body class="transparent">
-  <div class="cap"><div class="num" id="num"></div><h2 id="title"></h2><div class="tag"><span class="chip" id="tag"></span></div></div>
+  <div class="cap"><div class="num typed" id="num"></div><h2 class="display" id="title"></h2><div class="tag"><span class="sticker pop" id="tag"></span></div></div>
   <script>
     const q = new URLSearchParams(location.search);
     document.getElementById("num").textContent = q.get("num") || "";
@@ -13,7 +13,7 @@
     const tag = document.getElementById("tag");
     const t = q.get("tag") || "";
     tag.textContent = t;
-    tag.className = "chip " + (/image/i.test(t) ? "image" : /sam/i.test(t) ? "sam" : /spark/i.test(t) ? "spark" : "plain");
+    tag.className = "sticker pop " + (/image/i.test(t) ? "rose" : /sam/i.test(t) ? "mint" : /spark/i.test(t) ? "lilac" : "yellow");
     if (!t) tag.remove();
   </script>
 </body></html>

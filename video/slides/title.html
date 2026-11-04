@@ -1,37 +1,44 @@
 <!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css"><style>
-  .wrap { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 0 160px; }
-  h1 { font-size: 132px; line-height: 1.02; font-weight: 650; letter-spacing: -0.045em; margin-top: 56px; }
-  p.sub { margin-top: 40px; font-size: 36px; color: var(--muted); letter-spacing: -0.01em; max-width: 900px; line-height: 1.35; }
-  .foot { position: absolute; left: 160px; bottom: 88px; display: flex; gap: 12px; align-items: center; }
-  .foot span.t { font-size: 20px; color: var(--faint); margin-right: 8px; }
-  .stack { position: absolute; right: 150px; top: 50%; width: 520px; transform: translateY(-50%); }
-  .card { position: absolute; width: 520px; padding: 26px 28px; }
-  .card .row { display: flex; gap: 16px; align-items: center; }
-  .ico { width: 48px; height: 48px; border-radius: 14px; flex: none; }
-  .k { font-size: 17px; color: var(--faint); }
-  .tt { font-size: 23px; font-weight: 600; margin-top: 4px; letter-spacing: -0.01em; }
-  .bar { height: 13px; border-radius: 7px; background: rgb(255 255 255 / 0.06); margin-top: 16px; }
-  .btn { margin-top: 22px; height: 50px; border-radius: 25px; background: var(--accent); width: 62%; box-shadow: 0 10px 28px -12px rgb(61 123 255 / 0.95); color: #fff; font-weight: 600; font-size: 20px; display: grid; place-items: center; }
-</style></head><body class="glow grain">
+  .wrap { position: absolute; left: 150px; top: 0; bottom: 0; width: 1100px; display: flex; flex-direction: column; justify-content: center; }
+  .eyebrow { color: var(--muted); font-size: 20px; display: flex; align-items: center; gap: 14px; margin-top: 64px; }
+  h1 { margin-top: 34px; font-size: 140px; white-space: nowrap; }
+  p.sub { margin-top: 44px; font-size: 36px; color: var(--muted); line-height: 1.35; max-width: 860px; }
+  .foot { position: absolute; left: 150px; bottom: 84px; display: flex; gap: 14px; align-items: center; }
+  .foot .t { font-size: 18px; color: var(--muted); margin-right: 8px; }
+  .stack { position: absolute; right: 150px; top: 200px; width: 560px; height: 700px; }
+  .mini { position: absolute; width: 520px; padding: 26px 28px 28px; overflow: hidden; }
+  .mini .band { position: absolute; left: 0; right: 0; top: 0; height: 12px; border-bottom: 2px solid var(--ink); }
+  .mini .k { margin-top: 10px; font-size: 15px; color: var(--muted); }
+  .mini .tt { margin-top: 10px; font-family: "Fraunces", serif; font-weight: 700; font-variation-settings: "opsz" 36, "SOFT" 100; font-size: 32px; letter-spacing: -0.01em; }
+  .bar { height: 12px; border-radius: 6px; background: var(--elevated); margin-top: 14px; }
+  .btn { margin-top: 22px; display: inline-flex; align-items: center; height: 54px; padding: 0 28px; border-radius: 999px; border: 2px solid var(--ink); background: var(--yellow); box-shadow: 3px 3px 0 var(--ink); font-weight: 700; font-size: 21px; }
+  .mascot { position: absolute; right: -40px; bottom: -110px; width: 330px; transform: rotate(6deg); filter: drop-shadow(0 18px 24px rgb(30 10 43 / .18)); }
+  .burst { position: absolute; left: -70px; top: -60px; width: 150px; transform: rotate(-14deg); }
+</style></head><body class="grain">
   <div class="stack">
-    <div class="card glass" style="top:-300px; transform: rotate(4deg) translateX(70px); opacity:.35; filter: blur(1px)">
-      <div class="row"><div class="ico" style="background:rgb(139 92 246/.18)"></div><div><div class="k">Social post · Today</div><div class="tt">Launch post for Guji Natural</div></div></div>
-      <div class="bar" style="width:90%"></div><div class="bar" style="width:70%"></div>
+    <img class="burst" src="../../public/brand/doodle-sparkle.webp">
+    <div class="mini card" style="top:0; left:40px; transform: rotate(5deg)">
+      <div class="band" style="background:var(--rose)"></div>
+      <div class="k typed">Agent · Social post</div><div class="tt">Launch post for Guji Natural</div>
+      <div class="bar" style="width:88%"></div><div class="bar" style="width:66%"></div>
     </div>
-    <div class="card glass" style="top:-140px; transform: rotate(-3deg) translateX(-30px); opacity:.6">
-      <div class="row"><div class="ico" style="background:rgb(47 212 122/.15)"></div><div><div class="k">Team update · Today</div><div class="tt">Share yesterday's numbers</div></div></div>
-      <div class="bar" style="width:85%"></div><div class="bar" style="width:60%"></div>
+    <div class="mini card" style="top:170px; left:-10px; transform: rotate(-3.5deg)">
+      <div class="band" style="background:var(--mint)"></div>
+      <div class="k typed">Agent · Team update</div><div class="tt">Web sales jumped by a third</div>
+      <div class="bar" style="width:84%"></div><div class="bar" style="width:58%"></div>
     </div>
-    <div class="card glass" style="top:40px; transform: rotate(1.5deg)">
-      <div class="row"><div class="ico" style="background:rgb(61 123 255/.16)"></div><div><div class="k">Email reply · <span style="color:#ff5d6c">●</span> Needs you now</div><div class="tt">Reply to Lena at Bloom Café</div></div></div>
-      <div class="bar" style="width:92%"></div><div class="bar" style="width:76%"></div><div class="bar" style="width:54%"></div>
-      <div class="btn">✓&nbsp; Send reply</div>
+    <div class="mini card" style="top:350px; left:30px; transform: rotate(1.5deg)">
+      <div class="band" style="background:var(--sky)"></div>
+      <div class="k typed">Agent · Email reply · needs you</div><div class="tt">Reply to Lena at Bloom Café</div>
+      <div class="bar" style="width:92%"></div><div class="bar" style="width:74%"></div>
+      <div class="btn">Approve &amp; send</div>
     </div>
+    <img class="mascot" src="../../public/brand/mascot-wave.webp">
   </div>
   <div class="wrap">
-    <div class="wordmark"><span class="mark"><svg viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M5 6h7M5 10h10M5 14h5"/><path d="M14 12.5l2 1.5-2 1.5" stroke-linejoin="round"/></svg></span> Feedforward</div>
-    <h1>Stop prompting.<br><span class="grad">Start scrolling.</span></h1>
+    <div class="wordmark"><svg viewBox="0 0 40 40"><path d="M9 4.5h15.5L33 13v20a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3V7.5a3 3 0 0 1 3-3Z" fill="#D9A8FF" stroke="#1E0A2B" stroke-width="2" stroke-linejoin="round"/><path d="M24.5 4.5V13H33" fill="#F4F75A" stroke="#1E0A2B" stroke-width="2" stroke-linejoin="round"/><path d="M13 27.5 24 16.5M16 16h8.5v8.5" fill="none" stroke="#1E0A2B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>feedforward</span></div>
+    <h1 class="display">Stop prompting.<br>Start <span class="mark">scrolling.</span></h1>
     <p class="sub">A feed of work your agents already did. Approve, edit, dismiss, or dive in.</p>
   </div>
-  <div class="foot"><span class="t">Built on the Meta Model API</span><span class="chip spark">Muse Spark 1.3</span><span class="chip image">Muse Image 1.0</span><span class="chip sam">SAM 3.1</span></div>
+  <div class="foot"><span class="t typed">Built on the Meta Model API</span><span class="sticker lilac">Muse Spark 1.3</span><span class="sticker rose">Muse Image 1.0</span><span class="sticker mint">SAM 3.1</span></div>
 </body></html>

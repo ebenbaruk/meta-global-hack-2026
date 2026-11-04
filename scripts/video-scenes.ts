@@ -1,13 +1,13 @@
-/** The 12 scenes of the demo video: narration (one voiceover clip each) and the footage they sit on. */
+/** The 13 scenes of the demo video: narration (one voiceover clip each) and the footage they sit on. */
 
-export type Source = "slide" | "mobile" | "desktop";
+export type Source = "slide" | "landing" | "mobile" | "desktop";
 
 export type Scene = {
   id: string;
   source: Source;
   /** Slide name (video/slides/<slide>.html) for slide scenes. */
   slide?: string;
-  /** Short caption shown next to the phone / as a lower third. */
+  /** Caption shown next to the phone (mobile scenes only). */
   caption?: { title: string; tag?: string };
   text: string;
 };
@@ -32,40 +32,35 @@ export const SCENES: Scene[] = [
     text: "Chat asks you for labor. Figure out what the AI can do, explain the task, paste the context, repeat. But three billion people already know an interface that asks nothing of them. The feed.",
   },
   {
+    id: "landing",
+    source: "landing",
+    text: "This is Feedforward. Agents built on three Meta models, Muse Spark, Muse Image and SAM, do the work first. You just scroll through what's done.",
+  },
+  {
     id: "intro",
-    source: "mobile",
-    caption: { title: "A feed of work, already done", tag: "Muse Spark 1.3" },
-    text: "This is Feedforward. Meet Maya, she runs a small coffee roastery. She opens the app, and agents running on Muse Spark have already read her inbox, her calendar and her sales, and are preparing work for her, live.",
+    source: "desktop",
+    text: "Meet Maya. She runs a small coffee roastery. She opens the app, and agents on Muse Spark have already read her inbox, her calendar and her sales. Every card is prepared live, and every call shows up on the right, in the Agent Lens.",
   },
   {
     id: "approve",
     source: "mobile",
     caption: { title: "One swipe to send", tag: "Executor" },
-    text: "A wholesale café wants her pricing. The reply is already drafted, in her voice. One swipe, and it's sent.",
+    text: "On her phone: a wholesale café wants her pricing. The reply is already drafted, in her voice. One swipe, and it's sent.",
   },
   {
     id: "team",
-    source: "mobile",
-    caption: { title: "Numbers pulled, update written", tag: "Muse Spark 1.3" },
+    source: "desktop",
     text: "Yesterday's web sales jumped by a third. The numbers are pulled, and the update for her team is ready to post.",
   },
   {
-    id: "learn",
-    source: "desktop",
-    caption: { title: "Every gesture retunes the feed", tag: "Ranker" },
-    text: "Not what she needs right now? Two dismissals, and the feed retunes itself. It's a recommendation algorithm, but it recommends actions.",
-  },
-  {
     id: "image",
-    source: "mobile",
-    caption: { title: "Launch post, visual included", tag: "Muse Image 1.0" },
+    source: "desktop",
     text: "Her new coffee launches Friday. The launch post is written, and Muse Image renders the visual.",
   },
   {
     id: "snap",
-    source: "mobile",
-    caption: { title: "Snap the real world", tag: "Muse Spark vision + SAM 3.1" },
-    text: "The physical world feeds the feed too. She snaps a supplier invoice. Muse Spark reads it, SAM 3.1 segments it pixel by pixel, and the expense is ready to log.",
+    source: "desktop",
+    text: "The physical world feeds the feed too. She snaps a supplier invoice. Muse Spark reads it, SAM 3.1 outlines it pixel by pixel, and the expense is ready to log.",
   },
   {
     id: "sponsored",
@@ -75,16 +70,19 @@ export const SCENES: Scene[] = [
   },
   {
     id: "divein",
-    source: "mobile",
-    caption: { title: "Dive in, with full context", tag: "Muse Spark 1.3" },
+    source: "desktop",
     text: "When she wants to go deeper, she dives in. The chat already knows the full context. Make it shorter, and the new draft goes straight back onto the card.",
+  },
+  {
+    id: "learn",
+    source: "desktop",
+    text: "Every gesture teaches it. Two dismissals, and her taste profile shifts. It's a recommendation algorithm, but it recommends actions.",
   },
   {
     id: "hood",
     source: "desktop",
     slide: "architecture",
-    caption: { title: "Every call, visible", tag: "Agent Lens" },
-    text: "Under the hood: a Miner finds opportunities, parallel Preparers do the work, a Ranker learns from every gesture, and an Executor acts. Three Meta models, and every call is visible in the Agent Lens.",
+    text: "Under the hood: a Miner finds opportunities, parallel Preparers do the work, a Ranker learns from every gesture, and an Executor acts, only when she approves. Day or night, every call is visible in the Agent Lens.",
   },
   {
     id: "close",

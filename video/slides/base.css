@@ -1,96 +1,106 @@
-@import url("https://fonts.googleapis.com/css2?family=Geist:wght@300..800&family=Geist+Mono:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,100..900,0..100,0..1&family=Geist:wght@300..800&family=Space+Mono:wght@400;700&display=swap");
 
+/* Same tokens as the app (docs/DESIGN.md), Oat light. */
 :root {
-  --bg: #07080b;
-  --surface: #0f1116;
-  --elevated: #161921;
-  --line: rgb(255 255 255 / 0.08);
-  --line-strong: rgb(255 255 255 / 0.14);
-  --fg: #f4f5f7;
-  --muted: #a2a8b6;
-  --faint: #6b7180;
-  --accent: #3d7bff;
-  --accent-strong: #5b8fff;
-  --violet: #8b5cf6;
-  --violet-soft: #a78bfa;
-  --success: #2fd47a;
-  --sponsor: #f5c86a;
+  --bg: #fff3e8;
+  --surface: #fffdfb;
+  --elevated: #f7e9dc;
+  --ink: #1e0a2b;
+  --muted: #6a5872;
+  --faint: #8c7a93;
+  --line: rgb(30 10 43 / 0.12);
+  --line-strong: rgb(30 10 43 / 0.9);
+  --lilac: #d9a8ff;
+  --lilac-soft: #f1e0ff;
+  --lilac-ink: #5b1f8c;
+  --yellow: #f4f75a;
+  --tangerine: #ff8a4c;
+  --sky: #8ccbff;
+  --mint: #93e2b0;
+  --rose: #ff9cc2;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: 1920px; height: 1080px; overflow: hidden; }
 body {
   background: var(--bg);
-  color: var(--fg);
+  color: var(--ink);
   font-family: "Geist", ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   position: relative;
 }
 body.transparent { background: transparent; }
-.glow::before {
-  content: "";
-  position: absolute;
-  inset: -20% -10% auto -10%;
-  height: 75%;
-  background: radial-gradient(55% 60% at 50% 0%, rgb(61 123 255 / 0.16), transparent 70%),
-    radial-gradient(35% 50% at 85% 10%, rgb(139 92 246 / 0.12), transparent 70%);
-  pointer-events: none;
-}
+
+/* Paper grain, as in the app. */
 .grain::after {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px);
-  background-size: 28px 28px;
-  mask-image: radial-gradient(70% 70% at 50% 40%, #000, transparent);
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
   pointer-events: none;
 }
-.mark {
-  display: inline-grid;
-  place-items: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 17px;
-  background: linear-gradient(135deg, var(--accent), #5a6bff 50%, var(--violet));
-  box-shadow: 0 10px 36px -8px rgb(61 123 255 / 0.85);
+
+.display {
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 900;
+  font-variation-settings: "opsz" 144, "SOFT" 100, "WONK" 0;
+  letter-spacing: -0.025em;
+  line-height: 0.94;
 }
-.mark svg { width: 30px; height: 30px; }
-.wordmark { display: flex; align-items: center; gap: 16px; font-size: 34px; font-weight: 600; letter-spacing: -0.02em; }
-.grad {
-  background: linear-gradient(100deg, #7aa5ff 0%, var(--accent-strong) 35%, var(--violet-soft) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.typed {
+  font-family: "Space Mono", ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
 }
-.eyebrow { font-family: "Geist Mono", monospace; font-size: 20px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
-.glass {
-  position: relative;
-  background: var(--surface);
-  border-radius: 28px;
-  box-shadow: 0 1px 0 0 rgb(255 255 255 / 0.04) inset, 0 30px 60px -30px rgb(0 0 0 / 0.9);
-}
-.glass::after {
+
+/* A lilac highlighter stroke behind a word. */
+.mark { position: relative; display: inline-block; z-index: 0; }
+.mark::before {
   content: "";
   position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1.5px;
-  background: linear-gradient(160deg, rgb(255 255 255 / 0.18), rgb(255 255 255 / 0.03) 40%, rgb(61 123 255 / 0.22));
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
+  left: -0.06em; right: -0.06em; bottom: 0.06em;
+  height: 0.34em;
+  border-radius: 999px;
+  background: var(--lilac);
+  transform: rotate(-1deg);
+  z-index: -1;
 }
-.chip {
+.mark.yellow::before { background: var(--yellow); }
+
+.wordmark { display: inline-flex; align-items: center; gap: 16px; }
+.wordmark svg { width: 64px; height: 64px; transform: rotate(-6deg); }
+.wordmark span { font-family: "Fraunces", Georgia, serif; font-weight: 900; font-variation-settings: "opsz" 144, "SOFT" 100; font-size: 46px; line-height: 1; }
+
+/* Stickers and pills: pastel fill, 1.5px ink outline, typed caps. */
+.sticker {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  border-radius: 10px;
-  padding: 6px 12px;
-  font-size: 19px;
-  font-weight: 600;
+  gap: 10px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 9px 18px;
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   white-space: nowrap;
+  color: var(--ink);
+  background: var(--surface);
 }
-.chip.spark { background: rgb(61 123 255 / 0.15); color: var(--accent-strong); }
-.chip.image { background: rgb(139 92 246 / 0.16); color: var(--violet-soft); }
-.chip.sam { background: rgb(47 212 122 / 0.14); color: var(--success); }
-.chip.plain { background: rgb(255 255 255 / 0.07); color: var(--muted); }
+.sticker.lilac { background: var(--lilac); }
+.sticker.yellow { background: var(--yellow); }
+.sticker.mint { background: var(--mint); }
+.sticker.sky { background: var(--sky); }
+.sticker.rose { background: var(--rose); }
+.sticker.tangerine { background: var(--tangerine); }
+.sticker.pop { box-shadow: 3px 3px 0 var(--ink); }
+
+.card {
+  position: relative;
+  background: var(--surface);
+  border: 2px solid var(--ink);
+  border-radius: 28px;
+  box-shadow: 8px 8px 0 var(--ink);
+}

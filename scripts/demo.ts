@@ -3,8 +3,10 @@
  * frame by frame through the CDP screencast (crisper than recordVideo), logging a marker
  * at every scene start and around every wait we speed up in the edit.
  *
- *   pnpm tsx scripts/demo.ts [--url http://localhost:3130] [--pass mobile|desktop|both]
+ *   pnpm tsx scripts/demo.ts [--url http://localhost:3130] [--pass landing,mobile,desktop]
  *
+ * Passes: `landing` (the marketing page at /), `mobile` (the app full bleed, 390×844) and
+ * `desktop` (the app inside its phone frame, with the context and the Agent Lens around it).
  * Output: video/out/capture/<pass>.mp4 + <pass>.json (markers in seconds from the first frame).
  */
 import { chromium, type Locator, type Page } from "@playwright/test";
@@ -15,29 +17,43 @@ const arg = (name: string, fallback: string) => {
   const i = process.argv.indexOf(`--${name}`);
   return i > 0 ? process.argv[i + 1] : fallback;
 };
-const URL = arg("url", "http://localhost:3130/app");
-const PASS = arg("pass", "both");
+const ORIGIN = arg("url", "http://localhost:3130").replace(/\/(app)?\/?$/, "");
+const APP = `${ORIGIN}/app`;
+const PASS_LIST = arg("pass", "landing,mobile,desktop").split(",");
 const OUT = "video/out/capture";
 
 type Marker = { t: number; type: "scene" | "fast-start" | "fast-end" | "end"; id?: string };
 
 const PASSES = {
+  landing: { viewport: { width: 1440, height: 810 }, scale: 4 / 3 },
   mobile: { viewport: { width: 390, height: 844 }, scale: 2 },
   desktop: { viewport: { width: 1440, height: 810 }, scale: 4 / 3 },
 } as const;
 type PassName = keyof typeof PASSES;
 
-/** A soft "finger" dot that follows the mouse, injected for the recording only. */
+/**
+ * Maya's day starts in the morning: pick the fixed-offset zone where it is about 9 AM now,
+ * so the app greets her with "Good morning" whatever time the video is rendered.
+ */
+function morningZone() {
+  let offset = 9 - new Date().getUTCHours();
+  if (offset > 12) offset -= 24;
+  if (offset < -11) offset += 24;
+  return offset === 0 ? "Etc/GMT" : offset > 0 ? `Etc/GMT-${offset}` : `Etc/GMT+${-offset}`;
+}
+
+/** A soft "finger" dot that follows the mouse, injected for the recording only (lilac, ink outlined). */
 const CURSOR_SCRIPT = `
   window.addEventListener("DOMContentLoaded", () => {
+    if (window.top !== window) return;
     const dot = document.createElement("div");
     dot.style.cssText = "position:fixed;left:0;top:0;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;" +
-      "background:rgba(255,255,255,.22);border:1.5px solid rgba(255,255,255,.55);box-shadow:0 4px 18px rgba(0,0,0,.45);" +
+      "background:rgba(217,168,255,.42);border:2px solid rgba(30,10,43,.8);box-shadow:0 4px 14px rgba(30,10,43,.25);" +
       "pointer-events:none;z-index:2147483647;opacity:0;transition:opacity .25s, transform .12s;";
     document.body.appendChild(dot);
     addEventListener("mousemove", (e) => { dot.style.left = e.clientX + "px"; dot.style.top = e.clientY + "px"; dot.style.opacity = "1"; }, true);
-    addEventListener("mousedown", () => { dot.style.transform = "scale(.78)"; dot.style.background = "rgba(255,255,255,.34)"; }, true);
-    addEventListener("mouseup", () => { dot.style.transform = "scale(1)"; dot.style.background = "rgba(255,255,255,.22)"; }, true);
+    addEventListener("mousedown", () => { dot.style.transform = "scale(.78)"; dot.style.background = "rgba(217,168,255,.75)"; }, true);
+    addEventListener("mouseup", () => { dot.style.transform = "scale(1)"; dot.style.background = "rgba(217,168,255,.42)"; }, true);
     window.__hideCursor = () => { dot.style.opacity = "0"; };
   });
 `;
@@ -50,8 +66,17 @@ async function record(name: PassName, run: (r: Run) => Promise<void>) {
   rmSync(dir, { recursive: true, force: true });
   mkdirSync(dir, { recursive: true });
 
-  const context = await browser.newContext({ viewport, deviceScaleFactor: scale, reducedMotion: "no-preference" });
+  const context = await browser.newContext({
+    viewport,
+    deviceScaleFactor: scale,
+    reducedMotion: "no-preference",
+    colorScheme: "light",
+    timezoneId: morningZone(),
+  });
   await context.addInitScript(CURSOR_SCRIPT);
+  await context.addInitScript(SCROLLER_SCRIPT);
+  // Full-bleed mobile: leave room for the status bar and island the edit draws on the bezel.
+  if (name === "mobile") await context.addInitScript(SAFE_TOP_SCRIPT);
   const page = await context.newPage();
   const errors: string[] = [];
   page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
@@ -73,7 +98,7 @@ async function record(name: PassName, run: (r: Run) => Promise<void>) {
   };
 
   await page.goto("about:blank");
-  await page.evaluate(() => (document.documentElement.style.background = "#07080b"));
+  await page.evaluate(() => (document.documentElement.style.background = "#fff3e8"));
   await cdp.send("Page.startScreencast", {
     format: "jpeg",
     quality: 92,
@@ -109,6 +134,22 @@ async function record(name: PassName, run: (r: Run) => Promise<void>) {
   errors.forEach((e) => console.log(`  console error: ${e}`));
 }
 
+/** The app's scroll container: the phone screen on desktop, the window on mobile and the landing page. */
+const SCROLLER_SCRIPT = `
+  window.__scroller = () => {
+    const el = document.querySelector("[data-scroll-root]");
+    return el && getComputedStyle(el).overflowY !== "visible" ? el : document.scrollingElement;
+  };
+`;
+const SAFE_TOP_SCRIPT = `
+  window.addEventListener("DOMContentLoaded", () => {
+    const style = document.createElement("style");
+    style.textContent = '[data-testid="device-screen"] { --safe-top: 44px !important; }';
+    document.head.appendChild(style);
+  });
+`;
+type WithScroller = Window & { __scroller: () => Element };
+
 /** Readable, human-paced interactions. */
 class Run {
   constructor(
@@ -129,7 +170,7 @@ class Run {
 
   /** Fresh context, so a plain load is a clean demo state (no reload, no wasted API calls). */
   async open() {
-    await this.page.goto(URL, { waitUntil: "domcontentloaded" });
+    await this.page.goto(APP, { waitUntil: "domcontentloaded" });
     await this.page.getByTestId("feed").waitFor().catch(() => {});
     await nudge(this.page);
   }
@@ -148,23 +189,51 @@ class Run {
     await this.page.mouse.up();
   }
 
-  /** Smooth wheel scroll until the element's top sits `offset` px below the viewport top. */
-  async scrollTo(loc: Locator, offset = 76) {
+  /** Puts the finger over the scroll container (the phone screen on desktop), so wheel events reach it. */
+  async hoverScroller() {
+    if ((this.page.viewportSize()?.width ?? 0) < 1024 || !(await this.page.getByTestId("device-screen").count())) return;
+    const box = (await this.page.getByTestId("device-screen").boundingBox())!;
+    await this.page.mouse.move(box.x + box.width * 0.62, box.y + box.height * 0.55, { steps: 10 });
+  }
+
+  /** Smooth wheel scroll until the element's top sits just under the sticky app header (or `offset` px). */
+  async scrollTo(loc: Locator, offset?: number, gain = 0.22) {
     await loc.waitFor();
-    for (let i = 0; i < 200; i++) {
+    await this.hoverScroller();
+    const target =
+      offset ??
+      (await this.page.evaluate(() => {
+        const header = document.querySelector("[data-scroll-root] header") ?? document.querySelector("header");
+        return (header?.getBoundingClientRect().bottom ?? 60) + 14;
+      }));
+    let last = NaN;
+    let stuck = 0;
+    for (let i = 0; i < 240; i++) {
       const top = await loc.evaluate((el) => el.getBoundingClientRect().top);
-      const delta = top - offset;
+      const delta = top - target;
       if (Math.abs(delta) < 6) break;
-      const step = Math.sign(delta) * Math.min(Math.abs(delta), Math.max(14, Math.abs(delta) * 0.16));
-      const atEdge = await this.page.evaluate(
-        (down) => (down ? scrollY + innerHeight >= document.documentElement.scrollHeight - 1 : scrollY <= 0),
-        delta > 0,
-      );
+      stuck = Math.abs(top - last) < 1 ? stuck + 1 : 0;
+      if (stuck > 4) break; // the wheel is not reaching the scroller
+      last = top;
+      const step = Math.sign(delta) * Math.min(Math.abs(delta), Math.max(18, Math.abs(delta) * gain));
+      const atEdge = await this.page.evaluate((down) => {
+        const el = (window as unknown as WithScroller).__scroller();
+        return down ? el.scrollTop + el.clientHeight >= el.scrollHeight - 1 : el.scrollTop <= 0;
+      }, delta > 0);
       if (atEdge) break;
       await this.page.mouse.wheel(0, step);
       await this.pause(24);
     }
     await this.pause(400);
+  }
+
+  /** A slow drift down, to read a tall card. */
+  async drift(px: number, steps = 14) {
+    await this.hoverScroller();
+    for (let i = 0; i < steps; i++) {
+      await this.page.mouse.wheel(0, px / steps);
+      await this.pause(30);
+    }
   }
 
   /** Physical swipe on the card header (the action bar swallows pointer events). */
@@ -185,63 +254,94 @@ class Run {
 }
 
 async function feedReady(run: Run) {
-  await run.page.getByTestId("feed-card").first().waitFor({ timeout: 90_000 });
-  await run.page.getByTestId("skeleton-card").first().waitFor({ state: "detached", timeout: 90_000 }).catch(() => {});
+  await run.page.getByTestId("feed-card").first().waitFor({ timeout: 120_000 });
+  await run.page.getByTestId("skeleton-card").first().waitFor({ state: "detached", timeout: 120_000 }).catch(() => {});
   await nudge(run.page);
 }
 
 /** Headless Chromium sometimes stalls repainting after a load; a tiny scroll forces a fresh frame. */
 async function nudge(page: Page) {
-  await page.evaluate(() => window.scrollBy(0, 1));
-  await page.waitForTimeout(50);
-  await page.evaluate(() => window.scrollBy(0, -1));
+  for (const dy of [1, -1]) {
+    await page.evaluate((d) => (window as unknown as WithScroller).__scroller().scrollBy(0, d), dy);
+    await page.waitForTimeout(50);
+  }
+}
+
+/** The marketing page: hero (with the live app in its phone), then a flip down to the models and the snap section. */
+async function landingPass(run: Run) {
+  const { page } = run;
+  // Warm the app first: the hero's phone embeds /app, which then rehydrates this finished feed.
+  await run.open();
+  await feedReady(run);
+  await page.goto(`${ORIGIN}/`, { waitUntil: "load" });
+  await page.waitForTimeout(600);
+  await nudge(page);
+  run.mark("scene", "landing");
+  await run.pause(2600);
+  await page.mouse.move(720, 420);
+  // Land on the three model "cans", then on the snap photo with its real SAM outlines.
+  await run.scrollTo(page.locator("#models"), -70, 0.24);
+  await run.pause(2200);
+  await run.scrollTo(page.locator("#snap"), -120, 0.24);
+  await run.pause(2600);
 }
 
 async function mobilePass(run: Run) {
   const { page } = run;
-  const viewH = PASSES.mobile.viewport.height;
-
   await run.open();
-  run.mark("scene", "intro");
-  await run.fast(() => feedReady(run), 4500);
-  await run.pause(1800);
+  await feedReady(run);
+  await run.pause(800);
 
   run.mark("scene", "approve");
   const email = run.card("email_reply");
   await run.scrollTo(email);
-  await run.pause(2600);
+  await run.pause(1800);
   await run.swipe(email, 1);
-  await run.pause(1600);
+  await run.pause(1400);
   await run.tap(page.getByTestId("tab-outbox"));
   await page.getByTestId("outbox-item").first().waitFor();
-  await run.pause(2200);
+  await run.pause(1800);
   await run.tap(page.getByTestId("tab-feed"));
-  await run.pause(900);
+  await run.pause(500);
+
+  run.mark("scene", "sponsored");
+  const sponsored = run.card("sponsored");
+  await run.scrollTo(sponsored);
+  await run.pause(1500);
+  await run.tap(sponsored.getByTestId("why-btn"));
+  await page.getByTestId("why-popover").waitFor();
+  await run.pause(3000);
+  await run.tap(sponsored.getByTestId("why-btn"));
+  await run.pause(600);
+  await run.swipe(sponsored, -1);
+  await run.pause(1400);
+}
+
+async function desktopPass(run: Run) {
+  const { page } = run;
+  run.mark("scene", "intro");
+  await run.open();
+  await run.fast(() => feedReady(run), 4200);
+  await run.pause(1200);
+  // "Every call shows up on the right": the finger visits the Agent Lens, then comes back to the phone.
+  await run.moveTo(page.getByTestId("agent-lens"), 0.5, 0.3);
+  await run.pause(2200);
+  await run.hoverScroller();
+  await run.pause(600);
 
   run.mark("scene", "team");
   const team = run.card("team_update");
   await run.scrollTo(team);
-  await run.pause(2500);
-  await page.mouse.wheel(0, 0); // keep the cursor still while reading
-  const teamBox = (await team.boundingBox())!;
-  if (teamBox.height > viewH - 160) {
-    await page.mouse.move(195, 500);
-    for (let i = 0; i < 14; i++) {
-      await page.mouse.wheel(0, Math.min(16, (teamBox.height - viewH + 200) / 14));
-      await run.pause(30);
-    }
-  }
-  await run.pause(2400);
+  await run.pause(2600);
+  await run.drift(220);
+  await run.pause(2600);
 
   run.mark("scene", "image");
   const social = run.card("social_post");
   await run.scrollTo(social);
-  await run.fast(() => social.locator("img").first().waitFor({ timeout: 90_000 }), 1500);
+  await run.fast(() => social.locator("img").first().waitFor({ timeout: 120_000 }), 1500);
   await run.pause(2200);
-  for (let i = 0; i < 16; i++) {
-    await page.mouse.wheel(0, 18);
-    await run.pause(30);
-  }
+  await run.drift(260, 16);
   await run.pause(2000);
 
   run.mark("scene", "snap");
@@ -250,25 +350,12 @@ async function mobilePass(run: Run) {
   await run.pause(1800);
   await run.tap(page.getByTestId("snap-demo-invoice"));
   const snap = run.card("snap");
-  await run.fast(() => snap.waitFor({ timeout: 90_000 }), 2500);
+  await run.fast(() => snap.waitFor({ timeout: 120_000 }), 2500);
   await run.scrollTo(snap);
   await snap.locator("svg path").first().waitFor({ state: "attached" });
-  await run.pause(4500);
-  for (let i = 0; i < 14; i++) {
-    await page.mouse.wheel(0, 20);
-    await run.pause(30);
-  }
+  await run.pause(3600);
+  await run.drift(260);
   await run.pause(2200);
-
-  run.mark("scene", "sponsored");
-  const sponsored = run.card("sponsored");
-  await run.scrollTo(sponsored);
-  await run.pause(2400);
-  await run.tap(sponsored.getByTestId("why-btn"));
-  await page.getByTestId("why-popover").waitFor();
-  await run.pause(4200);
-  await run.tap(sponsored.getByTestId("why-btn"));
-  await run.pause(1200);
 
   run.mark("scene", "divein");
   const target = run.card("social_post");
@@ -276,59 +363,65 @@ async function mobilePass(run: Run) {
   await run.pause(900);
   await run.tap(target.getByTestId("divein-btn"));
   await page.getByTestId("chat-sheet").waitFor();
-  await run.pause(2400);
-  await run.tap(page.getByTestId("chat-chip").filter({ hasText: "Make it shorter" }));
-  await run.fast(() => page.getByTestId("chat-apply").waitFor({ timeout: 90_000 }), 1200);
-  await run.pause(2600);
-  await run.tap(page.getByTestId("chat-apply"));
   await run.pause(1800);
+  await run.tap(page.getByTestId("chat-chip").filter({ hasText: "Make it shorter" }));
+  await run.fast(() => page.getByTestId("chat-apply").first().waitFor({ timeout: 120_000 }), 1200);
+  await run.pause(2200);
+  await run.tap(page.getByTestId("chat-apply").first());
+  await run.pause(1500);
   await page.keyboard.press("Escape");
   await run.pause(400);
   await run.scrollTo(target);
-  await run.pause(2400);
-}
-
-async function desktopPass(run: Run) {
-  const { page } = run;
-  await run.open();
-  await feedReady(run);
-  await page.waitForTimeout(1500);
-  await page.mouse.move(960, 540);
+  await run.pause(1800);
 
   run.mark("scene", "learn");
-  await run.pause(1200);
-  // Two cards of the same kind if the feed has them, otherwise the first two non-email cards.
+  // Bring the taste bars into view in the left column, so the viewer sees them move.
+  const taste = page.getByTestId("taste-panel");
+  await run.moveTo(taste, 0.5, 0.3);
+  for (let i = 0; i < 12; i++) {
+    await page.mouse.wheel(0, 40);
+    await run.pause(30);
+  }
+  await run.pause(500);
+  // Two cards of the same kind if the feed has them, otherwise two that are not in the story.
   const kinds = await page.getByTestId("feed-card").evaluateAll((els) => els.map((e) => e.getAttribute("data-kind")!));
-  const dup = kinds.find((k, i) => k !== "email_reply" && k !== "sponsored" && kinds.indexOf(k) !== i);
-  const picks = dup ? [dup, dup] : kinds.filter((k) => !["email_reply", "sponsored", "snap"].includes(k)).slice(0, 2);
+  const story = ["email_reply", "sponsored", "snap", "social_post", "team_update"];
+  const dup = kinds.find((k, i) => !story.includes(k) && kinds.indexOf(k) !== i);
+  const others = kinds.filter((k) => !story.includes(k));
+  const picks = dup ? [dup, dup] : (others.length >= 2 ? others : kinds.filter((k) => k !== "email_reply")).slice(0, 2);
   for (const kind of picks) {
     const card = run.card(kind);
-    await run.scrollTo(card, 120);
-    await run.pause(900);
+    await run.scrollTo(card);
+    await run.pause(500);
     await run.tap(card.getByTestId("dismiss-btn"));
-    await run.pause(2600);
+    await run.pause(1000);
   }
+  await run.moveTo(taste, 0.5, 0.45);
   await run.pause(1500);
 
   run.mark("scene", "hood");
-  await run.scrollTo(page.getByTestId("feed-card").first(), 120);
+  // Night mode from the toggle in the left column, then approve: the Executor's call lands in the Lens.
+  await run.tap(page.getByTestId("theme-toggle").first());
+  await run.pause(1400);
+  const email = run.card("email_reply");
+  await run.scrollTo(email);
+  await run.tap(email.getByTestId("approve-btn"));
+  await run.pause(900);
   const lens = page.getByTestId("agent-lens");
-  await run.moveTo(lens, 0.5, 0.25);
-  await run.pause(1500);
+  await run.moveTo(lens, 0.5, 0.2);
+  await run.pause(1200);
   const rows = page.getByTestId("trace-row");
-  const n = Math.min(await rows.count(), 6);
+  const n = Math.min(await rows.count(), 4);
   for (let i = 0; i < n; i++) {
     await run.moveTo(rows.nth(i), 0.6, 0.5);
-    await run.pause(700);
+    await run.pause(600);
   }
-  await run.pause(1500);
-  await run.tap(run.card("email_reply").getByTestId("approve-btn"));
-  await run.moveTo(lens, 0.5, 0.2);
-  await run.pause(4500);
+  await run.pause(3000);
 }
 
 (async () => {
   mkdirSync(OUT, { recursive: true });
-  if (PASS === "mobile" || PASS === "both") await record("mobile", mobilePass);
-  if (PASS === "desktop" || PASS === "both") await record("desktop", desktopPass);
+  if (PASS_LIST.includes("landing")) await record("landing", landingPass);
+  if (PASS_LIST.includes("mobile")) await record("mobile", mobilePass);
+  if (PASS_LIST.includes("desktop")) await record("desktop", desktopPass);
 })();

@@ -2,7 +2,7 @@
  * Cuts the demo video: one clip per scene (sized on its voiceover), cross-faded together,
  * narration laid on top, loudness normalized.
  *
- * Inputs: video/out/vo/*, video/out/slides/*, video/out/capture/{mobile,desktop}.{mp4,json}
+ * Inputs: video/out/vo/*, video/out/slides/*, video/out/capture/{landing,mobile,desktop}.{mp4,json}
  * Output: video/out/feedforward-demo.mp4 (+ video/out/timeline.json)
  */
 import { execFileSync } from "node:child_process";
@@ -20,7 +20,9 @@ type Marker = { t: number; type: "scene" | "fast-start" | "fast-end" | "end"; id
 type Piece = { from: number; to: number; speed: number };
 
 const durations: Record<string, number> = JSON.parse(readFileSync(`${OUT}/vo/durations.json`, "utf8"));
-const markers: Record<"mobile" | "desktop", Marker[]> = {
+type Capture = "landing" | "mobile" | "desktop";
+const markers: Record<Capture, Marker[]> = {
+  landing: JSON.parse(readFileSync(`${OUT}/capture/landing.json`, "utf8")),
   mobile: JSON.parse(readFileSync(`${OUT}/capture/mobile.json`, "utf8")),
   desktop: JSON.parse(readFileSync(`${OUT}/capture/desktop.json`, "utf8")),
 };
@@ -30,7 +32,7 @@ const n3 = (x: number) => x.toFixed(3);
 const voFile = (i: number) => `${OUT}/vo/${String(i + 1).padStart(2, "0")}-${SCENES[i].id}.mp3`;
 
 /** The scene's slice of the capture, as normal-speed and sped-up pieces sized to `target` seconds. */
-function cut(source: "mobile" | "desktop", id: string, target: number): { pieces: Piece[]; length: number } {
+function cut(source: Capture, id: string, target: number): { pieces: Piece[]; length: number } {
   const list = markers[source];
   const i = list.findIndex((m) => m.type === "scene" && m.id === id);
   if (i < 0) throw new Error(`no "${id}" marker in ${source}.json`);
@@ -111,40 +113,46 @@ function renderScene(i: number, scene: Scene): { file: string; duration: number;
   const target = LEAD + vo + TAIL;
   const { pieces, length } = cut(scene.source, scene.id, target);
   const duration = Math.max(target, length);
-  const { graph, fast } = retime(scene.source === "desktop" ? 0 : 1, pieces, duration - length + 0.1, "[cap]");
+  const { graph, fast } = retime(0, pieces, duration - length + 0.1, "[cap]");
   const speed = fast[0]?.speed;
   const note = speed ? `${speed}× for ${fast.reduce((s, f) => s + f.to - f.from, 0).toFixed(1)} s` : "";
+  // The "Sped up N×" pill shows exactly while the footage runs fast: bottom left on the desktop
+  // layout (over the taste panel, the quietest corner), top right on the mobile stage.
+  const chipAt = scene.source === "mobile" ? "W-w-52:44" : "44:H-h-34";
+  const chip = (from: string, inp: number) =>
+    speed
+      ? `;${from}[${inp}:v]overlay=${chipAt}:enable='${fast.map((f) => `between(t,${n3(f.from)},${n3(f.to)})`).join("+")}'[out]`
+      : `;${from}null[out]`;
+  const chipInput = speed ? ["-loop", "1", "-i", slide(`chip-${speed}`)] : [];
 
-  if (scene.source === "desktop") {
+  if (scene.source !== "mobile") {
     ff([
-      "-i", `${OUT}/capture/desktop.mp4`,
-      "-filter_complex", [...graph, `[cap]scale=1920:1080:flags=lanczos,setsar=1,format=yuv420p,trim=duration=${n3(duration)}[v]`].join(";"),
-      "-map", "[v]", ...enc, file,
+      "-i", `${OUT}/capture/${scene.source}.mp4`,
+      ...chipInput,
+      "-filter_complex",
+      [...graph, `[cap]scale=1920:1080:flags=lanczos,setsar=1,format=yuv420p,trim=duration=${n3(duration)}[out0]` + chip("[out0]", 1)].join(";"),
+      "-map", "[out]", "-t", n3(duration), ...enc, file,
     ]);
     return { file, duration, note };
   }
 
   // Mobile: the phone screen with rounded corners on the stage, framed by the bezel, caption on the left.
-  const chipInputs = speed ? ["-loop", "1", "-i", slide(`chip-${speed}`)] : [];
-  const chip = speed
-    ? `;[out0][5:v]overlay=0:0:enable='${fast.map((f) => `between(t,${n3(f.from)},${n3(f.to)})`).join("+")}'[out]`
-    : ";[out0]null[out]";
   ff([
-    "-loop", "1", "-framerate", String(FPS), "-i", slide("stage"),
     "-i", `${OUT}/capture/mobile.mp4`,
+    "-loop", "1", "-framerate", String(FPS), "-i", slide("stage"),
     "-loop", "1", "-i", slide("mask"),
     "-loop", "1", "-i", slide("bezel"),
     "-loop", "1", "-i", slide(`caption-${scene.id}`),
-    ...chipInputs,
+    ...chipInput,
     "-filter_complex",
     [
       ...graph,
       `[cap]scale=444:960:flags=lanczos,format=rgba[scr]`,
       `[2:v]scale=444:960,format=gray[m]`,
       `[scr][m]alphamerge[phone]`,
-      `[0:v][phone]overlay=1068:60:shortest=0[s1]`,
+      `[1:v][phone]overlay=1068:60:shortest=0[s1]`,
       `[s1][3:v]overlay=0:0[s2]`,
-      `[s2][4:v]overlay=0:0,trim=duration=${n3(duration)},format=yuv420p[out0]` + chip,
+      `[s2][4:v]overlay=0:0,trim=duration=${n3(duration)},format=yuv420p[out0]` + chip("[out0]", 5),
     ].join(";"),
     "-map", "[out]", "-t", n3(duration), ...enc, file,
   ]);

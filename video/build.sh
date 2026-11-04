@@ -25,11 +25,12 @@ if [[ "$MODE" != "--edit" ]]; then
   NEXT_DIST_DIR=$DIST npx next build --no-lint > video/out/server-build.log 2>&1 || { tail -30 video/out/server-build.log; exit 1; }
   NEXT_DIST_DIR=$DIST npx next start -p $PORT > video/out/server.log 2>&1 &
   SERVER=$!
-  trap 'kill $SERVER 2>/dev/null || true; pkill -f "next start -p $PORT" 2>/dev/null || true' EXIT
+  # `next start` forks a next-server that outlives it: free the port itself on exit.
+  stop() { kill $SERVER 2>/dev/null || true; fuser -k -n tcp $PORT >/dev/null 2>&1 || true; }
+  trap stop EXIT
   for _ in $(seq 1 90); do curl -sf -o /dev/null "http://localhost:$PORT/" && break; sleep 1; done
-  npx tsx scripts/demo.ts --url "http://localhost:$PORT" --pass both
-  kill $SERVER 2>/dev/null || true
-  pkill -f "next start -p $PORT" 2>/dev/null || true
+  npx tsx scripts/demo.ts --url "http://localhost:$PORT"
+  stop
 fi
 
 npx tsx scripts/video-edit.ts

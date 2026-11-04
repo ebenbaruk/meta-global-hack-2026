@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Camera, Inbox, Newspaper } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
@@ -11,7 +11,6 @@ export type Tab = "feed" | "outbox";
 /** Bottom tab bar: Feed · Snap (raised yellow button) · Outbox. Pinned to the phone screen on desktop. */
 export function TabBar({ tab, onTab, onSnap }: { tab: Tab; onTab: (t: Tab) => void; onSnap: () => void }) {
   const snapping = useFeed((s) => s.snapping);
-  const reduce = useReducedMotion();
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-30 px-4 pb-[var(--safe-bottom,14px)]">
@@ -31,7 +30,7 @@ export function TabBar({ tab, onTab, onSnap }: { tab: Tab; onTab: (t: Tab) => vo
             data-testid="tab-snap"
             onClick={onSnap}
             aria-label="Snap a photo"
-            whileTap={reduce ? undefined : { scale: 0.92 }}
+            whileTap={{ scale: 0.92 }}
             className="absolute -top-[24px] left-1/2 grid size-[58px] -translate-x-1/2 place-items-center rounded-full border-[1.5px] border-onpastel bg-yellow text-onpastel shadow-ink-lg transition-[box-shadow,translate] hover:-translate-y-0.5 active:translate-y-[3px] active:shadow-ink"
           >
             {snapping && <span className="absolute -inset-1 animate-ping rounded-full border-2 border-yellow" />}

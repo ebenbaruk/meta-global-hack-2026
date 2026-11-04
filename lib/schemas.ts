@@ -155,6 +155,7 @@ export type FeedEvent =
   | { type: "skeleton"; id: string; kind: CardKind; label: string }
   | { type: "card"; card: Card }
   | { type: "image"; id: string; image: string }
+  | { type: "image_error"; id: string; message: string } // card stays usable, retry via /api/image
   | { type: "card_error"; id: string; message: string }
   | { type: "done" };
 

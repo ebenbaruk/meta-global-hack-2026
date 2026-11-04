@@ -35,3 +35,4 @@ playwright-report/
 next-env.d.ts
 .next-*/
 .playwright-mcp/
+public/feedforward-demo.mp4
